@@ -2,10 +2,9 @@
 /*
 Plugin Name: ActivityPub
 */
+require_once plugin_dir_path( __FILE__ ) . 'inc/api.php';
 
-function post_published_activity( $ID, $post ) {
-    // TODO
-    $author = $post->post_author;
-}
-add_action( 'publish_post', 'post_published_activity', 10, 2 );
+add_action( 'rest_api_init', function() {
+    \api\register_routes();
+} );
 ?>

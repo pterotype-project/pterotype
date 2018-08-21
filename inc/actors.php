@@ -1,8 +1,8 @@
 <?php
 namespace actors;
 
-function author_to_user( $authorID ) {
-    $handle = get_the_author_meta( 'user_nicename', $authorID );
+function author_to_user( $user ) {
+    $handle = get_the_author_meta( 'user_nicename', $user->get('ID'));
     $actor = array(
         "@context" => array( "https://www.w3.org/ns/activitystreams" ),
         "type" => "Person",
@@ -12,11 +12,11 @@ function author_to_user( $authorID ) {
         "liked" => "TODO", // link to liked JSON
         "inbox" => "TODO", // link to inbox JSON
         "outbox" => "TODO", // link to outbox JSON
-        "preferredUsername": $handle,
-        "name": get_the_author_meta( 'display_name', $authorID ),
-        "summary": get_the_author_meta( 'description', $authorID ),
-        "icon": get_avatar_url ( $authorID ),
-        "url": get_the_author_meta( 'user_url', $authorID ),
+        "preferredUsername" => $handle,
+        "name" => get_the_author_meta( 'display_name', $user->get('ID') ),
+        "summary" => get_the_author_meta( 'description', $user->get('ID') ),
+        "icon" => get_avatar_url ( $user->get('ID') ),
+        "url" => get_the_author_meta( 'user_url', $user->get('ID') ),
     );
     return $actor;
 }
