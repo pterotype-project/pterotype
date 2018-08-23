@@ -14,7 +14,7 @@ namespace outbox;
 
 function create_outbox_table() {
     global $wpdb;
-    $wpdb->Query(
+    $wpdb->query(
         "
         CREATE TABLE IF NOT EXISTS activitypub_outbox (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -23,5 +23,19 @@ function create_outbox_table() {
         );
         "
     );
+}
+
+function create_activity( $actor, $activity ) {
+    // TODO validate activity and actor; handle errors
+    global $wpdb;
+    $activity_json = wp_json_encode($activity);
+    $wpdb->insert( 'activitypub_outbox',
+                   array(
+                       "actor" => $actor,
+                       "activity" => $activity_json,
+                   ) );
+    return json_decode( $wpdb->get_var( sprintf(
+        "SELECT activity FROM activitypub_outbox WHERE id = %d", $wpdb->insert_id
+    ) ) );
 }
 ?>
