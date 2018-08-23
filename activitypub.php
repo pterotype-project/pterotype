@@ -3,8 +3,11 @@
 Plugin Name: ActivityPub
 */
 require_once plugin_dir_path( __FILE__ ) . 'inc/api.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/init.php';
 
-add_action( 'rest_api_init', function() {
-    \api\register_routes();
-} );
+function activitypub_init() {
+    do_action( 'activitypub_init' );
+}
+
+register_activation_hook( __FILE__, 'activitypub_init');
 ?>
