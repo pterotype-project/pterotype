@@ -42,5 +42,32 @@ function create_activity( $actor, $activity ) {
     // TODO set location header of response to created object URL
     return $response;
 }
+
+function handle_activity( $actor, $activity ) {
+    if ( !array_key_exists( "type", $activity ) ) {
+        return new WP_Error(
+            'invalid_activity', 'Invalid activity', array( 'status' => 400 )
+        );
+    }
+    switch ( $activity["type"] ) {
+    case "Create":
+        break;
+    case "Update":
+        break;
+    case "Delete":
+        break;
+    case "Follow":
+        break;
+    case "Add":
+        break;
+    case "Remove":
+        break;
+    case "Like":
+        break;
+    case "Block":
+        break;
+    case "Undo":
+        break;
+    }
 }
 ?>
