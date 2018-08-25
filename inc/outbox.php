@@ -34,8 +34,13 @@ function create_activity( $actor, $activity ) {
                        "actor" => $actor,
                        "activity" => $activity_json,
                    ) );
-    return json_decode( $wpdb->get_var( sprintf(
+    $persisted = json_decode( $wpdb->get_var( sprintf(
         "SELECT activity FROM activitypub_outbox WHERE id = %d", $wpdb->insert_id
     ) ) );
+    $response = new WP_REST_Response( $persisted );
+    $response->set_status( 201 );
+    // TODO set location header of response to created object URL
+    return $response;
+}
 }
 ?>
