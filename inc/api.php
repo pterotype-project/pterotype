@@ -13,7 +13,7 @@ function get_user_actor( $request ) {
 function post_to_outbox( $request ) {
     $handle = $request['handle'] ;
     $activity = json_decode( $request->get_body() );
-    return \outbox\create_activity( $handle, $activity );
+    return \outbox\persist_activity( $handle, $activity );
 }
 
 function register_routes() {

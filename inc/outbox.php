@@ -25,7 +25,7 @@ function create_outbox_table() {
     );
 }
 
-function create_activity( $actor, $activity ) {
+function persist_activity( $actor, $activity ) {
     // TODO validate activity and actor; handle errors
     global $wpdb;
     $activity_json = wp_json_encode($activity);
