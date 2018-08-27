@@ -46,7 +46,9 @@ function persist_activity( $actor, $activity ) {
 function handle_activity( $actor, $activity ) {
     if ( !array_key_exists( "type", $activity ) ) {
         return new WP_Error(
-            'invalid_activity', 'Invalid activity', array( 'status' => 400 )
+            'invalid_activity',
+            __( 'Invalid activity', 'activitypub' ),
+            array( 'status' => 400 )
         );
     }
     switch ( $activity["type"] ) {
@@ -67,6 +69,9 @@ function handle_activity( $actor, $activity ) {
     case "Block":
         break;
     case "Undo":
+        break;
+    default:
+        // handle wrapping object in Create activity
         break;
     }
 }
