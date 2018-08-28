@@ -6,6 +6,8 @@ Create a new post or comment (depending on $activity["object"]["type"]),
 copying $activity["actor"] to the object's "attributedTo" and
 copying any recipients of the activity that aren't on the object
 to the object and vice-versa.
+
+Returns either the modified $activity or a WP_Error.
 */
 function handle( $actor, $activity ) {
     if ( !(array_key_exists( "type", $activity ) && $activity["type"] === "Create") ) {
@@ -27,13 +29,27 @@ function handle( $actor, $activity ) {
     $object = $activity["object"];
     $actor_id = $activity["actor"];
     $object["attributedTo"] = $actor_id;
-
+    reconcile_receivers( $object, $activity );
+    $activity["object"] = $object;
+    return $activity;
 }
 
 
-function reconcile_receivers( $object, $activity ) {
-    // TODO copy "audience", "to" "bto", "cc", "bcc"
-    // to both object and activity from each other
+function reconcile_receivers( &$object, &$activity ) {
+    copy_field_value( "audience", $object, $activity );
+    copy_field_value( "audience", $activity, $object );
+
+    copy_field_value( "to", $object, $activity );
+    copy_field_value( "to", $activity, $object );
+
+    copy_field_value( "bto", $object, $activity );
+    copy_field_value( "bto", $activity, $object );
+
+    copy_field_value( "cc", $object, $activity );
+    copy_field_value( "cc", $activity, $object );
+
+    copy_field_value( "bcc", $object, $activity );
+    copy_field_value( "bcc", $activity, $object );
 }
 
 function copy_field_value( $field, $from, &$to ) {

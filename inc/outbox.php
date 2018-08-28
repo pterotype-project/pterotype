@@ -12,36 +12,7 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 */
 namespace outbox;
 
-function create_outbox_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS activitypub_outbox (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            actor VARCHAR(128) NOT NULL,
-            activity TEXT NOT NULL
-        );
-        "
-    );
-}
-
-function persist_activity( $actor, $activity ) {
-    // TODO validate activity and actor; handle errors
-    global $wpdb;
-    $activity_json = wp_json_encode($activity);
-    $wpdb->insert( 'activitypub_outbox',
-                   array(
-                       "actor" => $actor,
-                       "activity" => $activity_json,
-                   ) );
-    $persisted = json_decode( $wpdb->get_var( sprintf(
-        "SELECT activity FROM activitypub_outbox WHERE id = %d", $wpdb->insert_id
-    ) ) );
-    $response = new WP_REST_Response( $persisted );
-    $response->set_status( 201 );
-    // TODO set location header of response to created object URL
-    return $response;
-}
+require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 
 function handle_activity( $actor, $activity ) {
     if ( !array_key_exists( "type", $activity ) ) {
@@ -53,6 +24,7 @@ function handle_activity( $actor, $activity ) {
     }
     switch ( $activity["type"] ) {
     case "Create":
+        $activity = \activites\create\handle( $actor, $activity );
         break;
     case "Update":
         break;
@@ -74,5 +46,45 @@ function handle_activity( $actor, $activity ) {
         // handle wrapping object in Create activity
         break;
     }
+    if ( is_wp_error( $activity ) ) {
+        return $activity;
+    } else {
+        deliver_activity( $activity );
+        return persist_activity( $actor, $activity );
+    }
+}
+
+function deliver_activity( $activity ) {
+    // TODO
+}
+
+function persist_activity( $actor, $activity ) {
+    global $wpdb;
+    $activity_json = wp_json_encode($activity);
+    $wpdb->insert( 'activitypub_outbox',
+                   array(
+                       "actor" => $actor,
+                       "activity" => $activity_json,
+                   ) );
+    $persisted = json_decode( $wpdb->get_var( sprintf(
+        "SELECT activity FROM activitypub_outbox WHERE id = %d", $wpdb->insert_id
+    ) ) );
+    $response = new WP_REST_Response( $persisted );
+    $response->set_status( 201 );
+    // TODO set location header of response to created object URL
+    return $response;
+}
+
+function create_outbox_table() {
+    global $wpdb;
+    $wpdb->query(
+        "
+        CREATE TABLE IF NOT EXISTS activitypub_outbox (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            actor VARCHAR(128) NOT NULL,
+            activity TEXT NOT NULL
+        );
+        "
+    );
 }
 ?>
