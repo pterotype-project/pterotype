@@ -3,6 +3,7 @@ namespace api;
 
 require_once plugin_dir_path( __FILE__ ) . '/actors.php';
 require_once plugin_dir_path( __FILE__ ) . '/outbox.php';
+require_once plugin_dir_path( __FILE__ ) . '/objects.php';
 
 function get_user_actor( $request ) {
     $handle = $request['handle'];
@@ -16,6 +17,11 @@ function post_to_outbox( $request ) {
     return \outbox\persist_activity( $handle, $activity );
 }
 
+function get_object( $request ) {
+    $id = $request['id'];
+    return \objects\get_object( $id );
+}
+
 function register_routes() {
     register_rest_route( 'activitypub/v1', '/actor/(?P<handle>[a-zA-Z0-9-]+)', array(
         'methods' => 'GET',
@@ -24,6 +30,10 @@ function register_routes() {
     register_rest_route( 'activitypub/v1', '/actor/(?P<handle>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_outbox',
+    ) );
+    register_rest_route( 'activitypub/v1', '/object/(?P<id>[0-9]+)', array(
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\get_object',
     ) );
 }
 ?>

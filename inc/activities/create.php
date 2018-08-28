@@ -1,6 +1,8 @@
 <?php
 namespace activities\create;
 
+require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
+
 /*
 Create a new post or comment (depending on $activity["object"]["type"]),
 copying $activity["actor"] to the object's "attributedTo" and
@@ -31,7 +33,7 @@ function handle( $actor, $activity ) {
     $object["attributedTo"] = $actor_id;
     reconcile_receivers( $object, $activity );
     scrub_object( $object );
-    $object = persist_object( $object );
+    $object = \objects\persist_object( $object );
     $activity["object"] = $object;
     return $activity;
 }
@@ -66,23 +68,5 @@ function copy_field_value( $field, $from, &$to ) {
 function scrub_object( &$object ) {
     unset( $object["bcc"] );
     unset( $object["bto"] );
-}
-
-function persist_object( &$object ) {
-    global $wpdb;
-    $wpdb->insert( 'activitypub_objects', array( "object" => wp_json_encode( $object ) ) );
-    // TODO hydrate $object["id"] to URL of object using $wpdb->insert_id
-}
-
-function create_object_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS activitypub_objects (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            object TEXT NOT NULL
-        );
-        "
-    );
 }
 ?>
