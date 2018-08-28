@@ -60,18 +60,16 @@ function deliver_activity( $activity ) {
 
 function persist_activity( $actor, $activity ) {
     global $wpdb;
-    $activity_json = wp_json_encode($activity);
+    $activity_json = wp_json_encode( $activity );
     $wpdb->insert( 'activitypub_outbox',
                    array(
                        "actor" => $actor,
                        "activity" => $activity_json,
                    ) );
-    $persisted = json_decode( $wpdb->get_var( sprintf(
-        "SELECT activity FROM activitypub_outbox WHERE id = %d", $wpdb->insert_id
-    ) ) );
-    $response = new WP_REST_Response( $persisted );
+    // TODO hydrate $activity["id"] with URL to activity using $wpdb->insert_id
+    $response = new WP_REST_Response( $activity );
     $response->set_status( 201 );
-    // TODO set location header of response to created object URL
+    // TODO set location header of response to created activity URL
     return $response;
 }
 
