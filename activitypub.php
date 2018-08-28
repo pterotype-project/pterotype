@@ -2,7 +2,6 @@
 /*
 Plugin Name: ActivityPub
 */
-require_once plugin_dir_path( __FILE__ ) . 'inc/api.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/init.php';
 
 function activitypub_init() {
