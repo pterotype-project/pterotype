@@ -30,10 +30,11 @@ function handle( $actor, $activity ) {
     $actor_id = $activity["actor"];
     $object["attributedTo"] = $actor_id;
     reconcile_receivers( $object, $activity );
+    scrub_object( $object );
+    $object = persist_object( $object );
     $activity["object"] = $object;
     return $activity;
 }
-
 
 function reconcile_receivers( &$object, &$activity ) {
     copy_field_value( "audience", $object, $activity );
@@ -42,14 +43,12 @@ function reconcile_receivers( &$object, &$activity ) {
     copy_field_value( "to", $object, $activity );
     copy_field_value( "to", $activity, $object );
 
-    copy_field_value( "bto", $object, $activity );
-    copy_field_value( "bto", $activity, $object );
-
     copy_field_value( "cc", $object, $activity );
     copy_field_value( "cc", $activity, $object );
 
+    // copy bcc and bto to activity for delivery but not to object
     copy_field_value( "bcc", $object, $activity );
-    copy_field_value( "bcc", $activity, $object );
+    copy_field_value( "bto", $object, $activity );
 }
 
 function copy_field_value( $field, $from, &$to ) {
@@ -62,5 +61,28 @@ function copy_field_value( $field, $from, &$to ) {
             $to[$field] = $from[$field];
         }
     }
+}
+
+function scrub_object( &$object ) {
+    unset( $object["bcc"] );
+    unset( $object["bto"] );
+}
+
+function persist_object( &$object ) {
+    global $wpdb;
+    $wpdb->insert( 'activitypub_objects', array( "object" => wp_json_encode( $object ) ) );
+    // TODO hydrate $object["id"] to URL of object using $wpdb->insert_id
+}
+
+function create_object_table() {
+    global $wpdb;
+    $wpdb->query(
+        "
+        CREATE TABLE IF NOT EXISTS activitypub_objects (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            object TEXT NOT NULL
+        );
+        "
+    );
 }
 ?>
