@@ -12,8 +12,9 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 */
 namespace outbox;
 
-require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
 
 function handle_activity( $actor, $activity ) {
     // TODO handle authentication/authorization
@@ -29,6 +30,7 @@ function handle_activity( $actor, $activity ) {
         $activity = \activities\create\handle( $actor, $activity );
         break;
     case 'Update':
+        $activity = \activities\update\handle( $actor, $activity );
         break;
     case 'Delete':
         break;
