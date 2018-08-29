@@ -1,7 +1,7 @@
 <?php
 namespace actors;
 
-function user_to_actor( $user ) {
+function get_actor( $user ) {
     $handle = get_the_author_meta( 'user_nicename', $user->get('ID'));
     $actor = array(
         "@context" => array( "https://www.w3.org/ns/activitystreams" ),
