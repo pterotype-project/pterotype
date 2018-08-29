@@ -16,6 +16,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 
 function handle_activity( $actor, $activity ) {
+    // TODO handle authentication/authorization
     if ( !array_key_exists( "type", $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
