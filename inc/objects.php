@@ -18,7 +18,7 @@ function get_object( $id ) {
             404, __( 'Object not found', 'activitypub' ), array ( 'status' => 404 )
         );
     }
-    $object = json_decode( $object_json );
+    $object = json_decode( $object_json, true );
     $object['id'] = get_object_url( $id );
     return $object;
 }

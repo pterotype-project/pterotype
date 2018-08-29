@@ -14,7 +14,7 @@ function get_actor( $request ) {
 
 function post_to_outbox( $request ) {
     $actor = $request['actor'];
-    $activity = json_decode( $request->get_body() );
+    $activity = json_decode( $request->get_body(), true );
     return \outbox\handle_activity( $actor, $activity );
 }
 

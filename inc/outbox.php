@@ -25,7 +25,7 @@ function handle_activity( $actor, $activity ) {
     }
     switch ( $activity['type'] ) {
     case 'Create':
-        $activity = \activites\create\handle( $actor, $activity );
+        $activity = \activities\create\handle( $actor, $activity );
         break;
     case 'Update':
         break;
@@ -68,7 +68,7 @@ function persist_activity( $actor, $activity ) {
                        'actor' => $actor,
                        'activity_id' => $activity_id,
                    ) );
-    $response = new WP_REST_Response();
+    $response = new \WP_REST_Response();
     $response->set_status( 201 );
     $response->header( 'Location', $activity['id'] );
     return $response;
@@ -81,7 +81,9 @@ function create_outbox_table() {
         CREATE TABLE IF NOT EXISTS activitypub_outbox (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             actor VARCHAR(128) NOT NULL,
-            activity_id INT UNSIGNED FOREIGN KEY REFERENCES activitypub_activities(id)
+            activity_id INT UNSIGNED NOT NULL,
+            FOREIGN KEY activity_fk(activity_id)
+            REFERENCES activitypub_activities(id)
         );
         "
     );

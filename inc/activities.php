@@ -11,7 +11,7 @@ function get_activity( $id ) {
             'not_found', __( 'Activity not found', 'activitypub' ), array( 'status' => 404 )
         );
     }
-    $activity = json_decode( $activity_json );
+    $activity = json_decode( $activity_json, true );
     $activity['id'] = get_activity_url( $id );
     return $activity;
 }
