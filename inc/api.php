@@ -7,13 +7,13 @@ require_once plugin_dir_path( __FILE__ ) . '/objects.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 
 function get_actor( $request ) {
-    $actor = $request['handle'];
+    $actor = $request['actor'];
     $user = get_user_by( 'slug', $actor );
     return \actors\get_actor( $user );
 }
 
 function post_to_outbox( $request ) {
-    $actor = $request['handle'] ;
+    $actor = $request['actor'];
     $activity = json_decode( $request->get_body() );
     return \outbox\handle_activity( $actor, $activity );
 }
@@ -29,11 +29,11 @@ function get_activity( $request ) {
 }
 
 function register_routes() {
-    register_rest_route( 'activitypub/v1', '/actor/(?P<handle>[a-zA-Z0-9-]+)', array(
+    register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_actor',
     ) );
-    register_rest_route( 'activitypub/v1', '/actor/(?P<handle>[a-zA-Z0-9-]+)/outbox', array(
+    register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_outbox',
     ) );
