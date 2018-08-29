@@ -13,34 +13,35 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 namespace outbox;
 
 require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 
 function handle_activity( $actor, $activity ) {
     if ( !array_key_exists( "type", $activity ) ) {
-        return new WP_Error(
+        return new \WP_Error(
             'invalid_activity',
             __( 'Invalid activity', 'activitypub' ),
             array( 'status' => 400 )
         );
     }
-    switch ( $activity["type"] ) {
-    case "Create":
+    switch ( $activity['type'] ) {
+    case 'Create':
         $activity = \activites\create\handle( $actor, $activity );
         break;
-    case "Update":
+    case 'Update':
         break;
-    case "Delete":
+    case 'Delete':
         break;
-    case "Follow":
+    case 'Follow':
         break;
-    case "Add":
+    case 'Add':
         break;
-    case "Remove":
+    case 'Remove':
         break;
-    case "Like":
+    case 'Like':
         break;
-    case "Block":
+    case 'Block':
         break;
-    case "Undo":
+    case 'Undo':
         break;
     default:
         // handle wrapping object in Create activity
@@ -60,16 +61,16 @@ function deliver_activity( $activity ) {
 
 function persist_activity( $actor, $activity ) {
     global $wpdb;
-    $activity_json = wp_json_encode( $activity );
+    $activity = \activities\persist_activity( $activity );
+    $activity_id = $wpdb->insert_id;
     $wpdb->insert( 'activitypub_outbox',
                    array(
-                       "actor" => $actor,
-                       "activity" => $activity_json,
+                       'actor' => $actor,
+                       'activity_id' => $activity_id,
                    ) );
-    // TODO hydrate $activity["id"] with URL to activity using $wpdb->insert_id
-    $response = new WP_REST_Response( $activity );
+    $response = new WP_REST_Response();
     $response->set_status( 201 );
-    // TODO set location header of response to created activity URL
+    $response->header( 'Location', $activity['id'] );
     return $response;
 }
 
@@ -80,7 +81,7 @@ function create_outbox_table() {
         CREATE TABLE IF NOT EXISTS activitypub_outbox (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             actor VARCHAR(128) NOT NULL,
-            activity TEXT NOT NULL
+            activity_id INT UNSIGNED FOREIGN KEY REFERENCES activitypub_activities(id)
         );
         "
     );
