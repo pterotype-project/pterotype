@@ -1,6 +1,9 @@
 <?php
 namespace objects;
 
+// TODO for 'post' objects, store a post id instead of the full post text,
+// then hydrate the text on read
+
 function create_object( $object ) {
     global $wpdb;
     $res = $wpdb->insert(
@@ -46,12 +49,29 @@ function get_object( $id ) {
     ) ); 
     if ( is_null( $object_json ) ) {
         return new \WP_Error(
-            'not_found', __( 'Object not found', 'activitypub' ), array ( 'status' => 404 )
+            'not_found', __( 'Object not found', 'activitypub' ), array( 'status' => 404 )
         );
     }
     $object = json_decode( $object_json, true );
     $object['id'] = get_object_url( $id );
     return $object;
+}
+
+function delete_object( $object ) {
+    global $wpdb;
+    if ( !array_key_exists( 'id', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have an "id" parameter', 'activitypub' ),
+            array( 'status' => 400 )
+        );
+    }
+    $id = get_id_from_url( $object['id'] );
+    $res = $wpdb->delete( 'activitypub_objects', array( 'id' => $id ), '%d' );
+    if ( !$res ) {
+        return new \WP_Error( 'db_error', __( 'Error deleting object', 'activitypub' ) );
+    }
+    return $res;
 }
 
 function get_id_from_url( $url ) {
