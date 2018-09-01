@@ -1,10 +1,41 @@
 <?php
 namespace objects;
 
-function persist_object( $object ) {
+function create_object( $object ) {
     global $wpdb;
-    $wpdb->insert( 'activitypub_objects', array( 'object' => wp_json_encode( $object ) ) );
+    $res = $wpdb->insert(
+        'activitypub_objects', array( 'object' => wp_json_encode( $object ) )
+    );
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to insert object row', 'activitypub' )
+        );
+    }
     $object['id'] = get_object_url( $wpdb->insert_id );
+    return $object;
+}
+
+function update_object( $object ) {
+    global $wpdb;
+    if ( !array_key_exists( 'id', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have an "id" parameter', 'activitypub' ),
+            array( 'status' => 400 )
+        );
+    }
+    $id = get_id_from_url( $object['id'] );
+    $object_json = wp_json_encode( $object );
+    $res = $wpdb->update(
+        'activitypub_object',
+        array( 'object' => $object_json ),
+        array( 'id' => $id ),
+        '%s', '%d' );
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to update object row', 'activitypub' )
+        );
+    }
     return $object;
 }
 
@@ -15,12 +46,32 @@ function get_object( $id ) {
     ) ); 
     if ( is_null( $object_json ) ) {
         return new \WP_Error(
-            404, __( 'Object not found', 'activitypub' ), array ( 'status' => 404 )
+            'not_found', __( 'Object not found', 'activitypub' ), array ( 'status' => 404 )
         );
     }
     $object = json_decode( $object_json, true );
     $object['id'] = get_object_url( $id );
     return $object;
+}
+
+function get_id_from_url( $url ) {
+    global $wpdb;
+    $matches = array();
+    $found = preg_match(
+        get_rest_url( null, '/activitypub/v1/object/(.+)' ), $url, $matches );
+    if ( $found === 0 || count( $matches ) != 2 ) {
+        return new \WP_Error(
+            'invalid_url',
+            sprintf( '%s %s', $url, __( 'is not a valid object url', 'activitypub' ) ),
+            array( 'status' => 400 )
+        );
+    }
+    $id = $matches[1];
+    return $id;
+}
+
+function get_object_from_url( $url ) {
+    return get_object( get_id_from_url( $url ) );
 }
 
 function get_object_url( $id ) {
