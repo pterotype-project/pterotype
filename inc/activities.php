@@ -3,7 +3,7 @@ namespace activities;
 
 function get_activity( $id ) {
     global $wpdb;
-    $activity_json = $wpdb->get_var( sprintf(
+    $activity_json = $wpdb->get_var( $wpdb->prepare(
         'SELECT activity FROM activitypub_activities WHERE id = %d', $id
     ) );
     if ( is_null( $activity_json ) ) {

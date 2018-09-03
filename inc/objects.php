@@ -44,7 +44,7 @@ function update_object( $object ) {
 
 function get_object( $id ) {
     global $wpdb;
-    $object_json = $wpdb->get_var( sprintf(
+    $object_json = $wpdb->get_var( $wpdb->prepare(
         'SELECT object FROM activitypub_objects WHERE id = %d', $id
     ) ); 
     if ( is_null( $object_json ) ) {

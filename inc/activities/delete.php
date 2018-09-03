@@ -1,5 +1,5 @@
 <?php
-namespace delete;
+namespace activities\delete;
 
 require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
 
