@@ -60,10 +60,31 @@ function create_actors_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_actors(
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            slug VARCHAR(255) UNIQUE NOT NULL,
-            type VARCHAR(64)
+            slug VARCHAR(64) UNIQUE NOT NULL,
+            type VARCHAR(64) NOT NULL
         );
         "
     );
+}
+
+/*
+For every user in the WP instance, create a new actor row for that user
+if it doesn't already exist
+*/
+function initialize_user_actors() {
+    global $wpdb;
+    $user_slugs = $wpdb->get_col( 
+        "SELECT user_nicename FROM wp_users;"
+    );
+    foreach ( $user_slugs as $user_slug ) {
+        create_actor_from_user( $user_slug );
+    }
+}
+
+function create_actor_from_user( $user_slug ) {
+    global $wpdb;
+    $wpdb->query( $wpdb->prepare(
+        "INSERT IGNORE INTO activitypub_actors(slug, type) VALUES(%s, 'user')", $user_slug
+    ) );
 }
 ?>
