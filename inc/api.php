@@ -8,7 +8,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 
 function get_actor( $request ) {
     $actor = $request['actor'];
-    return \actors\get_actor_by_slug( $user );
+    return \actors\get_actor_by_slug( $actor );
 }
 
 function handle_activity( $request ) {

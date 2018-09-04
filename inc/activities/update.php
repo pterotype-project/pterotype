@@ -1,7 +1,7 @@
 <?php
-namespace \activities\update;
+namespace activities\update;
 
-require_once plugin_dir_path( __FILE __ ) . '/../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
 
 function handle( $actor, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Update') ) {
@@ -14,7 +14,7 @@ function handle( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
-            __( 'Expecting an object', 'activitypub' )
+            __( 'Expecting an object', 'activitypub' ),
             array( 'status' => 400 )
         );
     }
@@ -22,7 +22,7 @@ function handle( $actor, $activity ) {
     if ( !array_key_exists( 'id', $update_object ) ) {
         return new \WP_Error(
             'invalid_object',
-            __( 'Object must have an "id" parameter', 'activitypub' )
+            __( 'Object must have an "id" parameter', 'activitypub' ),
             array( 'status' => 400 )
         );
     }
