@@ -43,8 +43,18 @@ function handle_activity( $actor, $activity ) {
         $activity = \activities\follow\handle( $actor, $activity );
         break;
     case 'Add':
+        return new \WP_Error(
+            'not_implemented',
+            __( 'The Add activity has not been implemented', 'activitypub' ),
+            array( 'status' => 501 )
+        );
         break;
     case 'Remove':
+        return new \WP_Error(
+            'not_implemented',
+            __( 'The Remove activity has not been implemented', 'activitypub' ),
+            array( 'status' => 501 )
+        );
         break;
     case 'Like':
         $activity = \activities\like\handle( $actor, $activity );
@@ -53,6 +63,11 @@ function handle_activity( $actor, $activity ) {
         $activity = \activities\block\handle( $actor, $activity );
         break;
     case 'Undo':
+        return new \WP_Error(
+            'not_implemented',
+            __( 'The Undo activity has not been implemented', 'activitypub' ),
+            array( 'status' => 501 )
+        );
         break;
     default:
         // handle wrapping object in Create activity
