@@ -1,7 +1,7 @@
 <?php
-namespace activities\like;
+namespace activities\block;
 
-require_once plugin_dir_path( __FILE__ ) . '/../likes.php';
+require_once plugin_dir_path( __FILE__ ) . '/../blocks.php';
 require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
 
 function handle( $actor, $activity ) {
@@ -12,17 +12,8 @@ function handle( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
-    if ( !array_key_exists( 'id', $object ) ) {
-        return new \WP_Error(
-            'invalid_object',
-            __( 'Expected an object id', 'activitypub' ),
-            array( 'status' => 400 )
-        );
-    }
-    $object_id = $object['id'];
     $actor_id = \actors\get_actor_id( $actor );
-    $res = \likes\create_like( $actor_id, $object_id );
+    $res = \blocks\create_block( $actor_id, $activity['object'] );
     if ( is_wp_error( $res ) ) {
         return $res;
     }
