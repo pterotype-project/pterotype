@@ -6,6 +6,7 @@ require_once plugin_dir_path( __FILE__ ) . '/api.php';
 require_once plugin_dir_path( __FILE__ ) . '/objects.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 require_once plugin_dir_path( __FILE__ ) . '/actors.php';
+require_once plugin_dir_path( __FILE__ ) . '/likes.php';
 
 add_action( 'rest_api_init', function() {
     \api\register_routes();
@@ -22,5 +23,6 @@ add_action( 'activitypub_init', function() {
     \outbox\create_outbox_table();
     \actors\create_actors_table();
     \actors\initialize_user_actors();
+    \likes\create_likes_table();
 } );
 ?>

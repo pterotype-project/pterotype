@@ -17,6 +17,13 @@ function get_actor_by_slug ( $slug ) {
     return get_user_from_row( $row );
 }
 
+function get_actor_id( $slug ) {
+    global $wpdb;
+    return $wpdb->get_var( $wpdb->prepare(
+        "SELECT slug FROM activitypub_actors WHERE slug = %s", $slug
+    ) );
+}
+
 function get_user_from_row( $row ) {
     switch ( $row->type ) {
     case "user":
