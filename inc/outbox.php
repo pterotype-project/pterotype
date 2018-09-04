@@ -70,7 +70,8 @@ function handle_activity( $actor, $activity ) {
         );
         break;
     default:
-        // handle wrapping object in Create activity
+        $create_activity = wrap_object_in_create( $activity );
+        $activity = \activities\create\handle( $actor, $create_activity );
         break;
     }
     if ( is_wp_error( $activity ) ) {
@@ -98,6 +99,10 @@ function persist_activity( $actor, $activity ) {
     $response->set_status( 201 );
     $response->header( 'Location', $activity['id'] );
     return $response;
+}
+
+function wrap_object_in_create( $object ) {
+    // TODO
 }
 
 function create_outbox_table() {
