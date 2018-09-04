@@ -17,6 +17,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/like.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
 
 function handle_activity( $actor, $activity ) {
     // TODO handle authentication/authorization
@@ -38,6 +39,7 @@ function handle_activity( $actor, $activity ) {
         $activity = \activities\delete\handle( $actor, $activity );
         break;
     case 'Follow':
+        $activity = \activities\follow\handle( $actor, $activity );
         break;
     case 'Add':
         break;
