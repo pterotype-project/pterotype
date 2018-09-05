@@ -8,7 +8,10 @@ function request_follow( $actor_id, $object ) {
     global $wpdb;
     return $wpdb->insert(
         'activitypub_following',
-        array( 'actor_id' => $actor_id, 'object' => wp_json_encode( $object ) )
+        array( 'actor_id' => $actor_id,
+               'object' => wp_json_encode( $object ),
+               'state' => $PENDING
+        )
     );
 }
 
