@@ -14,7 +14,7 @@ function get_actor_by_slug ( $slug ) {
     $row = $wpdb->get_row( $wpdb->prepare(
         'SELECT * FROM activitypub_actors WHERE slug = %s', $slug
     ) );
-    return get_user_from_row( $row );
+    return get_actor_from_row( $row );
 }
 
 function get_actor_id( $slug ) {
@@ -24,7 +24,7 @@ function get_actor_id( $slug ) {
     ) );
 }
 
-function get_user_from_row( $row ) {
+function get_actor_from_row( $row ) {
     switch ( $row->type ) {
     case "user":
         $user = get_user_by( 'slug', $row->slug );
