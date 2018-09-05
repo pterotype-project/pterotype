@@ -71,6 +71,9 @@ function handle_activity( $actor, $activity ) {
         break;
     default:
         $create_activity = wrap_object_in_create( $activity );
+        if ( is_wp_error( $create_activity ) ) {
+            return $create_activity;
+        }
         $activity = \activities\create\handle( $actor, $create_activity );
         break;
     }
@@ -101,8 +104,18 @@ function persist_activity( $actor, $activity ) {
     return $response;
 }
 
-function wrap_object_in_create( $object ) {
-    // TODO
+function wrap_object_in_create( $actor_slug, $object ) {
+    $actor = \actors\get_actor_by_slug( $actor_slug );
+    if ( is_wp_error( $actor ) ) {
+        return $actor;
+    }
+    $activity = array(
+        '@context' => 'https://www.w3.org/ns/activitystreams',
+        'type' => 'Create',
+        'actor' => $actor,
+        'object' => $object
+    );
+    return $activity;
 }
 
 function create_outbox_table() {
