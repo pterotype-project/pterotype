@@ -75,8 +75,12 @@ function retrieve_recipients( $url ) {
 
 function post_activity_to_inboxes( $activity, $recipients ) {
     foreach ( $inbox as $recipients ) {
-        // TODO
-        wp_remote_post();
+        $args = array(
+            'body' => $activity,
+            'headers' => array( 'Content-Type' => 'application/ld+json' )
+        );
+        // TODO do something with the result?
+        wp_remote_post( $inbox, $args );
     }
 }
 ?>
