@@ -13,6 +13,7 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 namespace outbox;
 
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
+require_once plugin_dir_path( __FILE__ ) . '/deliver.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
@@ -86,7 +87,8 @@ function handle_activity( $actor, $activity ) {
 }
 
 function deliver_activity( $activity ) {
-    // TODO
+    // TODO deliver activity, then strip bto and bcc
+    \deliver\deliver_activity( $activity );
 }
 
 function persist_activity( $actor, $activity ) {
