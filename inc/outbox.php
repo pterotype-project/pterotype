@@ -81,14 +81,20 @@ function handle_activity( $actor, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     } else {
-        deliver_activity( $activity );
+        $activity = deliver_activity( $activity );
         return persist_activity( $actor, $activity );
     }
 }
 
 function deliver_activity( $activity ) {
-    // TODO deliver activity, then strip bto and bcc
     \deliver\deliver_activity( $activity );
+    if ( array_key_exists( 'bto', $activity ) ) {
+        unset( $activity['bto'] );
+    }
+    if ( array_key_exists( 'bcc', $activity ) ) {
+        unset( $activity['bcc'] );
+    }
+    return $activity;
 }
 
 function persist_activity( $actor, $activity ) {

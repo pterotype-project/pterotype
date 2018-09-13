@@ -12,6 +12,7 @@ function deliver_activity( $activity ) {
     if ( array_key_exists( 'actor', $activity ) ) {
         $recipients = remove_actor_inbox_from_recipients( $activity['actor'], $recipients );
     }
+    $activity = strip_private_fields( $activity );
     post_activity_to_inboxes( $activity, $recipients );
 }
 
@@ -82,5 +83,15 @@ function post_activity_to_inboxes( $activity, $recipients ) {
         // TODO do something with the result?
         wp_remote_post( $inbox, $args );
     }
+}
+
+function strip_private_fields( $activity ) {
+    if ( array_key_exists( 'bto', $activity ) ) {
+        unset( $activity['bto'] );
+    }
+    if ( array_key_exists( 'bcc', $activity ) ) {
+        unset( $activity['bcc'] );
+    }
+    return $activity;
 }
 ?>
