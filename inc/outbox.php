@@ -88,12 +88,7 @@ function handle_activity( $actor, $activity ) {
 
 function deliver_activity( $activity ) {
     \deliver\deliver_activity( $activity );
-    if ( array_key_exists( 'bto', $activity ) ) {
-        unset( $activity['bto'] );
-    }
-    if ( array_key_exists( 'bcc', $activity ) ) {
-        unset( $activity['bcc'] );
-    }
+    $activity = \activities\strip_private_fields( $activity );
     return $activity;
 }
 

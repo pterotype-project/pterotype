@@ -16,6 +16,16 @@ function get_activity( $id ) {
     return $activity;
 }
 
+function strip_private_fields( $activity ) {
+    if ( array_key_exists( 'bto', $activity ) ) {
+        unset( $activity['bto'] );
+    }
+    if ( array_key_exists( 'bcc', $activity ) ) {
+        unset( $activity['bcc'] );
+    }
+    return $activity;
+}
+
 function persist_activity( $activity ) {
     global $wpdb;
     $wpdb->insert(
