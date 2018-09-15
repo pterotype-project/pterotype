@@ -23,7 +23,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/block.php';
 
 function handle_activity( $actor, $activity ) {
     // TODO handle authentication/authorization
-    if ( !array_key_exists( "type", $activity ) ) {
+    if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
             __( 'Invalid activity', 'activitypub' ),
@@ -80,10 +80,9 @@ function handle_activity( $actor, $activity ) {
     }
     if ( is_wp_error( $activity ) ) {
         return $activity;
-    } else {
-        $activity = deliver_activity( $activity );
-        return persist_activity( $actor, $activity );
     }
+    $activity = deliver_activity( $activity );
+    return persist_activity( $actor, $activity );
 }
 
 function get_outbox( $actor_id ) {
