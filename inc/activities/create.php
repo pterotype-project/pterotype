@@ -11,7 +11,7 @@ to the object and vice-versa.
 
 Returns either the modified $activity or a WP_Error.
 */
-function handle( $actor, $activity ) {
+function handle_outbox( $actor, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Create') ) {
         return new \WP_Error(
             'invalid_activity', __( 'Expecting a Create activity', 'activitypub' )

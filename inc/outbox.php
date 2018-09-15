@@ -32,16 +32,16 @@ function handle_activity( $actor, $activity ) {
     }
     switch ( $activity['type'] ) {
     case 'Create':
-        $activity = \activities\create\handle( $actor, $activity );
+        $activity = \activities\create\handle_outbox( $actor, $activity );
         break;
     case 'Update':
-        $activity = \activities\update\handle( $actor, $activity );
+        $activity = \activities\update\handle_outbox( $actor, $activity );
         break;
     case 'Delete':
-        $activity = \activities\delete\handle( $actor, $activity );
+        $activity = \activities\delete\handle_outbox( $actor, $activity );
         break;
     case 'Follow':
-        $activity = \activities\follow\handle( $actor, $activity );
+        $activity = \activities\follow\handle_outbox( $actor, $activity );
         break;
     case 'Add':
         return new \WP_Error(
@@ -58,10 +58,10 @@ function handle_activity( $actor, $activity ) {
         );
         break;
     case 'Like':
-        $activity = \activities\like\handle( $actor, $activity );
+        $activity = \activities\like\handle_outbox( $actor, $activity );
         break;
     case 'Block':
-        $activity = \activities\block\handle( $actor, $activity );
+        $activity = \activities\block\handle_outbox( $actor, $activity );
         break;
     case 'Undo':
         return new \WP_Error(
@@ -75,7 +75,7 @@ function handle_activity( $actor, $activity ) {
         if ( is_wp_error( $create_activity ) ) {
             return $create_activity;
         }
-        $activity = \activities\create\handle( $actor, $create_activity );
+        $activity = \activities\create\handle_outbox( $actor, $create_activity );
         break;
     }
     if ( is_wp_error( $activity ) ) {
@@ -84,6 +84,16 @@ function handle_activity( $actor, $activity ) {
         $activity = deliver_activity( $activity );
         return persist_activity( $actor, $activity );
     }
+}
+
+function get_outbox( $actor_id ) {
+    global $wpdb;
+    $activities = $wpdb->get_results( $wpdb->prepare(
+            "
+            SELECT * FROM activitypub_outbox WHERE 
+            "
+    ) );
+    // $wpdb->num_rows will hold the number of results, once this implements paging
 }
 
 function deliver_activity( $activity ) {
@@ -127,10 +137,10 @@ function create_outbox_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_outbox (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            actor VARCHAR(128) NOT NULL,
+            actor_id UNSIGNED INT NOT NULL,
             activity_id INT UNSIGNED NOT NULL,
             FOREIGN KEY activity_fk(activity_id)
-            REFERENCES activitypub_activities(id)
+            REFERENCES activitypub_activities(id),
         );
         "
     );

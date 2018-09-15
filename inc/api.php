@@ -11,7 +11,7 @@ function get_actor( $request ) {
     return \actors\get_actor_by_slug( $actor );
 }
 
-function handle_activity( $request ) {
+function handle_outbox( $request ) {
     $actor = $request['actor'];
     $activity = json_decode( $request->get_body(), true );
     return \outbox\handle_activity( $actor, $activity );
@@ -30,7 +30,7 @@ function get_activity( $request ) {
 function register_routes() {
     register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
-        'callback' => __NAMESPACE__ . '\handle_activity',
+        'callback' => __NAMESPACE__ . '\handle_outbox',
     ) );
     register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
         'methods' => 'GET',

@@ -3,7 +3,7 @@ namespace activities\update;
 
 require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
 
-function handle( $actor, $activity ) {
+function handle_outbox( $actor, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Update') ) {
         return new \WP_Error(
             'invalid_activity',

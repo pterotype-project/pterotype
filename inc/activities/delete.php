@@ -3,7 +3,7 @@ namespace activities\delete;
 
 require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
 
-function handle( $actor, $activity ) {
+function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
