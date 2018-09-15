@@ -5,7 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 
 function deliver_activity( $activity ) {
     $recipients = array();
-    for ( $field as array( 'to', 'bto', 'cc', 'bcc', 'audience' ) ) {
+    foreach ( array( 'to', 'bto', 'cc', 'bcc', 'audience' ) as $field ) {
         $recipients = array_merge(
             $recipients, retrieve_recipients_for_field( $field, $activity )
         );
@@ -22,7 +22,7 @@ function remove_actor_inbox_from_recipients( $actor, $recipients ) {
     if ( array_key_exists( 'inbox', $actor ) ) {
         $key = array_search( $actor['inbox'], $recipients );
         if ( $key ) {
-            unset $recipients[$key];
+            unset( $recipients[$key] );
         }
     }
     return $recipients;
@@ -31,7 +31,7 @@ function remove_actor_inbox_from_recipients( $actor, $recipients ) {
 function retrieve_recipients_for_field( $field, $activity ) {
     $recipients = array();
     if ( array_key_exists( $field, $activity ) ) {
-        foreach ( $url as $activity[$field] ) {
+        foreach ( $activity[$field] as $url ) {
             $recipients = array_merge( $recipients, retrieve_recipients( $url ) );
         }
     }
