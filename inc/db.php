@@ -9,13 +9,14 @@ It's okay to add new queries to this function, but don't ever delete queries.
 */
 function run_migrations() {
     $previous_version = get_option( 'pterotype_previously_migrated_version' );
-    if ( !$previously_migrated_version ) {
+    if ( !$previous_version ) {
         $previous_version = '0.0.0';
     }
-    if ( version_compare( $previous_version, PTEROTYPE_VERSION, '<' ) ) {
-        if ( version_compare( $previous_version, '0.0.1', '<' ) ) {
-            migration_0_0_1();
-        }
+    if ( version_compare( $previous_version, PTEROTYPE_VERSION, '>=' ) ) {
+        return;
+    }
+    if ( version_compare( $previous_version, '0.0.1', '<' ) ) {
+        migration_0_0_1();
     }
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
