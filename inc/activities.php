@@ -4,7 +4,7 @@ namespace activities;
 function get_activity( $id ) {
     global $wpdb;
     $activity_json = $wpdb->get_var( $wpdb->prepare(
-        'SELECT activity FROM pterotype_activitypub_activities WHERE id = %d', $id
+        'SELECT activity FROM pterotype_activities WHERE id = %d', $id
     ) );
     if ( is_null( $activity_json ) ) {
         return new \WP_Error(
@@ -18,7 +18,7 @@ function get_activity( $id ) {
 function get_activity_by_activitypub_id( $activitypub_id ) {
     global $wpdb;
     $activity_json = $wpdb->get_var( $wpdb->prepare(
-        'SELECT activity FROM pterotype_activitypub_activities WHERE id = %s', $activitypub_id
+        'SELECT activity FROM pterotype_activities WHERE id = %s', $activitypub_id
     ) );
     if ( is_null( $activity_json ) ) {
         return new \WP_Error(
@@ -49,7 +49,7 @@ function persist_activity( $activity ) {
         );
     }
     $activitypub_id = $activity['id'];
-    $wpdb->insert( 'pterotype_activitypub_activities', array(
+    $wpdb->insert( 'pterotype_activities', array(
             'activitypub_id' => $activitypub_id,
             'activity' => wp_json_encode( $activity )
     ) );
@@ -58,7 +58,7 @@ function persist_activity( $activity ) {
 
 function create_local_activity( $activity ) {
     global $wpdb;
-    $res = $wpdb->insert( 'pterotype_activitypub_activities', array(
+    $res = $wpdb->insert( 'pterotype_activities', array(
         'activity' => wp_json_encode( $activity )
     ) );
     if ( !$res ) {
@@ -70,7 +70,7 @@ function create_local_activity( $activity ) {
     $activity_url = get_rest_url( null, sprintf( '/pterotype/v1/activity/%d', $id ) );
     $activity['id'] = $activity_url;
     $res = $wpdb->replace(
-        'pterotype_activitypub_activities',
+        'pterotype_activities',
         array(
             'id' => $activity_id,
             'activitypub_id' => $activity_url,

@@ -4,7 +4,7 @@ namespace actors;
 function get_actor( $id ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_activitypub_actors WHERE id = %d', $id
+        'SELECT * FROM pterotype_actors WHERE id = %d', $id
     ) );
     return get_user_from_row( $row );
 }
@@ -12,7 +12,7 @@ function get_actor( $id ) {
 function get_actor_by_slug ( $slug ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_activitypub_actors WHERE slug = %s', $slug
+        'SELECT * FROM pterotype_actors WHERE slug = %s', $slug
     ) );
     return get_actor_from_row( $row );
 }
@@ -20,7 +20,7 @@ function get_actor_by_slug ( $slug ) {
 function get_actor_id( $slug ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
-        "SELECT slug FROM pterotype_activitypub_actors WHERE slug = %s", $slug
+        "SELECT slug FROM pterotype_actors WHERE slug = %s", $slug
     ) );
 }
 
@@ -78,7 +78,7 @@ function initialize_user_actors() {
 function create_actor_from_user( $user_slug ) {
     global $wpdb;
     $wpdb->query( $wpdb->prepare(
-        "INSERT IGNORE INTO pterotype_activitypub_actors(slug, type) VALUES(%s, 'user')", $user_slug
+        "INSERT IGNORE INTO pterotype_actors(slug, type) VALUES(%s, 'user')", $user_slug
     ) );
 }
 ?>

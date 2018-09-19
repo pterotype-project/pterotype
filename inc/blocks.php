@@ -10,7 +10,7 @@ get ignored
 function create_block( $actor_id, $blocked_actor_url ) {
     global $wpdb;
     $res = $wpdb->insert(
-        'pterotype_activitypub_blocks',
+        'pterotype_blocks',
         array( 'actor_id' => $actor_id, 'blocked_actor_url' => $blocked_actor_url )
     );
     if ( !$res ) {

@@ -6,7 +6,7 @@ namespace objects;
 
 function create_local_object( $object ) {
     global $wpdb;
-    $res = $wpdb->insert( 'pterotype_activitypub_objects', array(
+    $res = $wpdb->insert( 'pterotype_objects', array(
         'object' => wp_json_encode( $object )
     ) );
     if ( !$res ) {
@@ -18,7 +18,7 @@ function create_local_object( $object ) {
     $object_url = get_rest_url( null, sprintf( '/pterotype/v1/object/%d', $object_id ) );
     $object['id'] = $object_url;
     $res = $wpdb->replace(
-        'pterotype_activitypub_objects',
+        'pterotype_objects',
         array (
             'id' => $object_id,
             'activitypub_id' => $object_url,
@@ -44,12 +44,12 @@ function upsert_object( $object ) {
         );
     }
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_activitypub_objects WHERE activitypub_url = %s', $object['id']
+        'SELECT * FROM pterotype_objects WHERE activitypub_url = %s', $object['id']
     ) );
     $res = true;
     if ( $row === null ) {
         $res = $wpdb->insert(
-            'pterotype_activitypub_objects',
+            'pterotype_objects',
             array(
                 'activitypub_id' => $object['id'],
                 'object' => wp_json_encode( $object )
@@ -57,7 +57,7 @@ function upsert_object( $object ) {
         );
     } else {
         $res = $wpdb->replace(
-            'pterotype_activitypub_objects',
+            'pterotype_objects',
             array(
                 'id' => $row->id,
                 'activitypub_id' => $object['id'],
@@ -103,7 +103,7 @@ function update_object( $object ) {
 function get_object( $id ) {
     global $wpdb;
     $object_json = $wpdb->get_var( $wpdb->prepare(
-        'SELECT object FROM pterotype_activitypub_objects WHERE id = %d', $id
+        'SELECT object FROM pterotype_objects WHERE id = %d', $id
     ) ); 
     if ( is_null( $object_json ) ) {
         return new \WP_Error(
@@ -116,7 +116,7 @@ function get_object( $id ) {
 function get_object_by_activitypub_id( $activitypub_id ) {
     global $wpdb;
     $object_json = $wpdb->get_var( $wpdb->prepare(
-        'SELECT object FROM pterotype_activitypub_objects WHERE activitypub_id = %s', $activitypub_id
+        'SELECT object FROM pterotype_objects WHERE activitypub_id = %s', $activitypub_id
     ) );
     if ( is_null( $object_json ) ) {
         return new \WP_Error(
@@ -136,7 +136,7 @@ function delete_object( $object ) {
         );
     }
     $activitypub_id = $object['id'];
-    $res = $wpdb->delete( 'pterotype_activitypub_objects', array( 'activitypub_id' => $id ), '%s' );
+    $res = $wpdb->delete( 'pterotype_objects', array( 'activitypub_id' => $id ), '%s' );
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'pterotype' ) );
     }

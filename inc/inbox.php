@@ -65,12 +65,12 @@ function create_inbox_table() {
     global $wpdb;
     $wpdb->query(
         "
-        CREATE TABLE IF NOT EXISTS pterotype_activitypub_inbox(
+        CREATE TABLE IF NOT EXISTS pterotype_inbox(
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             actor_id UNSIGNED INT NOT NULL,
             activity_id INT UNSIGNED NOT NULL,
             FOREIGN KEY inbox_activity_fk(activity_id)
-                REFERENCES pterotype_activitypub_activities(id)
+                REFERENCES pterotype_activities(id)
         )
         ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
