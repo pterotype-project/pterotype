@@ -17,19 +17,4 @@ function create_block( $actor_id, $blocked_actor_url ) {
         return new \WP_Error( 'db_error', __( 'Error inserting block row', 'pterotype' ) );
     }
 }
-
-function create_blocks_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS pterotype_activitypub_blocks(
-            actor_id INT UNSIGNED NOT NULL,
-            blocked_actor_url TEXT NOT NULL,
-            FOREIGN KEY blocks_actor_fk(actor_id)
-                REFERENCES pterotype_activitypub_actors(id)
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
-}
 ?>

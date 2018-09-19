@@ -142,24 +142,4 @@ function delete_object( $object ) {
     }
     return $res;
 }
-
-function create_object_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS pterotype_activitypub_objects (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            activitypub_id VARCHAR(255) UNIQUE NOT NULL,
-            object TEXT NOT NULL
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
-    $wpdb->query(
-        "
-        CREATE UNIQUE INDEX OBJECT_ACTIVITYPUB_ID_INDEX
-        ON pterotype_activitypub_objects (activitypub_id);
-        "
-    );
-}
 ?>

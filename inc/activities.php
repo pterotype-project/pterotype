@@ -85,24 +85,4 @@ function create_local_activity( $activity ) {
     }
     return $activity;
 }
-
-function create_activities_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS pterotype_activitypub_activities (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            activitypub_id VARCHAR(255) UNIQUE NOT NULL,
-            activity TEXT NOT NULL
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
-    $wpdb->query(
-        "
-        CREATE UNIQUE INDEX ACTIVITIES_ACTIVITYPUB_ID_INDEX
-        ON pterotype_activitypub_activities (activitypub_id);
-        "
-    );
-}
 ?>

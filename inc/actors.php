@@ -61,20 +61,6 @@ function get_user_actor( $user ) {
     return $actor;
 }
 
-function create_actors_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS pterotype_activitypub_actors(
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            slug VARCHAR(64) UNIQUE NOT NULL,
-            type VARCHAR(64) NOT NULL
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
-}
-
 /*
 For every user in the WP instance, create a new actor row for that user
 if it doesn't already exist

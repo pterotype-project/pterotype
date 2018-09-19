@@ -146,20 +146,4 @@ function wrap_object_in_create( $actor_slug, $object ) {
     );
     return $activity;
 }
-
-function create_outbox_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS pterotype_activitypub_outbox (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            actor_id INT UNSIGNED NOT NULL,
-            activity_id INT UNSIGNED NOT NULL,
-            FOREIGN KEY outbox_activity_fk(activity_id)
-                REFERENCES pterotype_activitypub_activities(id)
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
-}
 ?>
