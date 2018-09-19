@@ -26,7 +26,7 @@ function handle_outbox( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $existing_object = \objects\get_object_from_url( $update_object['id'] );
+    $existing_object = \objects\get_object_by_actvitypub_id( $update_object['id'] );
     if ( is_wp_error( $existing_object ) ) {
         return $existing_object;
     }

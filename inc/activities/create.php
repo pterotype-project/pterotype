@@ -29,10 +29,10 @@ function handle_outbox( $actor, $activity ) {
         );
     }
     $object = $activity['object'];
-    $actor_id = $activity['actor'];
-    $object['attributedTo'] = $actor_id;
+    $attributed_actor = $activity['actor'];
+    $object['attributedTo'] = $attributed_actor;
     reconcile_receivers( $object, $activity );
-    scrub_object( $object );
+    $object = scrub_object( $object );
     $object = \objects\create_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
@@ -68,8 +68,9 @@ function copy_field_value( $field, $from, &$to ) {
     }
 }
 
-function scrub_object( &$object ) {
+function scrub_object( $object ) {
     unset( $object['bcc'] );
     unset( $object['bto'] );
+    return $object;
 }
 ?>

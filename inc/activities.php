@@ -12,7 +12,20 @@ function get_activity( $id ) {
         );
     }
     $activity = json_decode( $activity_json, true );
-    $activity['id'] = get_activity_url( $id );
+    return $activity;
+}
+
+function get_activity_by_activitypub_id( $activitypub_id ) {
+    global $wpdb;
+    $activity_json = $wpdb->get_var( $wpdb->prepare(
+        'SELECT activity FROM activitypub_activities WHERE id = %s', $activitypub_id
+    ) );
+    if ( is_null( $activity_json ) ) {
+        return new \WP_Error(
+            'not_found', __( 'Activity not found', 'activitypub' ), array( 'status' => 404 )
+        );
+    }
+    $activity = json_decode( $activity_json, true );
     return $activity;
 }
 
@@ -28,15 +41,19 @@ function strip_private_fields( $activity ) {
 
 function persist_activity( $activity ) {
     global $wpdb;
-    $wpdb->insert(
-        'activitypub_activities', array( 'activity' => wp_json_encode( $activity ) )
-    );
-    $activity["id"] = get_activity_url( $wpdb->insert_id );
+    if ( !array_key_exists( 'id', $activity ) ) {
+        return new \WP_Error(
+            'invalid_activity',
+            __( 'Activity must have an "id" field', 'activitypub' ),
+            array( 'status' => 400 )
+        );
+    }
+    $activitypub_id = $activity['id'];
+    $wpdb->insert( 'activitypub_activities', array(
+            'activitypub_id' => $activitypub_id,
+            'activity' => wp_json_encode( $activity )
+    ) );
     return $activity;
-}
-
-function get_activity_url( $id ) {
-    return get_rest_url( null, sprintf( '/activitypub/v1/activity/%d', $id ) );
 }
 
 function create_activities_table() {
@@ -45,8 +62,15 @@ function create_activities_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_activities (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            activitypub_id TEXT UNIQUE NOT NULL,
             activity TEXT NOT NULL
         );
+        "
+    );
+    $wpdb->query(
+        "
+        CREATE UNIQUE INDEX ACTIVITYPUB_ID_INDEX
+        ON activitypub_activities (activitypub_id);
         "
     );
 }

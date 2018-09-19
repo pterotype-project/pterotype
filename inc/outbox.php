@@ -13,6 +13,7 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 namespace outbox;
 
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
+require_once plugin_dir_path( __FILE__ ) . '/actors.php';
 require_once plugin_dir_path( __FILE__ ) . '/deliver.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
@@ -21,7 +22,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/like.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/block.php';
 
-function handle_activity( $actor, $activity ) {
+function handle_activity( $actor_slug, $activity ) {
     // TODO handle authentication/authorization
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
@@ -32,16 +33,16 @@ function handle_activity( $actor, $activity ) {
     }
     switch ( $activity['type'] ) {
     case 'Create':
-        $activity = \activities\create\handle_outbox( $actor, $activity );
+        $activity = \activities\create\handle_outbox( $actor_slug, $activity );
         break;
     case 'Update':
-        $activity = \activities\update\handle_outbox( $actor, $activity );
+        $activity = \activities\update\handle_outbox( $actor_slug, $activity );
         break;
     case 'Delete':
-        $activity = \activities\delete\handle_outbox( $actor, $activity );
+        $activity = \activities\delete\handle_outbox( $actor_slug, $activity );
         break;
     case 'Follow':
-        $activity = \activities\follow\handle_outbox( $actor, $activity );
+        $activity = \activities\follow\handle_outbox( $actor_slug, $activity );
         break;
     case 'Add':
         return new \WP_Error(
@@ -58,10 +59,10 @@ function handle_activity( $actor, $activity ) {
         );
         break;
     case 'Like':
-        $activity = \activities\like\handle_outbox( $actor, $activity );
+        $activity = \activities\like\handle_outbox( $actor_slug, $activity );
         break;
     case 'Block':
-        $activity = \activities\block\handle_outbox( $actor, $activity );
+        $activity = \activities\block\handle_outbox( $actor_slug, $activity );
         break;
     case 'Undo':
         return new \WP_Error(
@@ -75,24 +76,37 @@ function handle_activity( $actor, $activity ) {
         if ( is_wp_error( $create_activity ) ) {
             return $create_activity;
         }
-        $activity = \activities\create\handle_outbox( $actor, $create_activity );
+        $activity = \activities\create\handle_outbox( $actor_slug, $create_activity );
         break;
     }
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
     $activity = deliver_activity( $activity );
-    return persist_activity( $actor, $activity );
+    return persist_activity( $actor_slug, $activity );
 }
 
-function get_outbox( $actor_id ) {
+function get_outbox( $actor_slug ) {
     global $wpdb;
-    $activities = $wpdb->get_results( $wpdb->prepare(
+    // TODO what sort of joins should these be?
+    $results = $wpdb->get_results( $wpdb->prepare(
             "
-            SELECT * FROM activitypub_outbox WHERE 
-            "
+            SELECT activitypub_activities.activity FROM activitypub_outbox 
+            JOIN activitypub_actors 
+                ON activitypub_actors.id = activitypub_outbox.actor_id
+            JOIN activitypub_activities
+                ON activitypub_activities.id = activitypub_outbox.activity_id
+            WHERE activitypub_outbox.actor_id = %d
+            ",
+            $actor_id
     ) );
-    // $wpdb->num_rows will hold the number of results, once this implements paging
+    // TODO return PagedCollection if $activites is too big
+    return \collections\make_ordered_collection( array_map(
+        function ( $result) {
+            return json_decode( $result->activity, true);
+        },
+        $results
+    ) );
 }
 
 function deliver_activity( $activity ) {
@@ -101,15 +115,15 @@ function deliver_activity( $activity ) {
     return $activity;
 }
 
-function persist_activity( $actor, $activity ) {
+function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
     $activity = \activities\persist_activity( $activity );
     $activity_id = $wpdb->insert_id;
-    $wpdb->insert( 'activitypub_outbox',
-                   array(
-                       'actor' => $actor,
-                       'activity_id' => $activity_id,
-                   ) );
+    $actor_id = \actors\get_actor_id( $actor_slug );
+    $wpdb->insert( 'activitypub_outbox', array(
+        'actor_id' => $actor_id,
+        'activity_id' => $activity_id,
+    ) );
     $response = new \WP_REST_Response();
     $response->set_status( 201 );
     $response->header( 'Location', $activity['id'] );

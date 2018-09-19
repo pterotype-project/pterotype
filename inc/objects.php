@@ -6,15 +6,22 @@ namespace objects;
 
 function create_object( $object ) {
     global $wpdb;
-    $res = $wpdb->insert(
-        'activitypub_objects', array( 'object' => wp_json_encode( $object ) )
-    );
+    if ( !array_key_exists( 'id', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have an "id" field', 'activitypub' ),
+            array( 'status' => 400 )
+        );
+    }
+    $res = $wpdb->insert( 'activitypub_objects', array(
+        'activitypub_id' => $object['id'],
+        'object' => wp_json_encode( $object )
+    ) );
     if ( !$res ) {
         return new \WP_Error(
             'db_error', __( 'Failed to insert object row', 'activitypub' )
         );
     }
-    $object['id'] = get_object_url( $wpdb->insert_id );
     return $object;
 }
 
@@ -23,11 +30,10 @@ function update_object( $object ) {
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_object',
-            __( 'Object must have an "id" parameter', 'activitypub' ),
+            __( 'Object must have an "id" field', 'activitypub' ),
             array( 'status' => 400 )
         );
     }
-    $id = get_id_from_url( $object['id'] );
     $object_json = wp_json_encode( $object );
     $res = $wpdb->update(
         'activitypub_object',
@@ -52,9 +58,20 @@ function get_object( $id ) {
             'not_found', __( 'Object not found', 'activitypub' ), array( 'status' => 404 )
         );
     }
-    $object = json_decode( $object_json, true );
-    $object['id'] = get_object_url( $id );
-    return $object;
+    return json_decode( $object_json, true );
+}
+
+function get_object_by_activitypub_id( $activitypub_id ) {
+    global $wpdb;
+    $object_json = $wpdb->get_var( $wpdb->prepare(
+        'SELECT object FROM activitypub_objects WHERE activitypub_id = %s', $activitypub_id
+    ) );
+    if ( is_null( $object_json ) ) {
+        return new \WP_Error(
+            'not_found', __( 'Object not found', 'activitypub' ), array( 'status' => 404 )
+        );
+    }
+    return json_decode( $object_json, true );
 }
 
 function delete_object( $object ) {
@@ -62,40 +79,16 @@ function delete_object( $object ) {
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_object',
-            __( 'Object must have an "id" parameter', 'activitypub' ),
+            __( 'Object must have an "id" field', 'activitypub' ),
             array( 'status' => 400 )
         );
     }
-    $id = get_id_from_url( $object['id'] );
-    $res = $wpdb->delete( 'activitypub_objects', array( 'id' => $id ), '%d' );
+    $activitypub_id = $object['id'];
+    $res = $wpdb->delete( 'activitypub_objects', array( 'activitypub_id' => $id ), '%s' );
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'activitypub' ) );
     }
     return $res;
-}
-
-function get_id_from_url( $url ) {
-    global $wpdb;
-    $matches = array();
-    $found = preg_match(
-        get_rest_url( null, '/activitypub/v1/object/(.+)' ), $url, $matches );
-    if ( $found === 0 || count( $matches ) != 2 ) {
-        return new \WP_Error(
-            'invalid_url',
-            sprintf( '%s %s', $url, __( 'is not a valid object url', 'activitypub' ) ),
-            array( 'status' => 400 )
-        );
-    }
-    $id = $matches[1];
-    return $id;
-}
-
-function get_object_from_url( $url ) {
-    return get_object( get_id_from_url( $url ) );
-}
-
-function get_object_url( $id ) {
-    return get_rest_url( null, sprintf( '/activitypub/v1/object/%d', $id ) );
 }
 
 function create_object_table() {
@@ -104,8 +97,15 @@ function create_object_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_objects (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            activitypub_id TEXT UNIQUE NOT NULL,
             object TEXT NOT NULL
         );
+        "
+    );
+    $wpdb->query(
+        "
+        CREATE UNIQUE INDEX ACTIVITYPUB_ID_INDEX
+        ON activitypub_objects (activitypub_id);
         "
     );
 }

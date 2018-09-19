@@ -57,6 +57,7 @@ function forward_activity( $activity ) {
 }
 
 function persist_activity( $activity ) {
+    global $wpdb;
 
 }
 
