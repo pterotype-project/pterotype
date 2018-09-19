@@ -117,5 +117,17 @@ function migration_0_0_1() {
         ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
+    $wpdb->query(
+        "
+        CREATE TABLE pterotype_inbox (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            actor_id INT UNSIGNED NOT NULL,
+            activity_id INT UNSIGNED NOT NULL,
+            FOREIGN KEY inbox_activity_fk(activity_id)
+                REFERENCES pterotype_activities(id)
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        "
+    );
 }
 ?>
