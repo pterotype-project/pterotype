@@ -2,7 +2,7 @@
 /*
 Poor man's migration system
 */
-namespace db;
+namespace migrations;
 
 /*
 It's okay to add new queries to this function, but don't ever delete queries.
