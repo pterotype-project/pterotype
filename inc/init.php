@@ -15,7 +15,10 @@ add_action( 'user_register', function( $user_id ) {
 } );
 
 add_action( 'pterotype_init', function() {
-    \migrations\run_migrations();
     \actors\initialize_user_actors();
+} );
+
+add_action( 'pterotype_load', function() {
+    \migrations\run_migrations();
 } );
 ?>
