@@ -56,6 +56,36 @@ function persist_activity( $activity ) {
     return $activity;
 }
 
+function create_local_activity( $activity ) {
+    global $wpdb;
+    $res = $wpdb->insert( 'activitypub_activities', array(
+        'activity' => wp_json_encode( $activity )
+    ) );
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to insert activity row', 'activitypub' )
+        );
+    }
+    $activity_id = $wpdb->insert_id;
+    $activity_url = get_rest_url( null, sprintf( '/activitypub/v1/activity/%d', $id ) );
+    $activity['id'] = $activity_url;
+    $res = $wpdb->replace(
+        'activitypub_activities',
+        array(
+            'id' => $activity_id,
+            'activitypub_id' => $activity_url,
+            'activity' => $activity
+        ),
+        array( '%d', '%s', '%s' )
+    );
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to hydrate activity id', 'activitypub' )
+        );
+    }
+    return $activity;
+}
+
 function create_activities_table() {
     global $wpdb;
     $wpdb->query(

@@ -4,22 +4,31 @@ namespace objects;
 // TODO for 'post' objects, store a post id instead of the full post text,
 // then hydrate the text on read
 
-function create_object( $object ) {
+function create_local_object( $object ) {
     global $wpdb;
-    if ( !array_key_exists( 'id', $object ) ) {
-        return new \WP_Error(
-            'invalid_object',
-            __( 'Object must have an "id" field', 'activitypub' ),
-            array( 'status' => 400 )
-        );
-    }
     $res = $wpdb->insert( 'activitypub_objects', array(
-        'activitypub_id' => $object['id'],
         'object' => wp_json_encode( $object )
     ) );
     if ( !$res ) {
         return new \WP_Error(
             'db_error', __( 'Failed to insert object row', 'activitypub' )
+        );
+    }
+    $object_id = $wpdb->insert_id;
+    $object_url = get_rest_url( null, sprintf( '/activitypub/v1/object/%d', $object_id ) );
+    $object['id'] = $object_url;
+    $res = $wpdb->replace(
+        'activitypub_objects',
+        array (
+            'id' => $object_id,
+            'activitypub_id' => $object_url,
+            'object' => wp_json_encode( $object )
+        ),
+        array( '%d', '%s', '%s' )
+    );
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to hydrate object id', 'activitypub' )
         );
     }
     return $object;

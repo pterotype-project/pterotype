@@ -23,7 +23,6 @@ function handle_outbox( $actor, $activity ) {
         );
     }
     if ( !array_key_exists( 'actor', $activity ) ) {
-        // TODO validate that $activity['actor'] is the URL of the $actor
         return new \WP_Error(
             'invalid_actor', __( 'Expecting a valid actor', 'activitypub' )
         );
@@ -33,7 +32,7 @@ function handle_outbox( $actor, $activity ) {
     $object['attributedTo'] = $attributed_actor;
     reconcile_receivers( $object, $activity );
     $object = scrub_object( $object );
-    $object = \objects\create_object( $object );
+    $object = \objects\create_local_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
     }

@@ -117,7 +117,7 @@ function deliver_activity( $activity ) {
 
 function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
-    $activity = \activities\persist_activity( $activity );
+    $activity = \activities\create_local_activity( $activity );
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );
     $wpdb->insert( 'activitypub_outbox', array(
