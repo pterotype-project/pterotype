@@ -11,7 +11,7 @@ to the object and vice-versa.
 
 Returns either the modified $activity or a WP_Error.
 */
-function handle_outbox( $actor, $activity ) {
+function handle_outbox( $actor_slug, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Create') ) {
         return new \WP_Error(
             'invalid_activity', __( 'Expecting a Create activity', 'activitypub' )
@@ -37,6 +37,21 @@ function handle_outbox( $actor, $activity ) {
         return $object;
     }
     $activity['object'] = $object;
+    return $activity;
+}
+
+function handle_inbox( $actor_slug, $activity ) {
+    if ( !array_key_exists( 'object', $activity ) ) {
+        return new \WP_Error(
+            'invalid_activity',
+            __( 'Expected an object', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
+    $object = \objects\upsert_object( $object );
+    if ( is_wp_error( $object ) ) {
+        return $object;
+    }
     return $activity;
 }
 

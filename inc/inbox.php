@@ -6,15 +6,13 @@ When an Activity is received (i.e. POSTed) to an Actor's inbox, the server must:
        See (https://www.w3.org/TR/activitypub/#x7-1-2-forwarding-from-inbox).
   2. Perform the side effects of receiving the Activity
   3. Persist the activity in the actor's inbox (and the attached object, if necessary)
-
-To persist an activity or object:
-  1. Check if the activity or object already exists in the DB
-  2. If yes, do nothing
-  3. If no, add it to the DB
 */
 namespace inbox;
 
-function handle_activity( $actor, $activity ) {
+require_once plugin_dir_path( __FILE__ ) . '/activities.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
+
+function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
@@ -25,6 +23,7 @@ function handle_activity( $actor, $activity ) {
     forward_activity( $activity );
     switch ( $activity['type'] ) {
     case 'Create':
+        $activity = \create\handle_inbox( $actor_slug, $activity );
         break;
     case 'Update':
         break;
@@ -48,32 +47,26 @@ function handle_activity( $actor, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
-    persist_activity( $activity );
-    return new \WP_REST_Response();
+    return persist_activity( $actor_slug, $activity );
 }
 
 function forward_activity( $activity ) {
-
+    // TODO
 }
 
-function persist_activity( $activity ) {
+function persist_activity( $actory_slug, $activity ) {
     global $wpdb;
-
-}
-
-function create_inbox_table() {
-    global $wpdb;
-    $wpdb->query(
-        "
-        CREATE TABLE IF NOT EXISTS pterotype_inbox(
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            actor_id UNSIGNED INT NOT NULL,
-            activity_id INT UNSIGNED NOT NULL,
-            FOREIGN KEY inbox_activity_fk(activity_id)
-                REFERENCES pterotype_activities(id)
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
+    $activity = \activities\persist_activity( $activity );
+    if ( is_wp_error( $activity ) ) {
+        return $activity;
+    }
+    $activity_id = $wpdb->insert_id;
+    $actor_id = \actors\get_actor_id( $actor_slug );
+    $wpdb->insert( 'pterotype_inbox', array(
+        'actor_id' => $actor_id,
+        'activity_id' => $activity_id,
+    ) );
+    $response = new \WP_Rest_Response();
+    return $response;
 }
 ?>

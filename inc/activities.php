@@ -49,7 +49,7 @@ function persist_activity( $activity ) {
         );
     }
     $activitypub_id = $activity['id'];
-    $wpdb->insert( 'pterotype_activities', array(
+    $wpdb->replace( 'pterotype_activities', array(
             'activitypub_id' => $activitypub_id,
             'activity' => wp_json_encode( $activity )
     ) );
