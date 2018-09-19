@@ -46,7 +46,7 @@ function retrieve_recipients( $url ) {
     //  - collection
     if ( !array_key_exists( 'type', $response_body ) ) {
         return new \WP_Error(
-            'invalid_object', __( 'Expected an object type', 'activitypub' )
+            'invalid_object', __( 'Expected an object type', 'pterotype' )
         );
     }
     switch ( $response_body['type'] ) {

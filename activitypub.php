@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: ActivityPub
+Plugin Name: Pterotype
 */
 require_once plugin_dir_path( __FILE__ ) . 'inc/init.php';
 
-function activitypub_init() {
-    do_action( 'activitypub_init' );
+function pterotype_init() {
+    do_action( 'pterotype_init' );
 }
 
-register_activation_hook( __FILE__, 'activitypub_init');
+register_activation_hook( __FILE__, 'pterotype_init');
 ?>

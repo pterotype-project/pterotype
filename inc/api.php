@@ -33,23 +33,23 @@ function get_activity( $request ) {
 }
 
 function register_routes() {
-    register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_outbox',
     ) );
-    register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+/outbox', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+/outbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\get_outbox',
     ) );
-    register_rest_route( 'activitypub/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_actor',
     ) );
-    register_rest_route( 'activitypub/v1', '/object/(?P<id>[0-9]+)', array(
+    register_rest_route( 'pterotype/v1', '/object/(?P<id>[0-9]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_object',
     ) );
-    register_rest_route( 'activitypub/v1', '/activity/(?P<id>[0-9]+)', array(
+    register_rest_route( 'pterotype/v1', '/activity/(?P<id>[0-9]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_activity',
     ) );

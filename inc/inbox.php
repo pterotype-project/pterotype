@@ -18,7 +18,7 @@ function handle_activity( $actor, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
-            __( 'Activity must have a type', 'activitypub' ),
+            __( 'Activity must have a type', 'pterotype' ),
             array( 'status' => 400 )
         );
     }
@@ -65,12 +65,12 @@ function create_inbox_table() {
     global $wpdb;
     $wpdb->query(
         "
-        CREATE TABLE IF NOT EXISTS activitypub_inbox(
+        CREATE TABLE IF NOT EXISTS pterotype_activitypub_inbox(
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             actor_id UNSIGNED INT NOT NULL,
             activity_id INT UNSIGNED NOT NULL,
             FOREIGN KEY inbox_activity_fk(activity_id)
-                REFERENCES activitypub_activities(id)
+                REFERENCES pterotype_activitypub_activities(id)
         )
         ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "

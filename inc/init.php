@@ -19,7 +19,7 @@ add_action( 'user_register', function( $user_id ) {
     \actors\create_actor_from_user( $slug );
 } );
 
-add_action( 'activitypub_init', function() {
+add_action( 'pterotype_init', function() {
     \activities\create_activities_table();
     \objects\create_object_table();
     \outbox\create_outbox_table();

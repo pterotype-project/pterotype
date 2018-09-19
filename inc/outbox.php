@@ -27,7 +27,7 @@ function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
-            __( 'Invalid activity', 'activitypub' ),
+            __( 'Invalid activity', 'pterotype' ),
             array( 'status' => 400 )
         );
     }
@@ -47,14 +47,14 @@ function handle_activity( $actor_slug, $activity ) {
     case 'Add':
         return new \WP_Error(
             'not_implemented',
-            __( 'The Add activity has not been implemented', 'activitypub' ),
+            __( 'The Add activity has not been implemented', 'pterotype' ),
             array( 'status' => 501 )
         );
         break;
     case 'Remove':
         return new \WP_Error(
             'not_implemented',
-            __( 'The Remove activity has not been implemented', 'activitypub' ),
+            __( 'The Remove activity has not been implemented', 'pterotype' ),
             array( 'status' => 501 )
         );
         break;
@@ -67,7 +67,7 @@ function handle_activity( $actor_slug, $activity ) {
     case 'Undo':
         return new \WP_Error(
             'not_implemented',
-            __( 'The Undo activity has not been implemented', 'activitypub' ),
+            __( 'The Undo activity has not been implemented', 'pterotype' ),
             array( 'status' => 501 )
         );
         break;
@@ -91,12 +91,15 @@ function get_outbox( $actor_slug ) {
     // TODO what sort of joins should these be?
     $results = $wpdb->get_results( $wpdb->prepare(
             "
-            SELECT activitypub_activities.activity FROM activitypub_outbox 
-            JOIN activitypub_actors 
-                ON activitypub_actors.id = activitypub_outbox.actor_id
-            JOIN activitypub_activities
-                ON activitypub_activities.id = activitypub_outbox.activity_id
-            WHERE activitypub_outbox.actor_id = %d
+            SELECT pterotype_activitypub_activities.activity 
+                FROM pterotype_activitypub_outbox 
+            JOIN pterotype_activitypub_actors 
+                ON pterotype_activitypub_actors.id 
+                  = pterotype_activitypub_outbox.actor_id
+            JOIN pterotype_activitypub_activities
+                ON pterotype_activitypub_activities.id 
+                  = pterotype_activitypub_outbox.activity_id
+            WHERE pterotype_pterotype_activitypub_outbox.actor_id = %d
             ",
             $actor_id
     ) );
@@ -120,7 +123,7 @@ function persist_activity( $actor_slug, $activity ) {
     $activity = \activities\create_local_activity( $activity );
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );
-    $wpdb->insert( 'activitypub_outbox', array(
+    $wpdb->insert( 'pterotype_activitypub_outbox', array(
         'actor_id' => $actor_id,
         'activity_id' => $activity_id,
     ) );
@@ -148,12 +151,12 @@ function create_outbox_table() {
     global $wpdb;
     $wpdb->query(
         "
-        CREATE TABLE IF NOT EXISTS activitypub_outbox (
+        CREATE TABLE IF NOT EXISTS pterotype_activitypub_outbox (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             actor_id INT UNSIGNED NOT NULL,
             activity_id INT UNSIGNED NOT NULL,
             FOREIGN KEY outbox_activity_fk(activity_id)
-                REFERENCES activitypub_activities(id)
+                REFERENCES pterotype_activitypub_activities(id)
         )
         ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "

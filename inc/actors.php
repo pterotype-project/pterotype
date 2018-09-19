@@ -4,7 +4,7 @@ namespace actors;
 function get_actor( $id ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM activitypub_actors WHERE id = %d', $id
+        'SELECT * FROM pterotype_activitypub_actors WHERE id = %d', $id
     ) );
     return get_user_from_row( $row );
 }
@@ -12,7 +12,7 @@ function get_actor( $id ) {
 function get_actor_by_slug ( $slug ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM activitypub_actors WHERE slug = %s', $slug
+        'SELECT * FROM pterotype_activitypub_actors WHERE slug = %s', $slug
     ) );
     return get_actor_from_row( $row );
 }
@@ -20,7 +20,7 @@ function get_actor_by_slug ( $slug ) {
 function get_actor_id( $slug ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
-        "SELECT slug FROM activitypub_actors WHERE slug = %s", $slug
+        "SELECT slug FROM pterotype_activitypub_actors WHERE slug = %s", $slug
     ) );
 }
 
@@ -41,17 +41,17 @@ function get_user_actor( $user ) {
     $actor = array(
         "@context" => array( "https://www.w3.org/ns/activitystreams" ),
         "type" => "Person",
-        "id" => get_rest_url( null, sprintf( '/activitypub/v1/actor/%s', $handle ) ),
+        "id" => get_rest_url( null, sprintf( '/pterotype/v1/actor/%s', $handle ) ),
         "following" => get_rest_url(
-            null, sprintf( '/activitypub/v1/actor/%s/following', $handle ) ),
+            null, sprintf( '/pterotype/v1/actor/%s/following', $handle ) ),
         "followers" => get_rest_url(
-            null, sprintf( '/activitypub/v1/actor/%s/followers', $handle ) ),
+            null, sprintf( '/pterotype/v1/actor/%s/followers', $handle ) ),
         "liked" => get_rest_url(
-            null, sprintf( '/activitypub/v1/actor/%s/liked', $handle ) ),
+            null, sprintf( '/pterotype/v1/actor/%s/liked', $handle ) ),
         "inbox" => get_rest_url(
-            null, sprintf( '/activitypub/v1/actor/%s/inbox', $handle ) ),
+            null, sprintf( '/pterotype/v1/actor/%s/inbox', $handle ) ),
         "outbox" => get_rest_url(
-            null, sprintf( '/activitypub/v1/actor/%s/outbox', $handle ) ),
+            null, sprintf( '/pterotype/v1/actor/%s/outbox', $handle ) ),
         "preferredUsername" => $handle,
         "name" => get_the_author_meta( 'display_name', $user->get('ID') ),
         "summary" => get_the_author_meta( 'description', $user->get('ID') ),
@@ -65,7 +65,7 @@ function create_actors_table() {
     global $wpdb;
     $wpdb->query(
         "
-        CREATE TABLE IF NOT EXISTS activitypub_actors(
+        CREATE TABLE IF NOT EXISTS pterotype_activitypub_actors(
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             slug VARCHAR(64) UNIQUE NOT NULL,
             type VARCHAR(64) NOT NULL
@@ -92,7 +92,7 @@ function initialize_user_actors() {
 function create_actor_from_user( $user_slug ) {
     global $wpdb;
     $wpdb->query( $wpdb->prepare(
-        "INSERT IGNORE INTO activitypub_actors(slug, type) VALUES(%s, 'user')", $user_slug
+        "INSERT IGNORE INTO pterotype_activitypub_actors(slug, type) VALUES(%s, 'user')", $user_slug
     ) );
 }
 ?>
