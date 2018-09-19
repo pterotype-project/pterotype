@@ -69,7 +69,8 @@ function create_actors_table() {
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             slug VARCHAR(64) UNIQUE NOT NULL,
             type VARCHAR(64) NOT NULL
-        );
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
 }

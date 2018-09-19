@@ -69,9 +69,10 @@ function create_inbox_table() {
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             actor_id UNSIGNED INT NOT NULL,
             activity_id INT UNSIGNED NOT NULL,
-            FOREIGN KEY activity_fk(activity_id)
-            REFERENCES activitypub_activities(id),
-        );
+            FOREIGN KEY inbox_activity_fk(activity_id)
+                REFERENCES activitypub_activities(id)
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
 }

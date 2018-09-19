@@ -34,6 +34,49 @@ function create_local_object( $object ) {
     return $object;
 }
 
+function upsert_object( $object ) {
+    global $wpdb;
+    if ( !array_key_exists( 'id', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Objects must have an "id" field', 'activitypub' ),
+            array( 'status' => 400 )
+        );
+    }
+    $row = $wpdb->get_row( $wpdb->prepare(
+        'SELECT * FROM activitypub_objects WHERE activitypub_url = %s', $object['id']
+    ) );
+    $res = true;
+    if ( $row === null ) {
+        $res = $wpdb->insert(
+            'activitypub_objects',
+            array(
+                'activitypub_id' => $object['id'],
+                'object' => wp_json_encode( $object )
+            )
+        );
+    } else {
+        $res = $wpdb->replace(
+            'activitypub_objects',
+            array(
+                'id' => $row->id,
+                'activitypub_id' => $object['id'],
+                'object' => wp_json_encode( $object )
+            ),
+            array( '%d', '%s', '%s' )
+        );
+        $row = new stdClass();
+        $row->id = $wpdb->insert_id;
+    }
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to upsert object row', 'activitypub' )
+        );
+    }
+    $row->object = $object;
+    return $row;
+}
+
 function update_object( $object ) {
     global $wpdb;
     if ( !array_key_exists( 'id', $object ) ) {
@@ -106,9 +149,10 @@ function create_object_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_objects (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            activitypub_id TEXT UNIQUE NOT NULL,
+            activitypub_id VARCHAR(255) UNIQUE NOT NULL,
             object TEXT NOT NULL
-        );
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
     $wpdb->query(

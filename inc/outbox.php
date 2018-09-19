@@ -150,11 +150,12 @@ function create_outbox_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_outbox (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            actor_id UNSIGNED INT NOT NULL,
+            actor_id INT UNSIGNED NOT NULL,
             activity_id INT UNSIGNED NOT NULL,
-            FOREIGN KEY activity_fk(activity_id)
-            REFERENCES activitypub_activities(id),
-        );
+            FOREIGN KEY outbox_activity_fk(activity_id)
+                REFERENCES activitypub_activities(id)
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
 }

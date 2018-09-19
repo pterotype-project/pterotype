@@ -25,9 +25,10 @@ function create_blocks_table() {
         CREATE TABLE IF NOT EXISTS activitypub_blocks(
             actor_id INT UNSIGNED NOT NULL,
             blocked_actor_url TEXT NOT NULL,
-            FOREIGN KEY actor_fk(actor_id)
-            REFERENCES activitypub_actors(id)
-        );
+            FOREIGN KEY blocks_actor_fk(actor_id)
+                REFERENCES activitypub_actors(id)
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
 }

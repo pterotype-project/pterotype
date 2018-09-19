@@ -92,9 +92,10 @@ function create_activities_table() {
         "
         CREATE TABLE IF NOT EXISTS activitypub_activities (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            activitypub_id TEXT UNIQUE NOT NULL,
+            activitypub_id VARCHAR(255) UNIQUE NOT NULL,
             activity TEXT NOT NULL
-        );
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
         "
     );
     $wpdb->query(

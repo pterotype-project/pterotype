@@ -8,6 +8,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 require_once plugin_dir_path( __FILE__ ) . '/actors.php';
 require_once plugin_dir_path( __FILE__ ) . '/likes.php';
 require_once plugin_dir_path( __FILE__ ) . '/following.php';
+require_once plugin_dir_path( __FILE__ ) . '/blocks.php';
 
 add_action( 'rest_api_init', function() {
     \api\register_routes();
@@ -26,5 +27,6 @@ add_action( 'activitypub_init', function() {
     \actors\initialize_user_actors();
     \likes\create_likes_table();
     \following\create_following_table();
+    \blocks\create_blocks_table();
 } );
 ?>
