@@ -26,6 +26,7 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \create\handle_inbox( $actor_slug, $activity );
         break;
     case 'Update':
+        $activity = \update\handle_inbox( $actor_slug, $activity );
         break;
     case 'Delete':
         break;
