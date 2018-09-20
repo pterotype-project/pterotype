@@ -85,6 +85,19 @@ function upsert_object( $object ) {
         );
         $row = new stdClass();
         $row->id = $wpdb->insert_id;
+        $activites_res = $wpdb->query( $wpdb->prepare(
+            '
+            UPDATE pterotype_activities
+            SET activity = JSON_SET(activity, "$.object", %s)
+            WHERE activity->"$.object.id" = %s;
+            ',
+            wp_json_encode( $object ), $object['id']
+        ) );
+        if ( $activities_res === false ) {
+            return new \WP_Error(
+                'db_error', __( 'Failed to update associated activities', 'pterotype' )
+            );
+        }
     }
     if ( !$res ) {
         return new \WP_Error(
@@ -113,6 +126,19 @@ function update_object( $object ) {
     if ( !$res ) {
         return new \WP_Error(
             'db_error', __( 'Failed to update object row', 'pterotype' )
+        );
+    }
+    $activites_res = $wpdb->query( $wpdb->prepare(
+        '
+        UPDATE pterotype_activities
+        SET activity = JSON_SET(activity, "$.object", %s)
+        WHERE activity->"$.object.id" = %s;
+        ',
+        $object_json, $object['id']
+    ) );
+    if ( $activities_res === false ) {
+         return new \WP_Error(
+            'db_error', __( 'Failed to update associated activities', 'pterotype' )
         );
     }
     return $object;
@@ -153,11 +179,50 @@ function delete_object( $object ) {
             array( 'status' => 400 )
         );
     }
+    if ( !array_key_exists( 'type', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
     $activitypub_id = $object['id'];
-    $res = $wpdb->delete( 'pterotype_objects', array( 'activitypub_id' => $id ), '%s' );
+    $tombstone = make_tombstone( $object );
+    $res = $wpdb->replace(
+        'pterotype_objects',
+        array(
+            'activitypub_id' => $activitypub_id,
+            'type' => $tombstone['type'],
+            'object' => wp_json_encode( $tombstone ),
+        ),
+    );
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'pterotype' ) );
     }
-    return $res;
+    $res = $wpdb->query( $wpdb->prepare(
+        '
+        UPDATE pterotype_activities
+        SET activity = JSON_SET(activity, "$.object", %s)
+        WHERE activity->"$.object.id" = %s;
+        ',
+        wp_json_encode( $tombstone ), $object['id']
+    ) );
+    if ( $res === false ) {
+        return new \WP_Error(
+            'db_error', __( 'Failed to update associated activities', 'pterotype' )
+        );
+    }
+    return $tombstone;
+}
+
+function make_tombstone( $object ) {
+    $tombstone = array(
+        'type' => 'Tombstone',
+        'formerType' => $object['type'],
+        'id' => $object['id'],
+        'deleted' => date( \DateTime::ISO8601, time() ),
+    );
+    return $tombstone;
 }
 ?>
+
