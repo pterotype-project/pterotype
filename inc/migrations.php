@@ -4,21 +4,29 @@ Poor man's migration system
 */
 namespace migrations;
 
+$previous_version = get_option( 'pterotype_previously_migrated_version' );
+if ( !$previous_version ) {
+    $previous_version = '0.0.0';
+}
+
 /*
 It's okay to add new queries to this function, but don't ever delete queries.
 */
 function run_migrations() {
-    $previous_version = get_option( 'pterotype_previously_migrated_version' );
-    if ( !$previous_version ) {
-        $previous_version = '0.0.0';
-    }
+    global $previous_version;
     if ( version_compare( $previous_version, PTEROTYPE_VERSION, '>=' ) ) {
         return;
     }
-    if ( version_compare( $previous_version, '0.0.1', '<' ) ) {
-        migration_0_0_1();
-    }
+    apply_migration( '0.0.1', 'migration_0_0_1' );
+    apply_migration( '0.0.2', 'migration_0_0_2' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
+}
+
+function apply_migration( $version, $migration_func ) {
+    global $previous_version;
+    if ( version_compare( $previous_version, $version, '<' ) ) {
+        call_user_func( __NAMESPACE__ . '\\' . $migration_func );
+    }
 }
 
 function migration_0_0_1() {
@@ -127,6 +135,24 @@ function migration_0_0_1() {
                 REFERENCES pterotype_activities(id)
         )
         ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        "
+    );
+}
+
+function migration_0_0_2() {
+    global $wpdb;
+    $wpdb->query(
+        "
+        ALTER TABLE pterotype_objects 
+            MODIFY object JSON NOT NULL,
+            ADD type VARCHAR(50) NOT NULL;
+        "
+    );
+    $wpdb->query(
+        "
+        ALTER TABLE pterotype_activities
+            MODIFY activity JSON NOT NULL,
+            ADD type VARCHAR(50) NOT NULL;
         "
     );
 }

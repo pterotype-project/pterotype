@@ -6,6 +6,13 @@ namespace objects;
 
 function create_local_object( $object ) {
     global $wpdb;
+    if ( !array_key_exists( 'type', $object) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
     $res = $wpdb->insert( 'pterotype_objects', array(
         'object' => wp_json_encode( $object )
     ) );
@@ -15,6 +22,7 @@ function create_local_object( $object ) {
         );
     }
     $object_id = $wpdb->insert_id;
+    $type = $object['type'];
     $object_url = get_rest_url( null, sprintf( '/pterotype/v1/object/%d', $object_id ) );
     $object['id'] = $object_url;
     $res = $wpdb->replace(
@@ -22,9 +30,10 @@ function create_local_object( $object ) {
         array (
             'id' => $object_id,
             'activitypub_id' => $object_url,
+            'type' => $type,
             'object' => wp_json_encode( $object )
         ),
-        array( '%d', '%s', '%s' )
+        array( '%d', '%s', '%s', '%s' )
     );
     if ( !$res ) {
         return new \WP_Error(
@@ -43,6 +52,13 @@ function upsert_object( $object ) {
             array( 'status' => 400 )
         );
     }
+    if ( !array_key_exists( 'type', $object) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
     $row = $wpdb->get_row( $wpdb->prepare(
         'SELECT * FROM pterotype_objects WHERE activitypub_url = %s', $object['id']
     ) );
@@ -52,6 +68,7 @@ function upsert_object( $object ) {
             'pterotype_objects',
             array(
                 'activitypub_id' => $object['id'],
+                'type' => $object['type'],
                 'object' => wp_json_encode( $object )
             )
         );
@@ -61,9 +78,10 @@ function upsert_object( $object ) {
             array(
                 'id' => $row->id,
                 'activitypub_id' => $object['id'],
+                'type' => $object['type'],
                 'object' => wp_json_encode( $object )
             ),
-            array( '%d', '%s', '%s' )
+            array( '%d', '%s', '%s', '%s' )
         );
         $row = new stdClass();
         $row->id = $wpdb->insert_id;

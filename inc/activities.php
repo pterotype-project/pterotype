@@ -48,9 +48,18 @@ function persist_activity( $activity ) {
             array( 'status' => 400 )
         );
     }
+    if ( !array_key_exists( 'type', $activity ) ) {
+        return new \WP_Error(
+            'invalid_activity',
+            __( 'Activity must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
     $activitypub_id = $activity['id'];
+    $type = $activity['type'];
     $wpdb->replace( 'pterotype_activities', array(
             'activitypub_id' => $activitypub_id,
+            'type' => $type,
             'activity' => wp_json_encode( $activity )
     ) );
     return $activity;
@@ -58,6 +67,14 @@ function persist_activity( $activity ) {
 
 function create_local_activity( $activity ) {
     global $wpdb;
+    if ( !array_key_exists( 'type', $activity ) ) {
+        return new \WP_Error(
+            'invalid_activity',
+            __( 'Activity must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
+    $type = $activity['type'];
     $res = $wpdb->insert( 'pterotype_activities', array(
         'activity' => wp_json_encode( $activity )
     ) );
@@ -74,9 +91,10 @@ function create_local_activity( $activity ) {
         array(
             'id' => $activity_id,
             'activitypub_id' => $activity_url,
-            'activity' => $activity
+            'type' => $type,
+            'activity' => wp_json_encode( $activity ),
         ),
-        array( '%d', '%s', '%s' )
+        array( '%d', '%s', '%s', '%s' )
     );
     if ( !$res ) {
         return new \WP_Error(
