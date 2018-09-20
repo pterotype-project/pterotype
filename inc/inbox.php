@@ -11,6 +11,8 @@ namespace inbox;
 
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
 
 function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
@@ -29,6 +31,7 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \update\handle_inbox( $actor_slug, $activity );
         break;
     case 'Delete':
+        $activity = \delete\handle_inbox( $actor_slug, $activity );
         break;
     case 'Follow':
         break;
