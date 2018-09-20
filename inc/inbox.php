@@ -13,6 +13,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
 
 function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
@@ -25,15 +26,16 @@ function handle_activity( $actor_slug, $activity ) {
     forward_activity( $activity );
     switch ( $activity['type'] ) {
     case 'Create':
-        $activity = \create\handle_inbox( $actor_slug, $activity );
+        $activity = \activities\create\handle_inbox( $actor_slug, $activity );
         break;
     case 'Update':
-        $activity = \update\handle_inbox( $actor_slug, $activity );
+        $activity = \activities\update\handle_inbox( $actor_slug, $activity );
         break;
     case 'Delete':
-        $activity = \delete\handle_inbox( $actor_slug, $activity );
+        $activity = \activities\delete\handle_inbox( $actor_slug, $activity );
         break;
     case 'Follow':
+        $activity = \activities\follow\handle_inbox( $actor_slug, $activity );
         break;
     case 'Accept':
         break;
