@@ -31,43 +31,50 @@ function remove_actor_inbox_from_recipients( $actor, $recipients ) {
 function retrieve_recipients_for_field( $field, $activity ) {
     $recipients = array();
     if ( array_key_exists( $field, $activity ) ) {
-        foreach ( $activity[$field] as $url ) {
-            $recipients = array_merge( $recipients, retrieve_recipients( $url ) );
+        foreach ( $activity[$field] as $object ) {
+            $recipients = array_merge( $recipients, retrieve_recipients( $object , 0 ) );
         }
     }
     return $recipients;
 }
 
-function retrieve_recipients( $url ) {
-    // TODO add an arg to keep track of recursion and cut off after 30 recursions
-    $response_body = wp_remote_retrieve_body( wp_remote_get ( $url ) );
-    // possible responses:
-    //  - actor json
-    //  - collection
-    if ( !array_key_exists( 'type', $response_body ) ) {
+function retrieve_recipients( $object, $depth ) {
+    if ( $depth === 30 ) {
+        return array();
+    }
+    if ( !array_key_exists( 'type', $object ) ) {
         return new \WP_Error(
-            'invalid_object', __( 'Expected an object type', 'pterotype' )
+            'invalid_object', __( 'Expected an object type', 'pterotype' ), array( 'status' => 400 )
         );
     }
-    switch ( $response_body['type'] ) {
+    switch ( $object['type'] ) {
     case 'Collection':
     case 'OrderedCollection':
         $items = array();
         $recipients = array();
-        if ( array_key_exists( 'items', $response_body ) ) {
-            $items = $response_body['items'];
-        } else if ( array_key_exists( 'orderedItems', $response_body ) ) {
-            $items = $response_body['orderedItems'];
+        if ( array_key_exists( 'items', $object ) ) {
+            $items = $object['items'];
+        } else if ( array_key_exists( 'orderedItems', $object ) ) {
+            $items = $object['orderedItems'];
         }
         if ( count( $items ) > 0 ) {
             // recursive case: call retrieve_recipients on each $item
             // merge the results and return them
             foreach ( $items as $item ) {
-                // TODO what will $item look like? Could be an actor JSON, or just a URL?
-                $recipients[] = retrieve_recipients( $item );
+                $recipients[] = retrieve_recipients( $item, $depth + 1 );
             }
         }
         return $recipients;
+    case 'Link':
+        if ( !array_key_exists( 'href', $object ) ) {
+            return new \WP_Error(
+                'invalid_link',
+                __( 'Link requires an "href" field', 'pterotype' ),
+                array( 'status' => 400 )
+            );
+        }
+        $link_target = wp_remote_retrieve_body( wp_remote_get ( $response_body['href'] ) );
+        return retrieve_recipients( $link_target, $depth + 1 );
     default: // an actor
         if ( array_key_exists( 'inbox', $response_body ) ) {
             return array( $response_body['inbox'] );
