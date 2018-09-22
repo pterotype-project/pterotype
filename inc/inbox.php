@@ -38,6 +38,7 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \activities\follow\handle_inbox( $actor_slug, $activity );
         break;
     case 'Accept':
+        $activity = \activities\accept\handle_inbox( $actor_slug, $activity );
         break;
     case 'Reject':
         break;

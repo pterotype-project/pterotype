@@ -5,6 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . '/actors.php';
 require_once plugin_dir_path( __FILE__ ) . '/outbox.php';
 require_once plugin_dir_path( __FILE__ ) . '/objects.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
+require_once plugin_dir_path( __FILE__ ) . '/following.php';
 
 function get_actor( $request ) {
     $actor = $request['actor'];
@@ -32,6 +33,11 @@ function get_activity( $request ) {
     return \activities\get_activity( $id );
 }
 
+function get_following( $request ) {
+    $actor_slug = $request['actor'];
+    return \following\get_following_collection( $actor_slug );
+}
+
 function register_routes() {
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
@@ -52,6 +58,10 @@ function register_routes() {
     register_rest_route( 'pterotype/v1', '/activity/(?P<id>[0-9]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_activity',
+    ) );
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\get_following',
     ) );
 }
 ?>
