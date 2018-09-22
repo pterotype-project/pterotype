@@ -195,6 +195,7 @@ function delete_object( $object ) {
             'type' => $tombstone['type'],
             'object' => wp_json_encode( $tombstone ),
         ),
+        array( '%s', '%s', '%s' )
     );
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'pterotype' ) );
