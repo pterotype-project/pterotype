@@ -29,57 +29,75 @@ function remove_actor_inbox_from_recipients( $actor, $recipients ) {
 }
 
 function retrieve_recipients_for_field( $field, $activity ) {
-    $recipients = array();
     if ( array_key_exists( $field, $activity ) ) {
-        foreach ( $activity[$field] as $object ) {
-            $recipients = array_merge( $recipients, retrieve_recipients( $object , 0 ) );
-        }
+        $to_value = $activity[$field];
+        return get_recipient_urls( $to_value, 0, array() );
     }
-    return $recipients;
+    return array();
 }
 
-function retrieve_recipients( $object, $depth ) {
+/*
+$object is either an Actor, a Link, a Collection/OrderedCollection,
+a single object id (url), or an array of object ids. If it's a url, it
+should dereference to one of the above types
+*/
+function get_recipient_urls( $object, $depth, $acc ) {
     if ( $depth === 30 ) {
-        return array();
+        return $acc;
     }
-    if ( !array_key_exists( 'type', $object ) ) {
-        return new \WP_Error(
-            'invalid_object', __( 'Expected an object type', 'pterotype' ), array( 'status' => 400 )
-        );
-    }
-    switch ( $object['type'] ) {
-    case 'Collection':
-    case 'OrderedCollection':
-        $items = array();
-        $recipients = array();
-        if ( array_key_exists( 'items', $object ) ) {
-            $items = $object['items'];
-        } else if ( array_key_exists( 'orderedItems', $object ) ) {
-            $items = $object['orderedItems'];
-        }
-        if ( count( $items ) > 0 ) {
-            // recursive case: call retrieve_recipients on each $item
-            // merge the results and return them
+    if ( array_key_exists( 'type', $object ) ) {
+        // It's an Actor, Link, or Collection
+        switch ( $object['type'] ) {
+        case Collection:
+        case OrderedCollection:
+            $items = array();
+            if ( array_key_exists( 'items', $object ) ) {
+                $items = $object['items'];
+            } else if ( array_key_exists( 'orderedItems', $object ) ) {
+                $items = $object['orderedItems'];
+            }
+            $recipients = $acc;
             foreach ( $items as $item ) {
-                $recipients[] = retrieve_recipients( $item, $depth + 1 );
+                $recipients = array_merge(
+                    $recipients,
+                    get_recipient_urls( $item, $depth + 1, array_merge( $recipients, $acc ) )
+                );
+            }
+            return $recipients;
+        case Link:
+            if ( array_key_exists( 'href', $object ) ) {
+                $link_target = wp_remote_retrieve_body( wp_remote_get( $object['href'] ) );
+                return get_recipient_urls( $link_target, $depth + 1, $acc );
+            } else {
+                return array();
+            }
+        default:
+            // An Actor
+            if ( array_key_exists( 'inbox', $object ) ) {
+                return array( $object['inbox'] );
+            } else {
+                return array();
             }
         }
-        return $recipients;
-    case 'Link':
-        if ( !array_key_exists( 'href', $object ) ) {
-            return new \WP_Error(
-                'invalid_link',
-                __( 'Link requires an "href" field', 'pterotype' ),
-                array( 'status' => 400 )
-            );
+    } else {
+        // Assume it's an array of object ids (urls) or a single url
+        if ( is_array( $object ) ) {
+            $recipients = $acc;
+            foreach( $object as $url ) {
+                $recipients = array_merge(
+                    $recipients,
+                    get_recipient_urls( $url, $depth + 1, array_merge( $recipients, $acc ) )
+                );
+            }
+            return $recipients;
+        } else {
+            if ( filter_var( $object, FILTER_VALIDATE_URL ) ) {
+                $response_body = wp_remote_retrieve_body( wp_remote_get ( $object ) );
+                return get_recipient_urls( $response_body, $depth + 1, $acc );
+            } else {
+                return array();
+            }
         }
-        $link_target = wp_remote_retrieve_body( wp_remote_get ( $response_body['href'] ) );
-        return retrieve_recipients( $link_target, $depth + 1 );
-    default: // an actor
-        if ( array_key_exists( 'inbox', $response_body ) ) {
-            return array( $response_body['inbox'] );
-        }
-        return array();
     }
 }
 
