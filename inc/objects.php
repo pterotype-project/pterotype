@@ -119,7 +119,7 @@ function update_object( $object ) {
     }
     $object_json = wp_json_encode( $object );
     $res = $wpdb->update(
-        'activitypub_object',
+        'pterotype_objects',
         array( 'object' => $object_json ),
         array( 'id' => $id ),
         '%s', '%d' );
