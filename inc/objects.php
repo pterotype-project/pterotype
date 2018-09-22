@@ -226,4 +226,3 @@ function make_tombstone( $object ) {
     return $tombstone;
 }
 ?>
-
