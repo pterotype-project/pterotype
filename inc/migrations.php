@@ -4,16 +4,19 @@ Poor man's migration system
 */
 namespace migrations;
 
-$previous_version = get_option( 'pterotype_previously_migrated_version' );
-if ( !$previous_version ) {
-    $previous_version = '0.0.0';
+function get_previous_version() {
+    $previous_version = get_option( 'pterotype_previously_migrated_version' );
+    if ( !$previous_version ) {
+        $previous_version = '0.0.0';
+    }
+    return $previous_version;
 }
 
 /*
 It's okay to add new queries to this function, but don't ever delete queries.
 */
 function run_migrations() {
-    global $previous_version;
+    $previous_version = get_previous_version();
     if ( version_compare( $previous_version, PTEROTYPE_VERSION, '>=' ) ) {
         return;
     }
@@ -23,7 +26,7 @@ function run_migrations() {
 }
 
 function apply_migration( $version, $migration_func ) {
-    global $previous_version;
+    $previous_version = get_previous_version();
     if ( version_compare( $previous_version, $version, '<' ) ) {
         call_user_func( __NAMESPACE__ . '\\' . $migration_func );
     }
