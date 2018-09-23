@@ -22,6 +22,7 @@ function run_migrations() {
     }
     apply_migration( '0.0.1', 'migration_0_0_1' );
     apply_migration( '0.0.2', 'migration_0_0_2' );
+    apply_migration( '0.0.3', 'migration_0_0_3' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -157,6 +158,24 @@ function migration_0_0_2() {
             MODIFY activity JSON NOT NULL,
             ADD type VARCHAR(50) NOT NULL;
         "
+    );
+}
+
+function migration_0_0_3() {
+    global $wpdb;
+    $wpdb->query(
+        "
+        CREATE TABLE pterotype_followers(
+            actor_id INT UNSIGNED NOT NULL,
+            object_id INT UNSIGNED NOT NULL,
+            PRIMARY KEY (actor_id, object_id),
+            FOREIGN KEY following_actor_fk(actor_id)
+                REFERENCES pterotype_actors(id),
+            FOREIGN KEY following_object_fk(object_id)
+                REFERENCES pterotype_objects(id)
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
+       "
     );
 }
 ?>

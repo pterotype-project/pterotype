@@ -71,6 +71,9 @@ function handle_activity( $actor_slug, $activity ) {
             array( 'status' => 501 )
         );
         break;
+    case 'Accept':
+        $activity = \activities\accept\handle_inbox( $actor_slug, $activity );
+        break;
     default:
         $create_activity = wrap_object_in_create( $activity );
         if ( is_wp_error( $create_activity ) ) {

@@ -170,6 +170,13 @@ function get_object_by_activitypub_id( $activitypub_id ) {
     return json_decode( $object_json, true );
 }
 
+function get_object_id( $activitypub_id ) {
+    global $wpdb;
+    return $wpdb->get_var( $wpdb->prepare(
+        'SELECT id FROM pterotype_objects WHERE activitypub_id = %s', $activitypub_id
+    ) );
+}
+
 function delete_object( $object ) {
     global $wpdb;
     if ( !array_key_exists( 'id', $object ) ) {

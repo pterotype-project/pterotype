@@ -25,6 +25,11 @@ function get_actor_id( $slug ) {
 }
 
 function get_actor_from_row( $row ) {
+    if ( !$row ) {
+        return new \WP_Error(
+            'not_found', __( 'Actor not found', 'pterotype' ), array( 'status' => 404 )
+        );
+    }
     switch ( $row->type ) {
     case "user":
         $user = get_user_by( 'slug', $row->slug );
