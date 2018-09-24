@@ -177,5 +177,19 @@ function migration_0_0_3() {
         ENGINE=InnoDB DEFAULT CHARSET=utf8;
        "
     );
+    $wpdb->query(
+        "
+       CREATE TABLE pterotype_shares(
+           object_id INT UNSIGNED NOT NULL,
+           announce_id INT UNSIGNED NOT NULL,
+           PRIMARY KEY (object_id, shared_by),
+           FOREIGN KEY shares_object_fk(object_id)
+               REFERENCES pterotype_objects(id),
+           FOREIGN KEY shares_activity_fk(object_id)
+               REFERENCES pterotype_activities(id)
+       )
+       ENGINE=InnoDB DEFAULT CHARSET=utf8;
+       "
+    );
 }
 ?>

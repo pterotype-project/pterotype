@@ -16,6 +16,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/accept.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/reject.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/announce.php';
 
 function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
@@ -26,6 +27,10 @@ function handle_activity( $actor_slug, $activity ) {
         );
     }
     forward_activity( $activity );
+    $res = persist_activity( $actor_slug, $activity );
+    if ( is_wp_error( $res ) ) {
+        return $res;
+    }
     switch ( $activity['type'] ) {
     case 'Create':
         $activity = \activities\create\handle_inbox( $actor_slug, $activity );
@@ -60,6 +65,7 @@ function handle_activity( $actor_slug, $activity ) {
         );
         break;
     case 'Announce':
+        $activity = \activities\announce\handle_inbox( $actor_slug, $activity );
         break;
     case 'Undo':
         // TODO
@@ -68,7 +74,7 @@ function handle_activity( $actor_slug, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
-    return persist_activity( $actor_slug, $activity );
+    return $res;
 }
 
 function forward_activity( $activity ) {

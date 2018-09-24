@@ -29,6 +29,13 @@ function get_activity_by_activitypub_id( $activitypub_id ) {
     return $activity;
 }
 
+function get_activity_id( $activitypub_id ) {
+    global $wpdb;
+    return $wpdb->get_var( $wpdb->prepare(
+        'SELECT id FROM pterotype_activities WHERE activitypub_id = %s', $activitypub_id
+    ) );
+}
+
 function strip_private_fields( $activity ) {
     if ( array_key_exists( 'bto', $activity ) ) {
         unset( $activity['bto'] );

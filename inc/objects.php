@@ -232,4 +232,15 @@ function make_tombstone( $object ) {
     );
     return $tombstone;
 }
+
+function is_local_object( $object ) {
+    if ( array_key_exists( 'id', $object ) ) {
+        $parsed = parse_url( $object['id'] );
+        if ( $parsed ) {
+            $site_host = parse_url( get_site_url() )['host'];
+            return $parsed['host'] === $site_host;
+        }
+    }
+    return false;
+}
 ?>
