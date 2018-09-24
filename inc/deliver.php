@@ -3,6 +3,10 @@ namespace deliver;
 
 require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 
+// TODO look at inReplyTo, object, target, and tag objects
+// and deliver to their audience as well. Recurse through these
+// objects up to some limit
+
 function deliver_activity( $activity ) {
     $recipients = array();
     foreach ( array( 'to', 'bto', 'cc', 'bcc', 'audience' ) as $field ) {
@@ -66,8 +70,15 @@ function get_recipient_urls( $object, $depth, $acc ) {
             return $recipients;
         case Link:
             if ( array_key_exists( 'href', $object ) ) {
-                $link_target = wp_remote_retrieve_body( wp_remote_get( $object['href'] ) );
-                return get_recipient_urls( $link_target, $depth + 1, $acc );
+                $response = wp_remote_get( $object['href'] );
+                if ( is_wp_error( $response ) ) {
+                    return array();
+                }
+                $link_target = wp_remote_retrieve_body( $response );
+                if ( empty( $link_target ) ) {
+                    return array();
+                }
+                return get_recipient_urls( json_decode( $link_target, true ), $depth + 1, $acc );
             } else {
                 return array();
             }
@@ -92,8 +103,15 @@ function get_recipient_urls( $object, $depth, $acc ) {
             return $recipients;
         } else {
             if ( filter_var( $object, FILTER_VALIDATE_URL ) ) {
-                $response_body = wp_remote_retrieve_body( wp_remote_get ( $object ) );
-                return get_recipient_urls( $response_body, $depth + 1, $acc );
+                $response = wp_remote_get( $object );
+                if ( is_wp_error( $response ) ) {
+                    return array();
+                }
+                $response_body = wp_remote_retrieve_body( $response );
+                if ( empty( $response_body ) ) {
+                    return $array();
+                }
+                return get_recipient_urls( json_decode( $response_body, true ), $depth + 1, $acc );
             } else {
                 return array();
             }

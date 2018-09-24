@@ -10,6 +10,8 @@ When an Activity is received (i.e. POSTed) to an Actor's inbox, the server must:
 namespace inbox;
 
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
+require_once plugin_dir_path( __FILE__ ) . '/objects.php';
+require_once plugin_dir_path( __FILE__ ) . '/deliver.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
@@ -51,18 +53,10 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \activities\reject\handle_inbox( $actor_slug, $activity );
         break;
     case 'Add':
-        return new \WP_Error(
-            'not_implemented',
-            __( 'The Add activity has not been implemented', 'pterotype' ),
-            array( 'status' => 501 )
-        );
+        // TODO not yet implemented
         break;
     case 'Remove':
-        return new \WP_Error(
-            'not_implemented',
-            __( 'The Remove activity has not been implemented', 'pterotype' ),
-            array( 'status' => 501 )
-        );
+        // TODO not yet implemented
         break;
     case 'Announce':
         $activity = \activities\announce\handle_inbox( $actor_slug, $activity );
@@ -78,7 +72,77 @@ function handle_activity( $actor_slug, $activity ) {
 }
 
 function forward_activity( $activity ) {
-    // TODO
+    if ( !array_key_exists( 'id', $activity ) ) {
+        return;
+    }
+    $seen_before = \activities\get_activity_id( $activity['id'] );
+    if ( $seen_before ) {
+        return;
+    }
+    if ( !references_local_object( $activity, 0 ) ) {
+        return;
+    }
+    $collections = array_intersect_key(
+        $activity, 
+        array_flip( array( 'to', 'cc', 'audience' ) )
+    );
+    if ( count( $collections ) === 0 ) {
+        return;
+    }
+    \deliver\deliver_activity( $activity );
+}
+
+function references_local_object( $object, $depth ) {
+    if ( $depth === 12 ) {
+        return false;
+    }
+    if ( \objects\is_local_object( $object ) ) {
+        return true;
+    }
+    $fields = array_intersect_key(
+        $object,
+        array_flip( array( 'inReplyTo', 'object', 'target', 'tag' ) )
+    );
+    if ( count( $fields ) === 0 ) {
+        return false;
+    }
+    $result = false;
+    foreach ( $fields as $field_value ) {
+        if ( $result ) {
+            return $result;
+        }
+        // $field_value is either a url, a Link, or an object
+        if ( is_array( $field_value ) ) {
+            if ( array_key_exists( 'id', $field_value ) ) {
+                return \objects\is_local_object( $field_value );
+            } else if ( array_key_exists( 'href', $field_value ) ) {
+                $response = wp_remote_get( $field_value['href'] );
+                if ( is_wp_error( $response ) ) {
+                    return false;
+                }
+                $body = wp_remote_retrieve_body( $response );
+                if ( empty( $body ) ) {
+                    return false;
+                }
+                $body_array = json_decode( $body, true );
+                return $body_array && references_local_object( $body_array, $depth + 1 );
+            } else {
+                return false;
+            }
+        } else {
+            $response = wp_remote_get( $field_value );
+            if ( is_wp_error( $response ) ) {
+                continue;
+            }
+            $body = wp_remote_retrieve_body( $response );
+            if ( empty( $body ) ) {
+                continue;
+            }
+            $body_array = json_decode( $body, true );
+            $result = $body_array && references_local_object( $body_array, $depth + 1 );
+        }
+    }
+    return false;
 }
 
 function persist_activity( $actory_slug, $activity ) {
