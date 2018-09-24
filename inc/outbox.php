@@ -31,6 +31,10 @@ function handle_activity( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
+    $res = persist_activity( $actor_slug, $activity );
+    if ( is_wp_error( $res ) ) {
+        return $res;
+    }
     switch ( $activity['type'] ) {
     case 'Create':
         $activity = \activities\create\handle_outbox( $actor_slug, $activity );
@@ -102,8 +106,8 @@ function handle_activity( $actor_slug, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
-    $activity = deliver_activity( $activity );
-    return persist_activity( $actor_slug, $activity );
+    deliver_activity( $activity );
+    return $res;
 }
 
 function get_outbox( $actor_slug ) {
@@ -137,6 +141,7 @@ function deliver_activity( $activity ) {
 
 function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
+    $activity = \activities\strip_private_fields( $activity );
     $activity = \activities\create_local_activity( $activity );
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );

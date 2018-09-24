@@ -23,6 +23,7 @@ function run_migrations() {
     apply_migration( '0.0.1', 'migration_0_0_1' );
     apply_migration( '0.0.2', 'migration_0_0_2' );
     apply_migration( '0.0.3', 'migration_0_0_3' );
+    apply_migration( '0.0.4', 'migration_0_0_4' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -185,7 +186,36 @@ function migration_0_0_3() {
            PRIMARY KEY (object_id, shared_by),
            FOREIGN KEY shares_object_fk(object_id)
                REFERENCES pterotype_objects(id),
-           FOREIGN KEY shares_activity_fk(object_id)
+           FOREIGN KEY shares_activity_fk(announce_id)
+               REFERENCES pterotype_activities(id)
+       )
+       ENGINE=InnoDB DEFAULT CHARSET=utf8;
+       "
+    );
+}
+
+function migration_0_0_4() {
+    global $wpdb;
+    /*
+    pterotype_actor_likes stores things that local actors have liked
+    */
+    $wpdb->query(
+        "
+       ALTER TABLE pterotype_likes RENAME pterotype_actor_likes;
+       "
+    );
+    /*
+    pterotype_object_likes stores likes about local objects
+    */
+    $wpdb->query(
+        "
+       CREATE TABLE pterotype_object_likes(
+           object_id INT UNSIGNED NOT NULL,
+           like_id INT UNSIGNED NOT NULL,
+           PRIMARY KEY (object_id, like_id),
+           FOREIGN KEY o_likes_object_fk(object_id)
+               REFERENCES pterotype_objects(id),
+           FOREIGN KEY o_likes_activity_fk(like_id)
                REFERENCES pterotype_activities(id)
        )
        ENGINE=InnoDB DEFAULT CHARSET=utf8;

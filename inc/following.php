@@ -56,7 +56,7 @@ function get_following_collection( $actor_slug ) {
         ),
         ARRAY_A
     );
-    if ( !$object ) {
+    if ( !$objects ) {
         $objects = array();
     }
     $collection = \collections\make_ordered_collection( $objects );

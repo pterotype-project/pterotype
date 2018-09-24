@@ -6,6 +6,8 @@ require_once plugin_dir_path( __FILE__ ) . '/outbox.php';
 require_once plugin_dir_path( __FILE__ ) . '/objects.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities.php';
 require_once plugin_dir_path( __FILE__ ) . '/following.php';
+require_once plugin_dir_path( __FILE__ ) . '/likes.php';
+require_once plugin_dir_path( __FILE__ ) . '/shares.php';
 
 function get_actor( $request ) {
     $actor = $request['actor'];
@@ -38,6 +40,16 @@ function get_following( $request ) {
     return \following\get_following_collection( $actor_slug );
 }
 
+function get_likes( $request ) {
+    $object_id = $request['object'];
+    return \likes\get_likes_collection( $object_id );
+}
+
+function get_shares( $request ) {
+    $object_id = $request['object'];
+    return \shares\get_shares_collection( $object_id );
+}
+
 function register_routes() {
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
@@ -59,9 +71,17 @@ function register_routes() {
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_activity',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/following', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_following',
+    ) );
+    register_rest_route( 'pterotype/v1', '/object/(?P<object>[0-9]+)/likes', array(
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\get_likes',
+    ) );
+    register_rest_route( 'pterotype/v1', '/object/(?P<object>[0-9]+)/shares', array(
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\get_shares',
     ) );
 }
 ?>

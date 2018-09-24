@@ -4,7 +4,7 @@ Plugin Name: Pterotype
 */
 require_once plugin_dir_path( __FILE__ ) . 'inc/init.php';
 
-define( 'PTEROTYPE_VERSION', '0.0.3' );
+define( 'PTEROTYPE_VERSION', '0.0.4' );
 
 function pterotype_init() {
     do_action( 'pterotype_init' );
