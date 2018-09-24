@@ -14,6 +14,8 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/accept.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/reject.php';
 
 function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
@@ -41,14 +43,26 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \activities\accept\handle_inbox( $actor_slug, $activity );
         break;
     case 'Reject':
+        $activity = \activities\reject\handle_inbox( $actor_slug, $activity );
         break;
     case 'Add':
+        return new \WP_Error(
+            'not_implemented',
+            __( 'The Add activity has not been implemented', 'pterotype' ),
+            array( 'status' => 501 )
+        );
         break;
     case 'Remove':
+        return new \WP_Error(
+            'not_implemented',
+            __( 'The Remove activity has not been implemented', 'pterotype' ),
+            array( 'status' => 501 )
+        );
         break;
     case 'Announce':
         break;
     case 'Undo':
+        // TODO
         break;
     }
     if ( is_wp_error( $activity ) ) {

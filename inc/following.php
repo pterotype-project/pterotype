@@ -27,6 +27,15 @@ function accept_follow( $actor_id, $object_id ) {
     );
 }
 
+function reject_follow( $actor_id, $object_id ) {
+    global $wpdb;
+    return $wpdb->delete(
+        'pterotype_following',
+        array( 'actor_id' => $actor_id, 'object_id' => $object_id ),
+        '%d'
+    );
+}
+
 function get_following_collection( $actor_slug ) {
     global $wpdb;
     $actor_id = \actors\get_actor_id( $actor_slug );
