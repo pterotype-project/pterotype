@@ -36,7 +36,7 @@ function get_actor_from_row( $row ) {
         return get_user_actor( $user );
     case "commenter":
         return new \WP_Error(
-            'not_implemented', __( 'Commenter actors not yet implemented', 'activitypub' )
+            'not_implemented', __( 'Commenter actors not yet implemented', 'pterotype' )
         );
     }
 }

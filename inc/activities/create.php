@@ -14,17 +14,17 @@ Returns either the modified $activity or a WP_Error.
 function handle_outbox( $actor_slug, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Create') ) {
         return new \WP_Error(
-            'invalid_activity', __( 'Expecting a Create activity', 'activitypub' )
+            'invalid_activity', __( 'Expecting a Create activity', 'pterotype' )
         );
     }
     if ( !array_key_exists( 'object', $activity ) ) {
         return new \WP_Error(
-            'invalid_object', __( 'Expecting an object', 'activitypub' )
+            'invalid_object', __( 'Expecting an object', 'pterotype' )
         );
     }
     if ( !array_key_exists( 'actor', $activity ) ) {
         return new \WP_Error(
-            'invalid_actor', __( 'Expecting a valid actor', 'activitypub' )
+            'invalid_actor', __( 'Expecting a valid actor', 'pterotype' )
         );
     }
     $object = $activity['object'];

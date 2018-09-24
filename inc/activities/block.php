@@ -8,7 +8,7 @@ function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
-            __( 'Expected an object', 'activitypub' ),
+            __( 'Expected an object', 'pterotype' ),
             array( 'status' => 400 )
         );
     }
