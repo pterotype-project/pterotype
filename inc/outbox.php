@@ -65,15 +65,32 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \activities\block\handle_outbox( $actor_slug, $activity );
         break;
     case 'Undo':
-        return new \WP_Error(
-            'not_implemented',
-            __( 'The Undo activity has not been implemented', 'pterotype' ),
-            array( 'status' => 501 )
-        );
+        // TODO
         break;
     case 'Accept':
         $activity = \activities\accept\handle_inbox( $actor_slug, $activity );
         break;
+    // For the other activities, just persist and deliver
+    case 'Reject':
+    case 'Announce':
+    case 'Arrive':
+    case 'Dislike':
+    case 'Flag':
+    case 'Ignore':
+    case 'Invite':
+    case 'Join':
+    case 'Leave':
+    case 'Listen':
+    case 'Move':
+    case 'Offer':
+    case 'Question':
+    case 'Read':
+    case 'TentativeReject':
+    case 'TentativeAccept':
+    case 'Travel':
+    case 'View':
+        break;
+    // For all other objects, wrap in a Create activity
     default:
         $create_activity = wrap_object_in_create( $activity );
         if ( is_wp_error( $create_activity ) ) {
