@@ -34,4 +34,35 @@ function add_follower( $actor_slug, $follower ) {
         );
     );
 }
+
+function get_followers_collection( $actor_slug ) {
+    global $wpdb;
+    $actor_id = \actors\get_actor_id( $actor_slug ); 
+    if ( !$actor_id ) {
+        return new \WP_Error(
+            'not_found',
+            __( 'Actor not found', 'pterotype' ),
+            array( 'status' => 404 )
+        );
+    }
+    $followers = $wpdb->get_results(
+        $wpdb->prepare(
+            '
+           SELECT object FROM pterotype_followers
+           JOIN pterotype_objects ON object_id = pterotype_objects.id
+           WHERE actor_id = %d
+           ',
+            $actor_id
+        ),
+        ARRAY_A
+    );
+    if ( !$followers ) {
+        $followers = array();
+    }
+    $collection = \collections\make_ordered_collection( $followers );
+    $collection['id'] = get_rest_url( null, sprintf(
+        '/pterotype/v1/actor/%s/followers', $actor_slug
+    ) );
+    return $collection;
+}
 ?>

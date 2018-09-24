@@ -24,7 +24,13 @@ function create_local_object( $object ) {
     $object_id = $wpdb->insert_id;
     $type = $object['type'];
     $object_url = get_rest_url( null, sprintf( '/pterotype/v1/object/%d', $object_id ) );
+    $object_likes = get_rest_url( null, sprintf( '/pterotype/v1/object/%d/likes', $object_id ) );
+    $object_shares = get_rest_url(
+        null, sprintf( '/pterotype/v1/object/%d/shares', $object_id )
+    );
     $object['id'] = $object_url;
+    $object['likes'] = $object_likes;
+    $object['shares'] = $object_shares;
     $res = $wpdb->replace(
         'pterotype_objects',
         array (

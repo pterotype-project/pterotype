@@ -40,6 +40,11 @@ function get_following( $request ) {
     return \following\get_following_collection( $actor_slug );
 }
 
+function get_followers( $request ) {
+    $actor_slug = $request['actor'];
+    return \followers\get_followers_collection( $actor_slug );
+}
+
 function get_likes( $request ) {
     $object_id = $request['object'];
     return \likes\get_likes_collection( $object_id );
@@ -74,6 +79,10 @@ function register_routes() {
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/following', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_following',
+    ) );
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/followers', array(
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\get_followers',
     ) );
     register_rest_route( 'pterotype/v1', '/object/(?P<object>[0-9]+)/likes', array(
         'methods' => 'GET',
