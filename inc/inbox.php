@@ -19,6 +19,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/accept.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/reject.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/announce.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/undo.php';
 
 function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {
@@ -52,17 +53,11 @@ function handle_activity( $actor_slug, $activity ) {
     case 'Reject':
         $activity = \activities\reject\handle_inbox( $actor_slug, $activity );
         break;
-    case 'Add':
-        // TODO not yet implemented
-        break;
-    case 'Remove':
-        // TODO not yet implemented
-        break;
     case 'Announce':
         $activity = \activities\announce\handle_inbox( $actor_slug, $activity );
         break;
     case 'Undo':
-        // TODO
+        $activity = \activities\undo\handle_inbox( $actor_slug, $activity );
         break;
     }
     if ( is_wp_error( $activity ) ) {

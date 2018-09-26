@@ -8,11 +8,12 @@ define( 'PTEROTYPE_FOLLOW_FOLLOWING', 'FOLLOWING' );
 
 function request_follow( $actor_id, $object_id ) {
     global $wpdb;
-    return $wpdb->insert(
+    return $wpdb->replace(
         'pterotype_following',
-        array( 'actor_id' => $actor_id,
-               'object_id' => $object_id,
-               'state' => PTEROTYPE_FOLLOW_PENDING
+        array(
+            'actor_id' => $actor_id,
+            'object_id' => $object_id,
+            'state' => PTEROTYPE_FOLLOW_PENDING
         )
     );
 }

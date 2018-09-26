@@ -21,6 +21,7 @@ require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/like.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
 require_once plugin_dir_path( __FILE__ ) . '/activities/block.php';
+require_once plugin_dir_path( __FILE__ ) . '/activities/undo.php';
 
 function handle_activity( $actor_slug, $activity ) {
     // TODO handle authentication/authorization
@@ -69,7 +70,7 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \activities\block\handle_outbox( $actor_slug, $activity );
         break;
     case 'Undo':
-        // TODO
+        $activity = \activities\undo\handle_outbox( $actor_slug, $activity );
         break;
     case 'Accept':
         $activity = \activities\accept\handle_inbox( $actor_slug, $activity );
