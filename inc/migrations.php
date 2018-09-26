@@ -170,9 +170,9 @@ function migration_0_0_3() {
            actor_id INT UNSIGNED NOT NULL,
            object_id INT UNSIGNED NOT NULL,
            PRIMARY KEY (actor_id, object_id),
-           FOREIGN KEY following_actor_fk(actor_id)
+           FOREIGN KEY followers_actor_fk(actor_id)
                REFERENCES pterotype_actors(id),
-           FOREIGN KEY following_object_fk(object_id)
+           FOREIGN KEY followers_object_fk(object_id)
                REFERENCES pterotype_objects(id)
        )
        ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -183,7 +183,7 @@ function migration_0_0_3() {
        CREATE TABLE pterotype_shares(
            object_id INT UNSIGNED NOT NULL,
            announce_id INT UNSIGNED NOT NULL,
-           PRIMARY KEY (object_id, shared_by),
+           PRIMARY KEY (object_id, announce_id),
            FOREIGN KEY shares_object_fk(object_id)
                REFERENCES pterotype_objects(id),
            FOREIGN KEY shares_activity_fk(announce_id)

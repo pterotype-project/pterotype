@@ -30,8 +30,8 @@ function add_follower( $actor_slug, $follower ) {
         'pterotype_followers',
         array(
             'actor_id' => $actor_id,
-            'object_id' = $object_id,
-        );
+            'object_id' => $object_id,
+        )
     );
 }
 
@@ -64,8 +64,8 @@ function remove_follower( $actor_slug, $follower ) {
         'pterotype_followers',
         array(
             'actor_id' => $actor_id,
-            'object_id' = $object_id,
-        );
+            'object_id' => $object_id,
+        )
     );
 }
 
