@@ -1,6 +1,8 @@
 <?php
 namespace activities;
 
+require_once plugin_dir_path( __FILE__ ) . '../util.php';
+
 function get_activity( $id ) {
     global $wpdb;
     $activity_json = $wpdb->get_var( $wpdb->prepare(
@@ -48,6 +50,7 @@ function strip_private_fields( $activity ) {
 
 function persist_activity( $activity ) {
     global $wpdb;
+    $activity = \util\dereference_object( $activity );
     if ( !array_key_exists( 'id', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',
@@ -74,6 +77,7 @@ function persist_activity( $activity ) {
 
 function create_local_activity( $activity ) {
     global $wpdb;
+    $activity = \util\dereference_object( $activity );
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',

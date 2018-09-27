@@ -1,8 +1,8 @@
 <?php
 namespace activities\block;
 
-require_once plugin_dir_path( __FILE__ ) . '/../blocks.php';
-require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../blocks.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 
 function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {

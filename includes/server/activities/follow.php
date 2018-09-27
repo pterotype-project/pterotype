@@ -1,10 +1,10 @@
 <?php
 namespace activities\follow;
 
-require_once plugin_dir_path( __FILE__ ) . '/../following.php';
-require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
-require_once plugin_dir_path( __FILE__ ) . '/../outbox.php';
+require_once plugin_dir_path( __FILE__ ) . '../following.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../outbox.php';
 
 function handle_outbox( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {

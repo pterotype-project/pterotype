@@ -1,7 +1,7 @@
 <?php
 namespace following;
 
-require_once plugin_dir_path( __FILE__ ) . '/collections.php';
+require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 
 define( 'PTEROTYPE_FOLLOW_PENDING', 'PENDING' );
 define( 'PTEROTYPE_FOLLOW_FOLLOWING', 'FOLLOWING' );

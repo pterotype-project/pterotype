@@ -1,9 +1,9 @@
 <?php
 namespace init;
 
-require_once plugin_dir_path( __FILE__ ) . '/server/api.php';
-require_once plugin_dir_path( __FILE__ ) . '/server/actors.php';
-require_once plugin_dir_path( __FILE__ ) . '/migrations.php';
+require_once plugin_dir_path( __FILE__ ) . 'server/api.php';
+require_once plugin_dir_path( __FILE__ ) . 'server/actors.php';
+require_once plugin_dir_path( __FILE__ ) . 'migrations.php';
 
 add_action( 'rest_api_init', function() {
     \api\register_routes();

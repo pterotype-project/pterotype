@@ -1,7 +1,7 @@
 <?php
 namespace activities\update;
 
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 
 function handle_outbox( $actor_slug, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Update') ) {

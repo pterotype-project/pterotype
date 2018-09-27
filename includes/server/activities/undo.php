@@ -1,13 +1,13 @@
 <?php
 namespace activities\undo;
 
-require_once plugin_dir_path( __FILE__ ) . '/../../util.php';
-require_once plugin_dir_path( __FILE__ ) . '/../activities.php';
-require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
-require_once plugin_dir_path( __FILE__ ) . '/../likes.php';
-require_once plugin_dir_path( __FILE__ ) . '/../following.php';
-require_once plugin_dir_path( __FILE__ ) . '/../followers.php';
+require_once plugin_dir_path( __FILE__ ) . '../../util.php';
+require_once plugin_dir_path( __FILE__ ) . '../activities.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../likes.php';
+require_once plugin_dir_path( __FILE__ ) . '../following.php';
+require_once plugin_dir_path( __FILE__ ) . '../followers.php';
 
 function handle_outbox( $actor_slug, $activity ) {
     $object = validate_undo( $activity );

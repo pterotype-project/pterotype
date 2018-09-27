@@ -1,8 +1,8 @@
 <?php
 namespace activities\announce;
 
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
-require_once plugin_dir_path( __FILE__ ) . '/../shares.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../shares.php';
 
 function handle_inbox( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {

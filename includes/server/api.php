@@ -1,13 +1,13 @@
 <?php
 namespace api;
 
-require_once plugin_dir_path( __FILE__ ) . '/actors.php';
-require_once plugin_dir_path( __FILE__ ) . '/outbox.php';
-require_once plugin_dir_path( __FILE__ ) . '/objects.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities.php';
-require_once plugin_dir_path( __FILE__ ) . '/following.php';
-require_once plugin_dir_path( __FILE__ ) . '/likes.php';
-require_once plugin_dir_path( __FILE__ ) . '/shares.php';
+require_once plugin_dir_path( __FILE__ ) . 'actors.php';
+require_once plugin_dir_path( __FILE__ ) . 'outbox.php';
+require_once plugin_dir_path( __FILE__ ) . 'objects.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities.php';
+require_once plugin_dir_path( __FILE__ ) . 'following.php';
+require_once plugin_dir_path( __FILE__ ) . 'likes.php';
+require_once plugin_dir_path( __FILE__ ) . 'shares.php';
 
 function get_actor( $request ) {
     $actor = $request['actor'];

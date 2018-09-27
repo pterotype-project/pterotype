@@ -1,9 +1,9 @@
 <?php
 namespace activities\like;
 
-require_once plugin_dir_path( __FILE__ ) . '/../likes.php';
-require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../likes.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 
 function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {

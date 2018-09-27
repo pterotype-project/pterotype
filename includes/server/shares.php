@@ -1,7 +1,7 @@
 <?php
 namespace shares;
 
-require_once plugin_dir_path( __FILE__ ) . '/collections.php';
+require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 
 function add_share( $object_id, $activity_id ) {
     global $wpdb;

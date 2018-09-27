@@ -12,16 +12,16 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 */
 namespace outbox;
 
-require_once plugin_dir_path( __FILE__ ) . '/activities.php';
-require_once plugin_dir_path( __FILE__ ) . '/actors.php';
-require_once plugin_dir_path( __FILE__ ) . '/deliver.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/like.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/block.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/undo.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities.php';
+require_once plugin_dir_path( __FILE__ ) . 'actors.php';
+require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/create.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/update.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/delete.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/like.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/follow.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/block.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 
 function handle_activity( $actor_slug, $activity ) {
     // TODO handle authentication/authorization

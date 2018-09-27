@@ -2,12 +2,14 @@
 namespace deliver;
 
 require_once plugin_dir_path( __FILE__ ) . 'activities.php';
+require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 // TODO look at inReplyTo, object, target, and tag objects
 // and deliver to their audience as well. Recurse through these
 // objects up to some limit
 
 function deliver_activity( $activity ) {
+    $activity = \util\dereference_object( $activity );
     $recipients = array();
     foreach ( array( 'to', 'bto', 'cc', 'bcc', 'audience' ) as $field ) {
         $recipients = array_merge(

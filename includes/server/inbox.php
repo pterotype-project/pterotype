@@ -9,17 +9,17 @@ When an Activity is received (i.e. POSTed) to an Actor's inbox, the server must:
 */
 namespace inbox;
 
-require_once plugin_dir_path( __FILE__ ) . '/activities.php';
-require_once plugin_dir_path( __FILE__ ) . '/objects.php';
-require_once plugin_dir_path( __FILE__ ) . '/deliver.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/create.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/update.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/delete.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/follow.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/accept.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/reject.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/announce.php';
-require_once plugin_dir_path( __FILE__ ) . '/activities/undo.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities.php';
+require_once plugin_dir_path( __FILE__ ) . 'objects.php';
+require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/create.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/update.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/delete.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/follow.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/accept.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/reject.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/announce.php';
+require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 
 function handle_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'type', $activity ) ) {

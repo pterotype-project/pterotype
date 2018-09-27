@@ -1,7 +1,7 @@
 <?php
 namespace likes;
 
-require_once plugin_dir_path( __FILE__ ) . '/collections.php';
+require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 
 function create_local_actor_like( $actor_id, $object_id ) {
     global $wpdb;

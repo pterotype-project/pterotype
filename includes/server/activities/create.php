@@ -1,7 +1,7 @@
 <?php
 namespace activities\create;
 
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 
 /*
 Create a new post or comment (depending on $activity["object"]["type"]),

@@ -1,9 +1,9 @@
 <?php
 namespace activities\reject;
 
-require_once plugin_dir_path( __FILE__ ) . '/../following.php';
-require_once plugin_dir_path( __FILE__ ) . '/../objects.php';
-require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../following.php';
+require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 
 function handle_inbox( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
