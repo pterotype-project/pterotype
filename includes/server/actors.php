@@ -1,6 +1,8 @@
 <?php
 namespace actors;
 
+define( 'PTEROTYPE_BLOG_ACTOR_SLUG', '-blog' );
+
 function get_actor( $id ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
@@ -20,7 +22,7 @@ function get_actor_by_slug ( $slug ) {
 function get_actor_id( $slug ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
-        "SELECT slug FROM pterotype_actors WHERE slug = %s", $slug
+        'SELECT slug FROM pterotype_actors WHERE slug = %s', $slug
     ) );
 }
 
@@ -31,59 +33,92 @@ function get_actor_from_row( $row ) {
         );
     }
     switch ( $row->type ) {
-    case "user":
+    case 'blog':
+        return get_blog_actor();
+    case 'user':
         $user = get_user_by( 'slug', $row->slug );
         return get_user_actor( $user );
-    case "commenter":
+    case 'commenter':
         return new \WP_Error(
             'not_implemented', __( 'Commenter actors not yet implemented', 'pterotype' )
         );
     }
 }
 
+function get_blog_actor() {
+    $actor = array(
+        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
+        'type' => 'Organization',
+        'id' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
+        ),
+        'following' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/following', PTEROTYPE_BLOG_ACTOR_SLUG )
+        ),
+        'followers' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/followers', PTEROTYPE_BLOG_ACTOR_SLUG )
+        ),
+        'liked' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/liked', PTEROTYPE_BLOG_ACTOR_SLUG )
+        ),
+        'inbox' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/inbox', PTEROTYPE_BLOG_ACTOR_SLUG )
+        ),
+        'outbox' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/outbox', PTEROTYPE_BLOG_ACTOR_SLUG )
+        ),
+        'name' => get_bloginfo( 'name' ),
+        'summary' => get_bloginfo( 'description' ),
+        'url' => network_site_url( '/' ),
+    );
+    if ( has_custom_logo() ) {
+        $actor['icon'] = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ) )[0];
+    }
+    return $actor;
+}
+
 function get_user_actor( $user ) {
     $handle = get_the_author_meta( 'user_nicename', $user->get('ID'));
     $actor = array(
-        "@context" => array( "https://www.w3.org/ns/activitystreams" ),
-        "type" => "Person",
-        "id" => get_rest_url( null, sprintf( '/pterotype/v1/actor/%s', $handle ) ),
-        "following" => get_rest_url(
+        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
+        'type' => 'Person',
+        'id' => get_rest_url( null, sprintf( '/pterotype/v1/actor/%s', $handle ) ),
+        'following' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/following', $handle ) ),
-        "followers" => get_rest_url(
+        'followers' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/followers', $handle ) ),
-        "liked" => get_rest_url(
+        'liked' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/liked', $handle ) ),
-        "inbox" => get_rest_url(
+        'inbox' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/inbox', $handle ) ),
-        "outbox" => get_rest_url(
+        'outbox' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/outbox', $handle ) ),
-        "preferredUsername" => $handle,
-        "name" => get_the_author_meta( 'display_name', $user->get('ID') ),
-        "summary" => get_the_author_meta( 'description', $user->get('ID') ),
-        "icon" => get_avatar_url ( $user->get('ID') ),
-        "url" => get_the_author_meta( 'user_url', $user->get('ID') ),
+        'preferredUsername' => $handle,
+        'name' => get_the_author_meta( 'display_name', $user->get('ID') ),
+        'summary' => get_the_author_meta( 'description', $user->get('ID') ),
+        'icon' => get_avatar_url( $user->get('ID') ),
+        'url' => get_the_author_meta( 'user_url', $user->get('ID') ),
     );
     return $actor;
 }
 
-/*
-For every user in the WP instance, create a new actor row for that user
-if it doesn't already exist
-*/
-function initialize_user_actors() {
+function initialize_actors() {
     global $wpdb;
     $user_slugs = $wpdb->get_col( 
-        "SELECT user_nicename FROM wp_users;"
+        'SELECT user_nicename FROM wp_users;'
     );
     foreach ( $user_slugs as $user_slug ) {
-        create_actor_from_user( $user_slug );
+        create_actor( $user_slug, 'user' );
     }
+    create_actor( PTEROTYPE_BLOG_ACTOR_SLUG, 'blog' );
 }
 
-function create_actor_from_user( $user_slug ) {
+function create_actor( $slug, $type ) {
     global $wpdb;
-    $wpdb->query( $wpdb->prepare(
-        "INSERT IGNORE INTO pterotype_actors(slug, type) VALUES(%s, 'user')", $user_slug
-    ) );
+    $wpdb->replace(
+        'pterotype_actors',
+        array( 'slug' => $slug, 'type' => $type ),
+        '%s'
+    );
 }
 ?>

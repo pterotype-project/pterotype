@@ -11,11 +11,11 @@ add_action( 'rest_api_init', function() {
 
 add_action( 'user_register', function( $user_id ) {
     $slug = get_the_author_meta( 'user_nicename', $user_id );
-    \actors\create_actor_from_user( $slug );
+    \actors\create_actor_user( $slug, 'user' );
 } );
 
 add_action( 'pterotype_init', function() {
-    \actors\initialize_user_actors();
+    \actors\initialize_actors();
 } );
 
 add_action( 'pterotype_load', function() {
