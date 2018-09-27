@@ -1,7 +1,7 @@
 <?php
 namespace activities\undo;
 
-require_once plugin_dir_path( __FILE__ ) . '/../util.php';
+require_once plugin_dir_path( __FILE__ ) . '/../../util.php';
 require_once plugin_dir_path( __FILE__ ) . '/../activities.php';
 require_once plugin_dir_path( __FILE__ ) . '/../actors.php';
 require_once plugin_dir_path( __FILE__ ) . '/../objects.php';

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Pterotype
 */
-require_once plugin_dir_path( __FILE__ ) . 'inc/init.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/init.php';
 
 define( 'PTEROTYPE_VERSION', '0.0.4' );
 
