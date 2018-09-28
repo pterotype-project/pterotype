@@ -1,11 +1,17 @@
 <?php
 namespace objects;
 
+require_once plugin_dir_path( __FILE__ ) . '../util.php';
+
 // TODO for 'post' objects, store a post id instead of the full post text,
 // then hydrate the text on read
 
 function create_local_object( $object ) {
     global $wpdb;
+    $object = \util\dereference_object( $object );
+    if ( is_wp_error( $object ) ) {
+        return $object;
+    }
     if ( !array_key_exists( 'type', $object) ) {
         return new \WP_Error(
             'invalid_object',
@@ -51,6 +57,10 @@ function create_local_object( $object ) {
 
 function upsert_object( $object ) {
     global $wpdb;
+    $object = \util\dereference_object( $object );
+    if ( is_wp_error( $object ) ) {
+        return $object;
+    }
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_object',
@@ -116,6 +126,10 @@ function upsert_object( $object ) {
 
 function update_object( $object ) {
     global $wpdb;
+    $object = \util\dereference_object( $object );
+    if ( is_wp_error( $object ) ) {
+        return $object;
+    }
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_object',
@@ -185,6 +199,10 @@ function get_object_id( $activitypub_id ) {
 
 function delete_object( $object ) {
     global $wpdb;
+    $object = \util\dereference_object( $object );
+    if ( is_wp_error( $object ) ) {
+        return $object;
+    }
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_object',
@@ -240,22 +258,14 @@ function make_tombstone( $object ) {
 }
 
 function is_local_object( $object ) {
-    if ( is_array( $object ) ) {
-        if ( array_key_exists( 'id', $object ) ) {
-            $parsed = parse_url( $object['id'] );
-            if ( $parsed ) {
-                $site_host = parse_url( get_site_url() )['host'];
-                return $parsed['host'] === $site_host;
-            }
-        } else {
-            return false;
-        }
-    } else {
-        $parsed = parse_url( $object );
-        if ( $parsed ) {
-            $site_host = parse_url( get_site_url() )['host'];
-            return $parsed['host'] === $site_host;
-        }
+    $url = \util\get_id( $object );
+    if ( !$url ) {
+        return false;
+    }
+    $parsed = parse_url( $url );
+    if ( $parsed ) {
+        $site_host = parse_url( get_site_url() )['host'];
+        return $parsed['host'] === $site_host;
     }
     return false;
 }

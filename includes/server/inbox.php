@@ -20,8 +20,10 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/accept.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/reject.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/announce.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
+require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
+    $activity = \util\dereference_object( $activity );
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',

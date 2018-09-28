@@ -22,9 +22,14 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/like.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/follow.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/block.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
+require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
     // TODO handle authentication/authorization
+    $activity = \util\dereference_object( $activity );
+    if ( is_wp_error( $activity ) ) {
+        return $activity;
+    }
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
             'invalid_activity',

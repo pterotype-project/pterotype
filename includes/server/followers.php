@@ -3,6 +3,7 @@ namespace followers;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function add_follower( $actor_slug, $follower ) {
     global $wpdb;
@@ -14,6 +15,7 @@ function add_follower( $actor_slug, $follower ) {
             array( 'status' => 404 )
         );
     }
+    $follower = \util\dereference_object( $follower );
     if ( !array_key_exists( 'id', $follower ) ) {
         return new \WP_Error(
             'invalid_object',
@@ -45,6 +47,7 @@ function remove_follower( $actor_slug, $follower ) {
             array( 'status' => 404 )
         );
     }
+    $follower = \util\dereference_object( $follower );
     if ( !array_key_exists( 'id', $follower ) ) {
         return new \WP_Error(
             'invalid_object',
