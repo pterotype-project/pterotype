@@ -22,7 +22,7 @@ function get_actor_by_slug ( $slug ) {
 function get_actor_id( $slug ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
-        'SELECT slug FROM pterotype_actors WHERE slug = %s', $slug
+        'SELECT id FROM pterotype_actors WHERE slug = %s', $slug
     ) );
 }
 

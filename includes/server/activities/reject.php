@@ -10,7 +10,7 @@ function handle_inbox( $actor_slug, $activity ) {
         return new \WP_Error(
             'invalid_activity',
             __( 'Activity must have an "object" field', 'pterotype' ),
-            array( 'status' => 400 );
+            array( 'status' => 400 )
         );
     }
     $object = $activity['object'];

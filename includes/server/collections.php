@@ -8,5 +8,6 @@ function make_ordered_collection( $objects ) {
         'totalItems' => count( $objects ),
         'orderedItems' => $objects
     );
+    return $ordered_collection;
 }
 ?>

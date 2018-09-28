@@ -119,21 +119,29 @@ function handle_activity( $actor_slug, $activity ) {
 function get_outbox( $actor_slug ) {
     global $wpdb;
     // TODO what sort of joins should these be?
+    $actor_id = \actors\get_actor_id( $actor_slug );
+    if ( !$actor_id ) {
+        return new \WP_Error(
+            'not_found',
+            __( 'Actor not found', 'pterotype' ),
+            array( 'status' => 404 )
+        );
+    }
     $results = $wpdb->get_results( $wpdb->prepare(
-            "
+            '
             SELECT pterotype_activities.activity FROM pterotype_outbox
             JOIN pterotype_actors
                 ON pterotype_actors.id = pterotype_outbox.actor_id
             JOIN pterotype_activities
                 ON pterotype_activities.id = pterotype_outbox.activity_id
-            WHERE pterotype_pterotype_outbox.actor_id = %d
-            ",
+            WHERE pterotype_outbox.actor_id = %d
+            ',
             $actor_id
-    ) );
+    ), ARRAY_A );
     // TODO return PagedCollection if $activites is too big
     return \collections\make_ordered_collection( array_map(
         function ( $result) {
-            return json_decode( $result->activity, true);
+            return json_decode( $result['activity'], true);
         },
         $results
     ) );

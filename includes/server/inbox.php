@@ -12,6 +12,7 @@ namespace inbox;
 require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
 require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
+require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/delete.php';
@@ -65,6 +66,7 @@ function handle_activity( $actor_slug, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
+    $res = new \WP_REST_Response();
     return $res;
 }
 
@@ -142,7 +144,7 @@ function references_local_object( $object, $depth ) {
     return false;
 }
 
-function persist_activity( $actory_slug, $activity ) {
+function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
     $activity = \activities\persist_activity( $activity );
     if ( is_wp_error( $activity ) ) {
@@ -150,11 +152,44 @@ function persist_activity( $actory_slug, $activity ) {
     }
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );
-    $wpdb->insert( 'pterotype_inbox', array(
+    $res = $wpdb->insert( 'pterotype_inbox', array(
         'actor_id' => $actor_id,
         'activity_id' => $activity_id,
     ) );
-    $response = new \WP_Rest_Response();
-    return $response;
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error',
+            __( 'Error persisting inbox record', 'pterotype' )
+        );
+    }
+}
+
+function get_inbox( $actor_slug ) {
+    global $wpdb;
+    $actor_id = \actors\get_actor_id( $actor_slug );
+    if ( !$actor_id ) {
+        return new \WP_Error(
+            'not_found',
+            __( 'Actor not found', 'pterotype' ),
+            array( 'status' => 404 )
+        );
+    }
+    $results = $wpdb->get_results( $wpdb->prepare(
+        '
+        SELECT pterotype_activities.activity FROM pterotype_inbox
+        JOIN pterotype_actors
+            ON pterotype_actors.id = pterotype_inbox.actor_id
+        JOIN pterotype_activities
+            ON pterotype_activities.id = pterotype_inbox.activity_id
+        WHERE pterotype_inbox.actor_id = %d
+        ',
+        $actor_id
+    ), ARRAY_A );
+    return \collections\make_ordered_collection( array_map(
+        function ( $result ) {
+            return json_decode( $result['activity'], true );
+        },
+        $results
+    ) );
 }
 ?>

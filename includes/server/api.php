@@ -3,6 +3,7 @@ namespace api;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'outbox.php';
+require_once plugin_dir_path( __FILE__ ) . 'inbox.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 require_once plugin_dir_path( __FILE__ ) . 'following.php';
@@ -23,6 +24,17 @@ function post_to_outbox( $request ) {
 function get_outbox( $request ) {
     $actor_slug = $request['actor'];
     return \outbox\get_outbox( $actor_slug );
+}
+
+function post_to_inbox( $request ) {
+    $actor_slug = $request['actor'];
+    $activity = json_decode( $request->get_body(), true );
+    return \inbox\handle_activity( $actor_slug, $activity );
+}
+
+function get_inbox( $request ) {
+    $actor_slug = $request['actor'];
+    return \inbox\get_inbox( $actor_slug );
 }
 
 function get_object( $request ) {
@@ -60,9 +72,17 @@ function register_routes() {
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_outbox',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+/outbox', array(
-        'methods' => 'POST',
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
+        'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_outbox',
+    ) );
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/inbox', array(
+        'methods' => 'POST',
+        'callback' => __NAMESPACE__ . '\post_to_inbox',
+    ) );
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/inbox', array(
+        'methods' => 'GET',
+        'callback' => __NAMESPACE__ . '\get_inbox',
     ) );
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
         'methods' => 'GET',

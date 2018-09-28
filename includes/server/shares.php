@@ -19,7 +19,7 @@ function get_shares_collection( $object_id ) {
     global $wpdb;
     $shares = $wpdb->get_results(
         $wpdb->prepare(
-            '
+           '
            SELECT activity FROM pterotype_shares
            JOIN pterotype_activities ON announce_id = pterotype_activities.id
            WHERE object_id = %d

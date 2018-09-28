@@ -95,7 +95,7 @@ function create_local_activity( $activity ) {
         );
     }
     $activity_id = $wpdb->insert_id;
-    $activity_url = get_rest_url( null, sprintf( '/pterotype/v1/activity/%d', $id ) );
+    $activity_url = get_rest_url( null, sprintf( '/pterotype/v1/activity/%d', $activity_id ) );
     $activity['id'] = $activity_url;
     $res = $wpdb->replace(
         'pterotype_activities',
