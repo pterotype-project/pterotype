@@ -11,59 +11,59 @@ require_once plugin_dir_path( __FILE__ ) . 'likes.php';
 require_once plugin_dir_path( __FILE__ ) . 'shares.php';
 
 function get_actor( $request ) {
-    $actor = $request['actor'];
+    $actor = $request->get_url_params()['actor'];
     return \actors\get_actor_by_slug( $actor );
 }
 
 function post_to_outbox( $request ) {
-    $actor_slug = $request['actor'];
+    $actor_slug = $request->get_url_params()['actor'];
     $activity = json_decode( $request->get_body(), true );
     return \outbox\handle_activity( $actor_slug, $activity );
 }
 
 function get_outbox( $request ) {
-    $actor_slug = $request['actor'];
+    $actor_slug = $request->get_url_params()['actor'];
     return \outbox\get_outbox( $actor_slug );
 }
 
 function post_to_inbox( $request ) {
-    $actor_slug = $request['actor'];
+    $actor_slug = $request->get_url_params()['actor'];
     $activity = json_decode( $request->get_body(), true );
     return \inbox\handle_activity( $actor_slug, $activity );
 }
 
 function get_inbox( $request ) {
-    $actor_slug = $request['actor'];
+    $actor_slug = $request->get_url_params()['actor'];
     return \inbox\get_inbox( $actor_slug );
 }
 
 function get_object( $request ) {
-    $id = $request['id'];
+    $id = $request->get_url_params()['id'];
     return \objects\get_object( $id );
 }
 
 function get_activity( $request ) {
-    $id = $request['id'];
+    $id = $request->get_url_params()['id'];
     return \activities\get_activity( $id );
 }
 
 function get_following( $request ) {
-    $actor_slug = $request['actor'];
+    $actor_slug = $request->get_url_params()['actor'];
     return \following\get_following_collection( $actor_slug );
 }
 
 function get_followers( $request ) {
-    $actor_slug = $request['actor'];
+    $actor_slug = $request->get_url_params()['actor'];
     return \followers\get_followers_collection( $actor_slug );
 }
 
 function get_likes( $request ) {
-    $object_id = $request['object'];
+    $object_id = $request->get_url_params()['object'];
     return \likes\get_likes_collection( $object_id );
 }
 
 function get_shares( $request ) {
-    $object_id = $request['object'];
+    $object_id = $request->get_url_params()['object'];
     return \shares\get_shares_collection( $object_id );
 }
 
