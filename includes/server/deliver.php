@@ -73,15 +73,11 @@ function get_recipient_urls( $object, $depth, $acc ) {
             return $recipients;
         case Link:
             if ( array_key_exists( 'href', $object ) ) {
-                $response = wp_remote_get( $object['href'] );
+                $response = \util\get_object_from_url( $object['href'] );
                 if ( is_wp_error( $response ) ) {
                     return array();
                 }
-                $link_target = wp_remote_retrieve_body( $response );
-                if ( empty( $link_target ) ) {
-                    return array();
-                }
-                return get_recipient_urls( json_decode( $link_target, true ), $depth + 1, $acc );
+                return get_recipient_urls( $link_target, $depth + 1, $acc );
             } else {
                 return array();
             }
@@ -106,15 +102,11 @@ function get_recipient_urls( $object, $depth, $acc ) {
             return $recipients;
         } else {
             if ( filter_var( $object, FILTER_VALIDATE_URL ) ) {
-                $response = wp_remote_get( $object );
+                $response = \util\get_object_from_url( $object );
                 if ( is_wp_error( $response ) ) {
                     return array();
                 }
-                $response_body = wp_remote_retrieve_body( $response );
-                if ( empty( $response_body ) ) {
-                    return $array();
-                }
-                return get_recipient_urls( json_decode( $response_body, true ), $depth + 1, $acc );
+                return get_recipient_urls( $response_body, $depth + 1, $acc );
             } else {
                 return array();
             }
@@ -123,13 +115,21 @@ function get_recipient_urls( $object, $depth, $acc ) {
 }
 
 function post_activity_to_inboxes( $activity, $recipients ) {
-    foreach ( $inbox as $recipients ) {
-        $args = array(
-            'body' => $activity,
-            'headers' => array( 'Content-Type' => 'application/ld+json' )
-        );
-        // TODO do something with the result?
-        wp_remote_post( $inbox, $args );
+    foreach ( $recipients as $inbox ) {
+        if ( \util\is_local_url( $inbox ) ) {
+            $request = \WP_REST_Request::from_url( $inbox );
+            $request->set_method('POST');
+            $request->set_body( $activity );
+            $request->add_header( 'Content-Type', 'application/ld+json' );
+            $server = rest_get_server();
+            $server->dispatch( $request );
+        } else {
+            $args = array(
+                'body' => $activity,
+                'headers' => array( 'Content-Type' => 'application/ld+json' )
+            );
+            wp_remote_post( $inbox, $args );
+        }
     }
 }
 ?>

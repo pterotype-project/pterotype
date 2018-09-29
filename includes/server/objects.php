@@ -262,11 +262,6 @@ function is_local_object( $object ) {
     if ( !$url ) {
         return false;
     }
-    $parsed = parse_url( $url );
-    if ( $parsed ) {
-        $site_host = parse_url( get_site_url() )['host'];
-        return $parsed['host'] === $site_host;
-    }
-    return false;
+    return \util\is_local_url( $url );
 }
 ?>

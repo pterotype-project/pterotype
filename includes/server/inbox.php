@@ -110,35 +110,11 @@ function references_local_object( $object, $depth ) {
         if ( $result ) {
             return $result;
         }
-        // $field_value is either a url, a Link, or an object
-        if ( is_array( $field_value ) ) {
-            if ( array_key_exists( 'id', $field_value ) ) {
-                return \objects\is_local_object( $field_value );
-            } else if ( array_key_exists( 'href', $field_value ) ) {
-                $response = wp_remote_get( $field_value['href'] );
-                if ( is_wp_error( $response ) ) {
-                    return false;
-                }
-                $body = wp_remote_retrieve_body( $response );
-                if ( empty( $body ) ) {
-                    return false;
-                }
-                $body_array = json_decode( $body, true );
-                return $body_array && references_local_object( $body_array, $depth + 1 );
-            } else {
-                return false;
-            }
+        $dereferenced = \util\dereference_object( $field_value );
+        if ( is_wp_error( $dereferenced ) ) {
+            return false;
         } else {
-            $response = wp_remote_get( $field_value );
-            if ( is_wp_error( $response ) ) {
-                continue;
-            }
-            $body = wp_remote_retrieve_body( $response );
-            if ( empty( $body ) ) {
-                continue;
-            }
-            $body_array = json_decode( $body, true );
-            $result = $body_array && references_local_object( $body_array, $depth + 1 );
+            return \objects\is_local_object( $dereferenced );
         }
     }
     return false;
