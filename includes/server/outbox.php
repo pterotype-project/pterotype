@@ -37,12 +37,9 @@ function handle_activity( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $persisted = persist_activity( $actor_slug, $activity );
-    if ( !$persisted ) {
-        return new \WP_Error(
-            'db_error',
-            __( 'Error persisting activity' )
-        );
+    $activity = persist_activity( $actor_slug, $activity );
+    if ( is_wp_error( $activity ) ) {
+        return $activity;
     }
     switch ( $activity['type'] ) {
     case 'Create':
@@ -116,11 +113,16 @@ function handle_activity( $actor_slug, $activity ) {
         return $activity;
     }
     // the activity may have changed while processing side effects, so persist the new version
-    \activities\persist_activity( $activity );
+    // TODO why was 'id' missing from the activity here?
+    $activity = \activities\persist_activity( $activity );
+    if ( is_wp_error( $activity ) ) {
+        return $activity;
+    }
     deliver_activity( $activity );
     $res = new \WP_REST_Response();
     $res->set_status(201);
     $res->header( 'Location', $activity['id'] );
+    $res->set_data( $activity );
     return $res;
 }
 
@@ -167,10 +169,17 @@ function persist_activity( $actor_slug, $activity ) {
     $activity = \activities\create_local_activity( $activity );
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );
-    return $wpdb->insert( 'pterotype_outbox', array(
+    $res = $wpdb->insert( 'pterotype_outbox', array(
         'actor_id' => $actor_id,
         'activity_id' => $activity_id,
     ) );
+    if ( !$res ) {
+        return new \WP_Error(
+            'db_error',
+            __( 'Error inserting outbox row', 'pterotype' )
+        );
+    }
+    return $activity;
 }
 
 function wrap_object_in_create( $actor_slug, $object ) {

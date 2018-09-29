@@ -37,7 +37,7 @@ function get_object_from_url( $url ) {
 
 function get_object_from_url_helper( $url, $depth ) {
     if ( is_local_url( $url ) ) {
-        return retrieve_local_url( $url );
+        return retrieve_local_object( $url );
     }
     $response = wp_remote_get( $url );
     if ( is_wp_error( $response ) ) {
@@ -57,9 +57,9 @@ function get_object_from_url_helper( $url, $depth ) {
 
 function retrieve_local_object( $url ) {
     $server = rest_get_server();
-    $request = new \WP_REST_Request( 'GET', $url );
+    $request = \WP_REST_Request::from_url( $url );
     $response = $server->dispatch( $request );
-    is ( $response->is_error() ) {
+    if ( $response->is_error() ) {
         return $response->as_error();
     } else {
         return $response->get_data();

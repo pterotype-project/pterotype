@@ -19,7 +19,7 @@ function deliver_activity( $activity ) {
     $recipients = array_unique( $recipients );
     if ( array_key_exists( 'actor', $activity ) ) {
         $actor = \util\dereference_object( $activity['actor'] );
-        $recipients = remove_actor_inbox_from_recipients( $activity['actor'], $recipients );
+        $recipients = remove_actor_inbox_from_recipients( $actor, $recipients );
     }
     $activity = \activities\strip_private_fields( $activity );
     post_activity_to_inboxes( $activity, $recipients );
