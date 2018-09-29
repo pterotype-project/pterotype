@@ -37,9 +37,12 @@ function handle_activity( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $res = persist_activity( $actor_slug, $activity );
-    if ( is_wp_error( $res ) ) {
-        return $res;
+    $persisted = persist_activity( $actor_slug, $activity );
+    if ( !$persisted ) {
+        return new \WP_Error(
+            'db_error',
+            __( 'Error persisting activity' )
+        );
     }
     switch ( $activity['type'] ) {
     case 'Create':
@@ -112,7 +115,12 @@ function handle_activity( $actor_slug, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
+    // the activity may have changed while processing side effects, so persist the new version
+    \activities\persist_activity( $activity );
     deliver_activity( $activity );
+    $res = new \WP_REST_Response();
+    $res->set_status(201);
+    $res->header( 'Location', $activity['id'] );
     return $res;
 }
 
@@ -159,14 +167,10 @@ function persist_activity( $actor_slug, $activity ) {
     $activity = \activities\create_local_activity( $activity );
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );
-    $wpdb->insert( 'pterotype_outbox', array(
+    return $wpdb->insert( 'pterotype_outbox', array(
         'actor_id' => $actor_id,
         'activity_id' => $activity_id,
     ) );
-    $response = new \WP_REST_Response();
-    $response->set_status( 201 );
-    $response->header( 'Location', $activity['id'] );
-    return $response;
 }
 
 function wrap_object_in_create( $actor_slug, $object ) {
