@@ -115,10 +115,10 @@ function initialize_actors() {
 
 function create_actor( $slug, $type ) {
     global $wpdb;
-    $wpdb->replace(
-        'pterotype_actors',
-        array( 'slug' => $slug, 'type' => $type ),
-        '%s'
-    );
+    return $wpdb->query( $wpdb->prepare(
+        'INSERT IGNORE INTO pterotype_actors(slug, type) VALUES(%s, %s)',
+        $slug,
+        $type
+    ) );
 }
 ?>

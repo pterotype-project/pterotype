@@ -14,7 +14,8 @@ function request_follow( $actor_id, $object_id ) {
             'actor_id' => $actor_id,
             'object_id' => $object_id,
             'state' => PTEROTYPE_FOLLOW_PENDING
-        )
+        ),
+        array( '%d', '%d', '%s' )
     );
 }
 

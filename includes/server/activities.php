@@ -67,11 +67,33 @@ function persist_activity( $activity ) {
     }
     $activitypub_id = $activity['id'];
     $type = $activity['type'];
-    $wpdb->replace( 'pterotype_activities', array(
-            'activitypub_id' => $activitypub_id,
-            'type' => $type,
-            'activity' => wp_json_encode( $activity )
+    $row = $wpdb->get_row( $wpdb->prepare(
+        'SELECT * FROM pterotype_activities WHERE activitypub_id = %s', $activitypub_id
     ) );
+    $res = true;
+    if ( $row === null ) {
+        $res = $wpdb->insert(
+            'pterotype_activities',
+            array(
+                'activitypub_id' => $activitypub_id,
+                'type' => $type,
+                'activity' => wp_json_encode( $activity )
+            ),
+            '%s'
+        );
+    } else {
+        $res = $wpdb->update(
+            'pterotype_activities',
+            array(
+                'activitypub_id' => $activitypub_id,
+                'type' => $type,
+                'activity' => wp_json_encode( $activity )
+            ),
+            array( 'id' => $row->id ),
+            '%s',
+            '%d'
+        );
+    }
     return $activity;
 }
 
@@ -97,15 +119,16 @@ function create_local_activity( $activity ) {
     $activity_id = $wpdb->insert_id;
     $activity_url = get_rest_url( null, sprintf( '/pterotype/v1/activity/%d', $activity_id ) );
     $activity['id'] = $activity_url;
-    $res = $wpdb->replace(
+    $res = $wpdb->update(
         'pterotype_activities',
         array(
-            'id' => $activity_id,
             'activitypub_id' => $activity_url,
             'type' => $type,
             'activity' => wp_json_encode( $activity ),
         ),
-        array( '%d', '%s', '%s', '%s' )
+        array( 'id' => $activity_id ),
+        '%s',
+        '%d'
     );
     if ( !$res ) {
         return new \WP_Error(

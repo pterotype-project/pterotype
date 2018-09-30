@@ -37,15 +37,16 @@ function create_local_object( $object ) {
     $object['id'] = $object_url;
     $object['likes'] = $object_likes;
     $object['shares'] = $object_shares;
-    $res = $wpdb->replace(
+    $res = $wpdb->update(
         'pterotype_objects',
         array (
-            'id' => $object_id,
             'activitypub_id' => $object_url,
             'type' => $type,
             'object' => wp_json_encode( $object )
         ),
-        array( '%d', '%s', '%s', '%s' )
+        array( 'id' => $object_id ),
+        '%s',
+        '%d'
     );
     if ( !$res ) {
         return new \WP_Error(
@@ -76,7 +77,7 @@ function upsert_object( $object ) {
         );
     }
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_objects WHERE activitypub_url = %s', $object['id']
+        'SELECT * FROM pterotype_objects WHERE activitypub_id = %s', $object['id']
     ) );
     $res = true;
     if ( $row === null ) {
@@ -86,18 +87,20 @@ function upsert_object( $object ) {
                 'activitypub_id' => $object['id'],
                 'type' => $object['type'],
                 'object' => wp_json_encode( $object )
-            )
+            ),
+            '%s'
         );
     } else {
-        $res = $wpdb->replace(
+        $res = $wpdb->update(
             'pterotype_objects',
             array(
-                'id' => $row->id,
                 'activitypub_id' => $object['id'],
                 'type' => $object['type'],
                 'object' => wp_json_encode( $object )
             ),
-            array( '%d', '%s', '%s', '%s' )
+            array( 'id' => $row->id ),
+            '%s',
+            '%d'
         );
         $row = new stdClass();
         $row->id = $wpdb->insert_id;
@@ -219,14 +222,15 @@ function delete_object( $object ) {
     }
     $activitypub_id = $object['id'];
     $tombstone = make_tombstone( $object );
-    $res = $wpdb->replace(
+    $res = $wpdb->update(
         'pterotype_objects',
         array(
-            'activitypub_id' => $activitypub_id,
             'type' => $tombstone['type'],
             'object' => wp_json_encode( $tombstone ),
         ),
-        array( '%s', '%s', '%s' )
+        array( 'activitypub_id' => $activitypub_id ),
+        '%s',
+        '%s'
     );
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'pterotype' ) );

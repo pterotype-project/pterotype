@@ -25,6 +25,7 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
+    xdebug_break();
     // TODO handle authentication/authorization
     $activity = \util\dereference_object( $activity );
     if ( is_wp_error( $activity ) ) {
@@ -113,7 +114,6 @@ function handle_activity( $actor_slug, $activity ) {
         return $activity;
     }
     // the activity may have changed while processing side effects, so persist the new version
-    // TODO why was 'id' missing from the activity here?
     $activity = \activities\persist_activity( $activity );
     if ( is_wp_error( $activity ) ) {
         return $activity;
