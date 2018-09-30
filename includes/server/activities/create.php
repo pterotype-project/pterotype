@@ -48,6 +48,7 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
+    $object = $activity['object'];
     $object = \objects\upsert_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;

@@ -33,9 +33,9 @@ function handle_activity( $actor_slug, $activity ) {
         );
     }
     forward_activity( $activity );
-    $res = persist_activity( $actor_slug, $activity );
-    if ( is_wp_error( $res ) ) {
-        return $res;
+    $activity = persist_activity( $actor_slug, $activity );
+    if ( is_wp_error( $activity ) ) {
+        return $activity;
     }
     switch ( $activity['type'] ) {
     case 'Create':
@@ -126,18 +126,37 @@ function persist_activity( $actor_slug, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
-    $activity_id = $wpdb->insert_id;
+    $activity_id = \activities\get_activity_id( $activity['id'] );
+    if ( !$activity_id ) {
+        return new \WP_Error(
+            'db_error',
+            __( 'Error retrieving activity id', 'pterotype' )
+        );
+    }
     $actor_id = \actors\get_actor_id( $actor_slug );
-    $res = $wpdb->insert( 'pterotype_inbox', array(
-        'actor_id' => $actor_id,
-        'activity_id' => $activity_id,
+    $seen_before = $wpdb->get_row( $wpdb->prepare(
+        'SELECT * FROM pterotype_inbox WHERE actor_id = %d AND activity_id = %d',
+        $actor_id,
+        $activity_id
     ) );
+    if ( $seen_before ) {
+        return $activity;
+    }
+    $res = $wpdb->insert(
+        'pterotype_inbox',
+        array(
+            'actor_id' => $actor_id,
+            'activity_id' => $activity_id,
+        ),
+        '%d'
+    );
     if ( !$res ) {
         return new \WP_Error(
             'db_error',
             __( 'Error persisting inbox record', 'pterotype' )
         );
     }
+    return $activity;
 }
 
 function get_inbox( $actor_slug ) {

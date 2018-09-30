@@ -90,6 +90,7 @@ function upsert_object( $object ) {
             ),
             '%s'
         );
+        $row = new \stdClass();
     } else {
         $res = $wpdb->update(
             'pterotype_objects',
@@ -102,7 +103,7 @@ function upsert_object( $object ) {
             '%s',
             '%d'
         );
-        $row = new stdClass();
+        $row = new \stdClass();
         $row->id = $wpdb->insert_id;
         $activites_res = $wpdb->query( $wpdb->prepare(
             '
