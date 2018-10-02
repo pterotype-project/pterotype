@@ -8,9 +8,19 @@ define( 'PTEROTYPE_VERSION', '0.0.4' );
 
 function pterotype_init() {
     do_action( 'pterotype_init' );
+    flush_rewrite_rules();
 }
 
-do_action( 'pterotype_load' );
+function pterotype_deactive() {
+    do_action( 'pterotype_deactivate' );
+    flush_rewrite_rules();
+}
 
-register_activation_hook( __FILE__, 'pterotype_init');
+function pterotype_load() {
+    do_action( 'pterotype_load' );
+}
+
+add_action( 'plugins_loaded', 'pterotype_load' );
+register_activation_hook( __FILE__, 'pterotype_init' );
+register_deactivation_hook( __FILE__, 'pterotype_deactivate' );
 ?>

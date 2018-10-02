@@ -68,6 +68,8 @@ function get_blog_actor() {
             null, sprintf( '/pterotype/v1/actor/%s/outbox', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
         'name' => get_bloginfo( 'name' ),
+        // TODO in the future, make this configurable, both here and in the Webfinger handler
+        'preferredUsername' => 'blog',
         'summary' => get_bloginfo( 'description' ),
         'url' => network_site_url( '/' ),
     );
