@@ -1,8 +1,6 @@
 <?php
 namespace actors;
 
-define( 'PTEROTYPE_BLOG_ACTOR_SLUG', '-blog' );
-
 function get_actor( $id ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
@@ -69,7 +67,7 @@ function get_blog_actor() {
         ),
         'name' => get_bloginfo( 'name' ),
         // TODO in the future, make this configurable, both here and in the Webfinger handler
-        'preferredUsername' => 'blog',
+        'preferredUsername' => PTEROTYPE_BLOG_ACTOR_USERNAME,
         'summary' => get_bloginfo( 'description' ),
         'url' => network_site_url( '/' ),
     );
