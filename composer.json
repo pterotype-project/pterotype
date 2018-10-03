@@ -1,0 +1,5 @@
+{
+    "require": {
+	"singpolyma/openpgp-php": "0.3.*"
+    }
+}
