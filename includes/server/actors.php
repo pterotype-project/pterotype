@@ -46,6 +46,7 @@ function get_actor_from_row( $row ) {
 }
 
 function get_blog_actor() {
+    $actor_id = get_actor_id( PTEROTYPE_BLOG_ACTOR_SLUG );
     $actor = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Organization',
@@ -72,6 +73,15 @@ function get_blog_actor() {
         'preferredUsername' => PTEROTYPE_BLOG_ACTOR_USERNAME,
         'summary' => get_bloginfo( 'description' ),
         'url' => network_site_url( '/' ),
+        'publicKey' => array(
+            'id' => get_rest_url(
+                null, sprintf( '/pterotype/v1/actor/%s#publicKey', PTEROTYPE_BLOG_ACTOR_SLUG )
+            ),
+            'owner' => get_rest_url(
+                null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
+            ),
+            'publicKeyPem' => \pgp\get_public_key( $actor_id ),
+        ),
     );
     if ( has_custom_logo() ) {
         $actor['icon'] = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ) )[0];
@@ -81,6 +91,7 @@ function get_blog_actor() {
 
 function get_user_actor( $user ) {
     $handle = get_the_author_meta( 'user_nicename', $user->get('ID'));
+    $actor_id = get_actor_id( $handle );
     $actor = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Person',
@@ -100,6 +111,15 @@ function get_user_actor( $user ) {
         'summary' => get_the_author_meta( 'description', $user->get('ID') ),
         'icon' => get_avatar_url( $user->get('ID') ),
         'url' => get_the_author_meta( 'user_url', $user->get('ID') ),
+        'publicKey' => array(
+            'id' => get_rest_url(
+                null, sprintf( '/pterotype/v1/actor/%s#publicKey', $handle )
+            ),
+            'owner' => get_rest_url(
+                null, sprintf( '/pterotype/v1/actor/%s', $handle )
+            ),
+            'publicKeyPem' => \pgp\get_public_key( $actor_id ),
+        ),
     );
     return $actor;
 }
