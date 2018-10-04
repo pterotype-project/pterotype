@@ -132,4 +132,17 @@ function post_activity_to_inboxes( $activity, $recipients ) {
         }
     }
 }
+
+function get_signing_string( $inbox_url ) {
+    $now = new \DateTime( 'now', new \DateTimeZone('GMT') );
+    $now_str = $now->format( 'D, d M Y H:i:s T' );
+    $parsed = parse_url( $inbox_url );
+    return "(request-target): post $parsed[path]
+host: $parsed[host]
+date: $now_str"
+}
+
+function signature_header( $inbox_url, $actor_id ) {
+    // TODO
+}
 ?>
