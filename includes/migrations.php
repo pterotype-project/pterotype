@@ -24,6 +24,7 @@ function run_migrations() {
     apply_migration( '0.0.2', 'migration_0_0_2' );
     apply_migration( '0.0.3', 'migration_0_0_3' );
     apply_migration( '0.0.4', 'migration_0_0_4' );
+    apply_migration( '0.0.5', 'migration_0_0_5' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -220,6 +221,22 @@ function migration_0_0_4() {
        )
        ENGINE=InnoDB DEFAULT CHARSET=utf8;
        "
+    );
+}
+
+function migration_0_0_5() {
+    global $wpdb;
+    $wpdb->query(
+        '
+       CREATE TABLE pterotype_keys(
+           actor_id INT UNSIGNED PRIMARY KEY,
+           public_key TEXT NOT NULL,
+           private_key TEXT NOT NULL,
+           FOREIGN KEY keys_actor_fk(actor_id)
+               REFERENCES pterotype_actors(id)
+       )
+       ENGINE=InnoDB DEFAULT CHARSET=utf8;
+       '
     );
 }
 ?>

@@ -1,6 +1,8 @@
 <?php
 namespace actors;
 
+require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
+
 function get_actor( $id ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
@@ -109,8 +111,20 @@ function initialize_actors() {
     );
     foreach ( $user_slugs as $user_slug ) {
         create_actor( $user_slug, 'user' );
+        $actor_id = get_actor_id( $user_slug );
+        $keys_created = \pgp\get_public_key( $actor_id );
+        if ( ! $keys_created ) {
+            $keys = \pgp\gen_key( $user_slug );
+            \pgp\persist_key( $actor_id, $keys['publickey'], $keys['privatekey'] );
+        }
     }
     create_actor( PTEROTYPE_BLOG_ACTOR_SLUG, 'blog' );
+    $blog_actor_id = get_actor_id( PTEROTYPE_BLOG_ACTOR_SLUG );
+    $keys_created = \pgp\get_public_key( $blog_actor_id );
+    if ( ! $keys_created ) {
+        $keys = \pgp\gen_key( PTEROTYPE_BLOG_ACTOR_SLUG );
+        \pgp\persist_key( $blog_actor_id, $keys['publickey'], $keys['privatekey'] );
+    }
 }
 
 function create_actor( $slug, $type ) {
