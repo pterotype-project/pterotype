@@ -32,7 +32,7 @@ function handle_activity( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    forward_activity( $activity );
+    forward_activity( $actor_slug, $activity );
     $activity = persist_activity( $actor_slug, $activity );
     if ( is_wp_error( $activity ) ) {
         return $activity;
@@ -70,7 +70,7 @@ function handle_activity( $actor_slug, $activity ) {
     return $res;
 }
 
-function forward_activity( $activity ) {
+function forward_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'id', $activity ) ) {
         return;
     }
@@ -88,7 +88,7 @@ function forward_activity( $activity ) {
     if ( count( $collections ) === 0 ) {
         return;
     }
-    \deliver\deliver_activity( $activity );
+    \deliver\deliver_activity( $actor_slug, $activity );
 }
 
 function references_local_object( $object, $depth ) {

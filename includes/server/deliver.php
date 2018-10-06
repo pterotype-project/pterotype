@@ -2,13 +2,16 @@
 namespace deliver;
 
 require_once plugin_dir_path( __FILE__ ) . 'activities.php';
+require_once plugin_dir_path( __FILE__ ) . 'actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 // TODO look at inReplyTo, object, target, and tag objects
 // and deliver to their audience as well. Recurse through these
 // objects up to some limit
 
-function deliver_activity( $activity ) {
+function deliver_activity( $actor_slug, $activity ) {
+    $actor_id = \actors\get_actor_id( $actor_slug );
     $activity = \util\dereference_object( $activity );
     $recipients = array();
     foreach ( array( 'to', 'bto', 'cc', 'bcc', 'audience' ) as $field ) {
@@ -22,7 +25,7 @@ function deliver_activity( $activity ) {
         $recipients = remove_actor_inbox_from_recipients( $actor, $recipients );
     }
     $activity = \activities\strip_private_fields( $activity );
-    post_activity_to_inboxes( $activity, $recipients );
+    post_activity_to_inboxes( $actor_id, $activity, $recipients );
 }
 
 function remove_actor_inbox_from_recipients( $actor, $recipients ) {
@@ -52,11 +55,11 @@ function get_recipient_urls( $object, $depth, $acc ) {
     if ( $depth === 30 ) {
         return $acc;
     }
-    if ( array_key_exists( 'type', $object ) ) {
+    if ( is_array( $object ) && array_key_exists( 'type', $object ) ) {
         // It's an Actor, Link, or Collection
         switch ( $object['type'] ) {
-        case Collection:
-        case OrderedCollection:
+        case 'Collection':
+        case 'OrderedCollection':
             $items = array();
             if ( array_key_exists( 'items', $object ) ) {
                 $items = $object['items'];
@@ -71,13 +74,13 @@ function get_recipient_urls( $object, $depth, $acc ) {
                 );
             }
             return $recipients;
-        case Link:
+        case 'Link':
             if ( array_key_exists( 'href', $object ) ) {
                 $response = \util\get_object_from_url( $object['href'] );
                 if ( is_wp_error( $response ) ) {
                     return array();
                 }
-                return get_recipient_urls( $link_target, $depth + 1, $acc );
+                return get_recipient_urls( $response, $depth + 1, $acc );
             } else {
                 return array();
             }
@@ -106,7 +109,7 @@ function get_recipient_urls( $object, $depth, $acc ) {
                 if ( is_wp_error( $response ) ) {
                     return array();
                 }
-                return get_recipient_urls( $response_body, $depth + 1, $acc );
+                return get_recipient_urls( $response, $depth + 1, $acc );
             } else {
                 return array();
             }
@@ -114,19 +117,23 @@ function get_recipient_urls( $object, $depth, $acc ) {
     }
 }
 
-function post_activity_to_inboxes( $activity, $recipients ) {
+function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
     foreach ( $recipients as $inbox ) {
         if ( \util\is_local_url( $inbox ) ) {
             $request = \WP_REST_Request::from_url( $inbox );
             $request->set_method('POST');
             $request->set_body( $activity );
             $request->add_header( 'Content-Type', 'application/ld+json' );
+            $request->add_header( 'Signature', signature_header( $inbox, $actor_id ) );
             $server = rest_get_server();
             $server->dispatch( $request );
         } else {
             $args = array(
                 'body' => $activity,
-                'headers' => array( 'Content-Type' => 'application/ld+json' )
+                'headers' => array(
+                    'Content-Type' => 'application/ld+json',
+                    'Signature' => get_signing_string( $inbox, $actor_id ),
+                )
             );
             wp_remote_post( $inbox, $args );
         }
@@ -139,10 +146,10 @@ function get_signing_string( $inbox_url ) {
     $parsed = parse_url( $inbox_url );
     return "(request-target): post $parsed[path]
 host: $parsed[host]
-date: $now_str"
+date: $now_str";
 }
 
 function signature_header( $inbox_url, $actor_id ) {
-    // TODO
+    return \pgp\sign_data( get_signing_string( $inbox_url ), $actor_id );
 }
 ?>

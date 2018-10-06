@@ -58,6 +58,12 @@ function get_object_from_url_helper( $url, $depth ) {
 function retrieve_local_object( $url ) {
     $server = rest_get_server();
     $request = \WP_REST_Request::from_url( $url );
+    if ( ! $request ) {
+        return new \WP_Error(
+            'not_local_url',
+            __( 'Expected a local URL', 'pterotype' )
+        );
+    }
     $response = $server->dispatch( $request );
     if ( $response->is_error() ) {
         return $response->as_error();

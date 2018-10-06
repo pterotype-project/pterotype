@@ -25,7 +25,6 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
-    xdebug_break();
     // TODO handle authentication/authorization
     $activity = \util\dereference_object( $activity );
     if ( is_wp_error( $activity ) ) {
@@ -118,7 +117,7 @@ function handle_activity( $actor_slug, $activity ) {
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
-    deliver_activity( $activity );
+    deliver_activity( $actor_slug, $activity );
     $res = new \WP_REST_Response();
     $res->set_status(201);
     $res->header( 'Location', $activity['id'] );
@@ -157,8 +156,8 @@ function get_outbox( $actor_slug ) {
     ) );
 }
 
-function deliver_activity( $activity ) {
-    \deliver\deliver_activity( $activity );
+function deliver_activity( $actor_slug, $activity ) {
+    \deliver\deliver_activity( $actor_slug, $activity );
     $activity = \activities\strip_private_fields( $activity );
     return $activity;
 }
