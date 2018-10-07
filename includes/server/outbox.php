@@ -182,16 +182,6 @@ function persist_activity( $actor_slug, $activity ) {
 }
 
 function wrap_object_in_create( $actor_slug, $object ) {
-    $actor = \actors\get_actor_by_slug( $actor_slug );
-    if ( is_wp_error( $actor ) ) {
-        return $actor;
-    }
-    $activity = array(
-        '@context' => 'https://www.w3.org/ns/activitystreams',
-        'type' => 'Create',
-        'actor' => $actor,
-        'object' => $object
-    );
-    return $activity;
+    return \activities\create\make_create( $actor_slug, $object );
 }
 ?>

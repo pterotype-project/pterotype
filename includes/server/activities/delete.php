@@ -2,6 +2,7 @@
 namespace activities\delete;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 
 function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
@@ -65,5 +66,18 @@ function check_authorization( $activity ) {
         );
     }
     return true;
+}
+
+function make_delete( $actor_slug, $object ) {
+    $actor = \actors\get_actor_by_slug( $actor_slug );
+    if ( is_wp_error( $actor ) ) {
+        return $actor;
+    }
+    return array(
+        '@context' => 'https://www.w3.org/ns/activitystreams',
+        'type' => 'Delete',
+        'actor' => $actor,
+        'object' => $object
+    );
 }
 ?>

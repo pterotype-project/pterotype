@@ -24,6 +24,7 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
+    // TODO verify the authenticity of the activity
     $activity = \util\dereference_object( $activity );
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(

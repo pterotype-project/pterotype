@@ -2,6 +2,7 @@
 namespace activities\create;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 
 /*
 Create a new post or comment (depending on $activity["object"]["type"]),
@@ -87,5 +88,19 @@ function scrub_object( $object ) {
     unset( $object['bcc'] );
     unset( $object['bto'] );
     return $object;
+}
+
+function make_create( $actor_slug, $object ) {
+    $actor = \actors\get_actor_by_slug( $actor_slug );
+    if ( is_wp_error( $actor ) ) {
+        return $actor;
+    }
+    $activity = array(
+        '@context' => 'https://www.w3.org/ns/activitystreams',
+        'type' => 'Create',
+        'actor' => $actor,
+        'object' => $object
+    );
+    return $activity;
 }
 ?>

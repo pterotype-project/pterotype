@@ -145,25 +145,23 @@ function update_object( $object ) {
     $res = $wpdb->update(
         'pterotype_objects',
         array( 'object' => $object_json ),
-        array( 'id' => $id ),
+        array( 'activitypub_id' => $object['id'] ),
         '%s', '%d' );
     if ( !$res ) {
         return new \WP_Error(
             'db_error', __( 'Failed to update object row', 'pterotype' )
         );
     }
-    $activites_res = $wpdb->query( $wpdb->prepare(
-        '
-        UPDATE pterotype_activities
-        SET activity = JSON_SET(activity, "$.object", %s)
-        WHERE activity->"$.object.id" = %s;
-        ',
-        $object_json, $object['id']
+    $referencing_activities = $wpdb->get_results( $wpdb->prepare(
+        'SELECT * FROM pterotype_activities WHERE activity->"$.object.id" = %s',
+        $object['id']
     ) );
-    if ( $activities_res === false ) {
-         return new \WP_Error(
-            'db_error', __( 'Failed to update associated activities', 'pterotype' )
-        );
+    if ( $referencing_activities ) {
+        foreach ( $referencing_activities as $activity_row ) {
+            $activity = json_decode( $activity_row->activity, true );
+            $activity['object'] = $object;
+            \activities\persist_activity( $activity );
+        }
     }
     return $object;
 }

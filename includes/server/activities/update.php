@@ -26,7 +26,7 @@ function handle_outbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $existing_object = \objects\get_object_by_actvitypub_id( $update_object['id'] );
+    $existing_object = \objects\get_object_by_activitypub_id( $update_object['id'] );
     if ( is_wp_error( $existing_object ) ) {
         return $existing_object;
     }
@@ -91,5 +91,18 @@ function check_authorization( $activity ) {
         );
     }
     return true;
+}
+
+function make_update( $actor_slug, $object ) {
+    $actor = \actors\get_actor_by_slug( $actor_slug );
+    if ( is_wp_error( $actor ) ) {
+        return $actor;
+    }
+    return array(
+        '@context' => 'https://www.w3.org/ns/activitystreams',
+        'type' => 'Update',
+        'actor' => $actor,
+        'object' => $object
+    );
 }
 ?>
