@@ -8,18 +8,16 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
     $actor_outbox = get_rest_url(
         null, sprintf( 'pterotype/v1/actor/%s/outbox', $actor_slug )
     );
+    $post_object = post_to_object( $post );
     $activity = null;
     if ( $new_status == 'publish' && $old_status != 'publish' ) {
         // Create
-        $post_object = post_to_object( $post );
         $activity = \activities\create\make_create( $actor_slug, $post_object );
     } else if ( $new_status == 'publish' && $old_status == 'publish' ) {
         // Update
-        $post_object = post_to_object( $post );
         $activity = \activities\update\make_update( $actor_slug, $post_object );
     } else if ( $new_status != 'publish' && $old_status == 'publish' ) {
         // Delete
-        $post_object = post_to_object( $post, true );
         $activity = \activities\delete\make_delete( $actor_slug, $post_object );
     }
     if ( $activity && ! is_wp_error( $activity ) ) {
@@ -35,10 +33,11 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
 /**
 Return an object of type Article
 */
-function post_to_object( $post, $deleted = false ) {
+function post_to_object( $post ) {
     $permalink = get_permalink( $post );
-    if ( $deleted ) {
-        $permalink = substr( $permalink, 0, -10 ) . '/';
+    $matches = array();
+    if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
+        $permalink = $matches[1] . '/';
     }
     $object = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
