@@ -105,19 +105,7 @@ function upsert_object( $object ) {
         );
         $row = new \stdClass();
         $row->id = $wpdb->insert_id;
-        $activites_res = $wpdb->query( $wpdb->prepare(
-            '
-            UPDATE pterotype_activities
-            SET activity = JSON_SET(activity, "$.object", %s)
-            WHERE activity->"$.object.id" = %s;
-            ',
-            wp_json_encode( $object ), $object['id']
-        ) );
-        if ( $activities_res === false ) {
-            return new \WP_Error(
-                'db_error', __( 'Failed to update associated activities', 'pterotype' )
-            );
-        }
+        update_referencing_activities( $object );
     }
     if ( !$res ) {
         return new \WP_Error(
@@ -152,6 +140,12 @@ function update_object( $object ) {
             'db_error', __( 'Failed to update object row', 'pterotype' )
         );
     }
+    update_referencing_activities( $object );
+    return $object;
+}
+
+function update_referencing_activities( $object ) {
+    global $wpdb;
     $referencing_activities = $wpdb->get_results( $wpdb->prepare(
         'SELECT * FROM pterotype_activities WHERE activity->"$.object.id" = %s',
         $object['id']
@@ -163,7 +157,6 @@ function update_object( $object ) {
             \activities\persist_activity( $activity );
         }
     }
-    return $object;
 }
 
 function get_object( $id ) {
@@ -234,24 +227,13 @@ function delete_object( $object ) {
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'pterotype' ) );
     }
-    $res = $wpdb->query( $wpdb->prepare(
-        '
-        UPDATE pterotype_activities
-        SET activity = JSON_SET(activity, "$.object", %s)
-        WHERE activity->"$.object.id" = %s;
-        ',
-        wp_json_encode( $tombstone ), $object['id']
-    ) );
-    if ( $res === false ) {
-        return new \WP_Error(
-            'db_error', __( 'Failed to update associated activities', 'pterotype' )
-        );
-    }
+    update_referencing_activities( $tombstone );
     return $tombstone;
 }
 
 function make_tombstone( $object ) {
     $tombstone = array(
+        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Tombstone',
         'formerType' => $object['type'],
         'id' => $object['id'],

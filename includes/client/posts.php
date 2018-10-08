@@ -4,22 +4,22 @@ namespace posts;
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/create.php';
 
 function handle_post_status_change( $new_status, $old_status, $post ) {
-    // TODO find a way to get the id of an existing object for the post, if it exists
     $actor_slug = PTEROTYPE_BLOG_ACTOR_SLUG;
     $actor_outbox = get_rest_url(
         null, sprintf( 'pterotype/v1/actor/%s/outbox', $actor_slug )
     );
-    $post_object = post_to_object( $post );
     $activity = null;
     if ( $new_status == 'publish' && $old_status != 'publish' ) {
         // Create
+        $post_object = post_to_object( $post );
         $activity = \activities\create\make_create( $actor_slug, $post_object );
     } else if ( $new_status == 'publish' && $old_status == 'publish' ) {
         // Update
+        $post_object = post_to_object( $post );
         $activity = \activities\update\make_update( $actor_slug, $post_object );
     } else if ( $new_status != 'publish' && $old_status == 'publish' ) {
         // Delete
-        // TODO delete isn't working
+        $post_object = post_to_object( $post, true );
         $activity = \activities\delete\make_delete( $actor_slug, $post_object );
     }
     if ( $activity && ! is_wp_error( $activity ) ) {
@@ -35,7 +35,11 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
 /**
 Return an object of type Article
 */
-function post_to_object( $post ) {
+function post_to_object( $post, $deleted = false ) {
+    $permalink = get_permalink( $post );
+    if ( $deleted ) {
+        $permalink = substr( $permalink, 0, -10 ) . '/';
+    }
     $object = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Article',
@@ -44,20 +48,20 @@ function post_to_object( $post ) {
         'attributedTo' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
-        'url' => get_permalink( $post ),
+        'url' => $permalink,
         'summary' => $post->post_excerpt,
     );
-    $existing = get_existing_object( $post );
+    $existing = get_existing_object( $permalink );
     if ( $existing ) {
         $object['id'] = $existing->activitypub_id;
     }
     return $object;
 }
 
-function get_existing_object( $post ) {
+function get_existing_object( $permalink ) {
     global $wpdb;
     return $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_objects WHERE object->"$.url" = %s', get_permalink( $post )
+        'SELECT * FROM pterotype_objects WHERE object->"$.url" = %s', $permalink
     ) );
 }
 ?>

@@ -82,7 +82,7 @@ function make_accept( $actor_slug, $follow ) {
         );
     }
     $accept = array(
-        '@context' => 'https://www.w3.org/ns/activitystreams',
+        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Accept',
         'actor' => \actors\get_actor_by_slug( $actor_slug ),
         'object' => $follow,

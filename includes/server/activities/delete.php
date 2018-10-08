@@ -13,10 +13,11 @@ function handle_outbox( $actor, $activity ) {
         );
     }
     $object = $activity['object'];
-    $res = \objects\delete_object( $object );
-    if ( is_wp_error( $res ) ) {
-        return $res;
+    $tombstone = \objects\delete_object( $object );
+    if ( is_wp_error( $tombstone ) ) {
+        return $tombstone;
     }
+    $activity['object'] = $tombstone;
     return $activity;
 }
 
@@ -74,7 +75,7 @@ function make_delete( $actor_slug, $object ) {
         return $actor;
     }
     return array(
-        '@context' => 'https://www.w3.org/ns/activitystreams',
+        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Delete',
         'actor' => $actor,
         'object' => $object
