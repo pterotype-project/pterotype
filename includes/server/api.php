@@ -67,10 +67,15 @@ function get_shares( $request ) {
     return \shares\get_shares_collection( $object_id );
 }
 
+function user_can_post_to_outbox() {
+    return current_user_can( 'publish_posts' );
+}
+
 function register_routes() {
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_outbox',
+        'permission_callback' => __NAMESPACE__ . '\user_can_post_to_outbox',
     ) );
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
         'methods' => 'GET',
