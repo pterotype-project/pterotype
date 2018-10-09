@@ -19,6 +19,9 @@ add_action( 'user_register', function( $user_id ) {
 add_action( 'pterotype_init', function() {
     \schema\run_migrations();
     \actors\initialize_actors();
+    if ( WP_DEBUG ) {
+        file_put_contents( __DIR__ . '/activation_errors.log', ob_get_contents() );
+    }
 } );
 
 add_action( 'pterotype_load', function() {
