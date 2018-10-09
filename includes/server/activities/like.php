@@ -28,7 +28,7 @@ function handle_outbox( $actor, $activity ) {
         return $res;
     }
     if ( \objects\is_local_object( $object ) ) {
-        $activity_id = \activities\get_activity_id( $activity['id'] );
+        $activity_id = \objects\get_object_id( $activity['id'] );
         if ( !$activity_id ) {
             return new \WP_Error(
                 'not_found',
@@ -66,7 +66,7 @@ function handle_inbox( $actor, $activity ) {
         );
     }
     if ( \objects\is_local_object( $object ) ) {
-        $activity_id = \activities\get_activity_id( $activity['id'] );
+        $activity_id = \objects\get_object_id( $activity['id'] );
         if ( !$activity_id ) {
             return new \WP_Error(
                 'not_found',

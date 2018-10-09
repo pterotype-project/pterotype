@@ -40,7 +40,7 @@ function handle_outbox( $actor_slug, $activity ) {
             break;
         }
         \likes\delete_local_actor_like( $actor_id, $liked_object_id );
-        $like_id = \activities\get_activity_id( $object['id'] );
+        $like_id = \objects\get_object_id( $object['id'] );
         if ( !$like_id ) {
             break;
         }
@@ -108,7 +108,7 @@ function handle_inbox( $actor_slug, $activity ) {
                 break;
             }
             $object_id = \objects\get_object_id( $object_url );
-            $like_id = \activities\get_activity_id( $object['id'] );
+            $like_id = \objects\get_object_id( $object['id'] );
             if ( !$like_id ) {
                 break;
             }
