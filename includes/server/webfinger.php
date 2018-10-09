@@ -62,11 +62,11 @@ function get_webfinger_json( $resource, $actor_slug ) {
     }
     $json = array(
         'subject' => $resource,
-        'links' => array(
+        'links' => array( array(
             'rel' => 'self',
             'type' => 'application/activity+json',
             'href' => $actor['id'],
-        ),
+        ) ),
     );
     header( 'Content-Type: application/jrd+json', true );
     echo wp_json_encode( $json );
