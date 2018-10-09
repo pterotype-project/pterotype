@@ -3,7 +3,7 @@ namespace init;
 
 require_once plugin_dir_path( __FILE__ ) . 'server/api.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/actors.php';
-require_once plugin_dir_path( __FILE__ ) . 'migrations.php';
+require_once plugin_dir_path( __FILE__ ) . 'schema.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/webfinger.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/posts.php';
 
@@ -21,7 +21,7 @@ add_action( 'pterotype_init', function() {
 } );
 
 add_action( 'pterotype_load', function() {
-    \migrations\run_migrations();
+    \schema\run_migrations();
 } );
 
 add_action( 'generate_rewrite_rules', '\webfinger\generate_rewrite_rules', 111 );

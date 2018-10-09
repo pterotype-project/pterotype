@@ -6,7 +6,7 @@ require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
 function get_actor( $id ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_actors WHERE id = %d', $id
+        "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE id = %d", $id
     ) );
     return get_user_from_row( $row );
 }
@@ -14,7 +14,7 @@ function get_actor( $id ) {
 function get_actor_by_slug ( $slug ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_actors WHERE slug = %s', $slug
+        "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE slug = %s", $slug
     ) );
     return get_actor_from_row( $row );
 }
@@ -22,7 +22,7 @@ function get_actor_by_slug ( $slug ) {
 function get_actor_id( $slug ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
-        'SELECT id FROM pterotype_actors WHERE slug = %s', $slug
+        "SELECT id FROM {$wpdb->prefix}pterotype_actors WHERE slug = %s", $slug
     ) );
 }
 
@@ -127,7 +127,7 @@ function get_user_actor( $user ) {
 function initialize_actors() {
     global $wpdb;
     $user_slugs = $wpdb->get_col( 
-        'SELECT user_nicename FROM wp_users;'
+        "SELECT user_nicename FROM {$wpdb->users};"
     );
     foreach ( $user_slugs as $user_slug ) {
         create_actor( $user_slug, 'user' );
@@ -150,7 +150,8 @@ function initialize_actors() {
 function create_actor( $slug, $type ) {
     global $wpdb;
     return $wpdb->query( $wpdb->prepare(
-        'INSERT IGNORE INTO pterotype_actors(slug, type) VALUES(%s, %s)',
+        "INSERT IGNORE INTO {$wpdb->prefix}pterotype_actors(slug, type) 
+            VALUES(%s, %s)",
         $slug,
         $type
     ) );

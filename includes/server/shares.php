@@ -6,10 +6,10 @@ require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 function add_share( $object_id, $activity_id ) {
     global $wpdb;
     return $wpdb->insert(
-        'pterotype_shares',
+        $wpdb->prefix . 'pterotype_shares',
         array(
             'object_id' => $object_id,
-            'activity_id' => $activity_id,
+            'announce_id' => $activity_id,
         ),
         '%d'
     );
@@ -19,11 +19,12 @@ function get_shares_collection( $object_id ) {
     global $wpdb;
     $shares = $wpdb->get_results(
         $wpdb->prepare(
-           '
-           SELECT activity FROM pterotype_shares
-           JOIN pterotype_activities ON announce_id = pterotype_activities.id
+            "
+           SELECT object FROM {$wpdb->prefix}pterotype_shares
+           JOIN {$wpdb->prefix}pterotype_objects
+           ON announce_id = {$wpdb->prefix}pterotype_objects.id
            WHERE object_id = %d
-           ',
+           ",
             $object_id
         ),
         ARRAY_A

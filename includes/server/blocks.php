@@ -10,7 +10,7 @@ get ignored
 function create_block( $actor_id, $blocked_actor_url ) {
     global $wpdb;
     $res = $wpdb->insert(
-        'pterotype_blocks',
+        $wpdb->prefix . 'pterotype_blocks',
         array( 'actor_id' => $actor_id, 'blocked_actor_url' => $blocked_actor_url )
     );
     if ( !$res ) {
@@ -21,11 +21,11 @@ function create_block( $actor_id, $blocked_actor_url ) {
 function delete_block( $actor_id, $blocked_actor_url ) {
     global $wpdb;
     $res = $wpdb->delete(
-        'pterotype_blocks',
+        $wpdb->prefix . 'pterotype_blocks',
         array( 'actor_id' => $actor_id, 'blocked_actor_url' => $blocked_actor_url )
     );
     if ( !$res ) {
-        return new \WP_Error( 'db_error', __( 'Error inserting block row', 'pterotype' ) );
+        return new \WP_Error( 'db_error', __( 'Error deleting block row', 'pterotype' ) );
     }
 }
 ?>

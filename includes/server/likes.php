@@ -6,7 +6,7 @@ require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 function create_local_actor_like( $actor_id, $object_id ) {
     global $wpdb;
     return $wpdb->insert(
-        'pterotype_actor_likes',
+        $wpdb->prefix . 'pterotype_actor_likes',
         array( 'actor_id' => $actor_id, 'object_id' => $object_id ),
         '%d'
     );
@@ -15,7 +15,7 @@ function create_local_actor_like( $actor_id, $object_id ) {
 function delete_local_actor_like( $actor_id, $object_id ) {
     global $wpdb;
     return $wpdb->delete(
-        'pterotype_actor_likes',
+        $wpdb->prefix . 'pterotype_actor_likes',
         array( 'actor_id' => $actor_id, 'object_id' => $object_id ),
         '%d'
     );
@@ -24,7 +24,7 @@ function delete_local_actor_like( $actor_id, $object_id ) {
 function record_like ( $object_id, $like_id ) {
     global $wpdb;
     return $wpdb->insert(
-        'pterotype_object_likes',
+        $wpdb->prefix . 'pterotype_object_likes',
         array(
             'object_id' => $object_id,
             'like_id' => $like_id
@@ -36,7 +36,7 @@ function record_like ( $object_id, $like_id ) {
 function delete_object_like( $object_id, $like_id ) {
     global $wpdb;
     return $wpdb->delete(
-        'pterotype_object_likes',
+        $wpdb->prefix. 'pterotype_object_likes',
         array(
             'object_id' => $object_id,
             'like_id' => $like_id
@@ -49,11 +49,12 @@ function get_likes_collection( $object_id ) {
     global $wpdb;
     $likes = $wpdb->get_results(
         $wpdb->prepare(
-            '
-           SELECT activity FROM pterotype_object_likes
-           JOIN pterotype_activities ON like_id = pterotype_activities.id
+            "
+           SELECT object FROM {$wpdb->prefix}pterotype_object_likes
+           JOIN {$wpdb->prefix}pterotype_objects 
+           ON like_id = {$wpdb->prefix}pterotype_objects.id
            WHERE object_id = %d
-           ',
+           ",
             $object_id
         ),
         ARRAY_A

@@ -9,7 +9,7 @@ define( 'PTEROTYPE_FOLLOW_FOLLOWING', 'FOLLOWING' );
 function request_follow( $actor_id, $object_id ) {
     global $wpdb;
     return $wpdb->replace(
-        'pterotype_following',
+        $wpdb->prefix . 'pterotype_following',
         array(
             'actor_id' => $actor_id,
             'object_id' => $object_id,
@@ -22,7 +22,7 @@ function request_follow( $actor_id, $object_id ) {
 function accept_follow( $actor_id, $object_id ) {
     global $wpdb;
     return $wpdb->update(
-        'pterotype_following',
+        $wpdb->prefix . 'pterotype_following',
         array( 'state' => PTEROTYPE_FOLLOW_FOLLOWING ),
         array( 'actor_id' => $actor_id, 'object_id' => $object_id ),
         array( '%s', '%d', '%d' )
@@ -32,7 +32,7 @@ function accept_follow( $actor_id, $object_id ) {
 function reject_follow( $actor_id, $object_id ) {
     global $wpdb;
     return $wpdb->delete(
-        'pterotype_following',
+        $wpdb->prefix . 'pterotype_following',
         array( 'actor_id' => $actor_id, 'object_id' => $object_id ),
         '%d'
     );
@@ -48,12 +48,13 @@ function get_following_collection( $actor_slug ) {
     }
     $objects = $wpdb->get_results(
         $wpdb->prepare(
-            '
-           SELECT object FROM pterotype_following
-           JOIN pterotype_objects ON pterotype_following.object_id = pterotype_objects.id
+            "
+           SELECT object FROM {$wpdb->prefix}pterotype_following
+           JOIN {$wpdb->prefix}pterotype_objects 
+               ON {$wpdb->prefix}pterotype_following.object_id = {$wpdb->prefix}pterotype_objects.id
            WHERE actor_id = %d
            AND state = %s;
-           ',
+           ",
             $actor_id, PTEROTYPE_FOLLOW_FOLLOWING
         ),
         ARRAY_A

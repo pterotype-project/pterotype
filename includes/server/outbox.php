@@ -12,7 +12,6 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
 */
 namespace outbox;
 
-require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
 require_once plugin_dir_path( __FILE__ ) . 'activities/create.php';
@@ -113,7 +112,7 @@ function handle_activity( $actor_slug, $activity ) {
         return $activity;
     }
     // the activity may have changed while processing side effects, so persist the new version
-    $activity = \activities\persist_activity( $activity );
+    $activity = \objects\upsert_object( $activity );
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
@@ -137,14 +136,15 @@ function get_outbox( $actor_slug ) {
         );
     }
     $results = $wpdb->get_results( $wpdb->prepare(
-            '
-            SELECT pterotype_activities.activity FROM pterotype_outbox
-            JOIN pterotype_actors
-                ON pterotype_actors.id = pterotype_outbox.actor_id
-            JOIN pterotype_activities
-                ON pterotype_activities.id = pterotype_outbox.activity_id
-            WHERE pterotype_outbox.actor_id = %d
-            ',
+            "
+           SELECT {$wpdb->prefix}pterotype_objects.object
+           FROM {$wpdb->prefix}pterotype_outbox
+           JOIN {$wpdb->prefix}pterotype_actors
+               ON {$wpdb->prefix}pterotype_actors.id = {$wpdb->prefix}pterotype_outbox.actor_id
+           JOIN {$wpdb->prefix}pterotype_objects
+               ON {$wpdb->prefix}pterotype_objects.id = {$wpdb->prefix}pterotype_outbox.object_id
+           WHERE {$wpdb->prefix}pterotype_outbox.actor_id = %d
+           ",
             $actor_id
     ), ARRAY_A );
     // TODO return PagedCollection if $activites is too big
@@ -158,19 +158,19 @@ function get_outbox( $actor_slug ) {
 
 function deliver_activity( $actor_slug, $activity ) {
     \deliver\deliver_activity( $actor_slug, $activity );
-    $activity = \activities\strip_private_fields( $activity );
+    $activity = \objects\strip_private_fields( $activity );
     return $activity;
 }
 
 function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
-    $activity = \activities\strip_private_fields( $activity );
-    $activity = \activities\create_local_activity( $activity );
+    $activity = \objects\strip_private_fields( $activity );
+    $activity = \objects\create_local_object( $activity );
     $activity_id = $wpdb->insert_id;
     $actor_id = \actors\get_actor_id( $actor_slug );
-    $res = $wpdb->insert( 'pterotype_outbox', array(
+    $res = $wpdb->insert( $wpdb->prefix . 'pterotype_outbox', array(
         'actor_id' => $actor_id,
-        'activity_id' => $activity_id,
+        'object_id' => $activity_id,
     ) );
     if ( !$res ) {
         return new \WP_Error(

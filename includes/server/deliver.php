@@ -1,7 +1,6 @@
 <?php
 namespace deliver;
 
-require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
@@ -24,7 +23,7 @@ function deliver_activity( $actor_slug, $activity ) {
         $actor = \util\dereference_object( $activity['actor'] );
         $recipients = remove_actor_inbox_from_recipients( $actor, $recipients );
     }
-    $activity = \activities\strip_private_fields( $activity );
+    $activity = \objects\strip_private_fields( $activity );
     post_activity_to_inboxes( $actor_id, $activity, $recipients );
 }
 

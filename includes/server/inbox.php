@@ -9,7 +9,6 @@ When an Activity is received (i.e. POSTed) to an Actor's inbox, the server must:
 */
 namespace inbox;
 
-require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
 require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
 require_once plugin_dir_path( __FILE__ ) . 'collections.php';
@@ -75,7 +74,7 @@ function forward_activity( $actor_slug, $activity ) {
     if ( !array_key_exists( 'id', $activity ) ) {
         return;
     }
-    $seen_before = \activities\get_activity_id( $activity['id'] );
+    $seen_before = \objects\get_object_id( $activity['id'] );
     if ( $seen_before ) {
         return;
     }
@@ -123,11 +122,11 @@ function references_local_object( $object, $depth ) {
 
 function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
-    $activity = \activities\persist_activity( $activity );
+    $activity = \objects\upsert_object( $activity );
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
-    $activity_id = \activities\get_activity_id( $activity['id'] );
+    $activity_id = \objects\get_object_id( $activity['id'] );
     if ( !$activity_id ) {
         return new \WP_Error(
             'db_error',
@@ -136,7 +135,8 @@ function persist_activity( $actor_slug, $activity ) {
     }
     $actor_id = \actors\get_actor_id( $actor_slug );
     $seen_before = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_inbox WHERE actor_id = %d AND activity_id = %d',
+        "SELECT * FROM {$wpdb->prefix}pterotype_inbox 
+            WHERE actor_id = %d AND activity_id = %d",
         $actor_id,
         $activity_id
     ) );
@@ -144,7 +144,7 @@ function persist_activity( $actor_slug, $activity ) {
         return $activity;
     }
     $res = $wpdb->insert(
-        'pterotype_inbox',
+        $wpdb->prefix . 'pterotype_inbox',
         array(
             'actor_id' => $actor_id,
             'activity_id' => $activity_id,
@@ -171,14 +171,15 @@ function get_inbox( $actor_slug ) {
         );
     }
     $results = $wpdb->get_results( $wpdb->prepare(
-        '
-        SELECT pterotype_activities.activity FROM pterotype_inbox
-        JOIN pterotype_actors
-            ON pterotype_actors.id = pterotype_inbox.actor_id
-        JOIN pterotype_activities
-            ON pterotype_activities.id = pterotype_inbox.activity_id
-        WHERE pterotype_inbox.actor_id = %d
-        ',
+        "
+       SELECT {$wpdb->prefix}pterotype_objects.object
+       FROM {$wpdb->prefix}pterotype_inbox
+       JOIN {$wpdb->prefix}pterotype_actors
+           ON {$wpdb->prefix}pterotype_actors.id = {$wpdb->prefix}pterotype_inbox.actor_id
+       JOIN {$wpdb->prefix}pterotype_objects
+           ON {$wpdb->prefix}pterotype_objects.id = {$wpdb->prefix}pterotype_inbox.object_id
+       WHERE {$wpdb->prefix}pterotype_inbox.actor_id = %d
+       ",
         $actor_id
     ), ARRAY_A );
     return \collections\make_ordered_collection( array_map(

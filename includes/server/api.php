@@ -5,7 +5,6 @@ require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'outbox.php';
 require_once plugin_dir_path( __FILE__ ) . 'inbox.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
-require_once plugin_dir_path( __FILE__ ) . 'activities.php';
 require_once plugin_dir_path( __FILE__ ) . 'following.php';
 require_once plugin_dir_path( __FILE__ ) . 'likes.php';
 require_once plugin_dir_path( __FILE__ ) . 'shares.php';
@@ -40,11 +39,6 @@ function get_inbox( $request ) {
 function get_object( $request ) {
     $id = $request->get_url_params()['id'];
     return \objects\get_object( $id );
-}
-
-function get_activity( $request ) {
-    $id = $request->get_url_params()['id'];
-    return \activities\get_activity( $id );
 }
 
 function get_following( $request ) {
@@ -96,10 +90,6 @@ function register_routes() {
     register_rest_route( 'pterotype/v1', '/object/(?P<id>[0-9]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_object',
-    ) );
-    register_rest_route( 'pterotype/v1', '/activity/(?P<id>[0-9]+)', array(
-        'methods' => 'GET',
-        'callback' => __NAMESPACE__ . '\get_activity',
     ) );
     register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/following', array(
         'methods' => 'GET',

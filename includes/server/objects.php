@@ -19,7 +19,7 @@ function create_local_object( $object ) {
             array( 'status' => 400 )
         );
     }
-    $res = $wpdb->insert( 'pterotype_objects', array(
+    $res = $wpdb->insert( $wpdb->prefix . 'pterotype_objects', array(
         'object' => wp_json_encode( $object )
     ) );
     if ( !$res ) {
@@ -38,7 +38,7 @@ function create_local_object( $object ) {
     $object['likes'] = $object_likes;
     $object['shares'] = $object_shares;
     $res = $wpdb->update(
-        'pterotype_objects',
+        $wpdb->prefix . 'pterotype_objects',
         array (
             'activitypub_id' => $object_url,
             'type' => $type,
@@ -77,12 +77,13 @@ function upsert_object( $object ) {
         );
     }
     $row = $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_objects WHERE activitypub_id = %s', $object['id']
+        "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE activitypub_id = %s",
+        $object['id']
     ) );
     $res = true;
     if ( $row === null ) {
         $res = $wpdb->insert(
-            'pterotype_objects',
+            $wpdb->prefix . 'pterotype_objects',
             array(
                 'activitypub_id' => $object['id'],
                 'type' => $object['type'],
@@ -93,7 +94,7 @@ function upsert_object( $object ) {
         $row = new \stdClass();
     } else {
         $res = $wpdb->update(
-            'pterotype_objects',
+            $wpdb->prefix . 'pterotype_objects',
             array(
                 'activitypub_id' => $object['id'],
                 'type' => $object['type'],
@@ -129,10 +130,17 @@ function update_object( $object ) {
             array( 'status' => 400 )
         );
     }
+    if ( !array_key_exists( 'type', $object) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
     $object_json = wp_json_encode( $object );
     $res = $wpdb->update(
-        'pterotype_objects',
-        array( 'object' => $object_json ),
+        $wpdb->prefix . 'pterotype_objects',
+        array( 'object' => $object_json, 'type' => $object['type'] ),
         array( 'activitypub_id' => $object['id'] ),
         '%s', '%d' );
     if ( !$res ) {
@@ -147,14 +155,16 @@ function update_object( $object ) {
 function update_referencing_activities( $object ) {
     global $wpdb;
     $referencing_activities = $wpdb->get_results( $wpdb->prepare(
-        'SELECT * FROM pterotype_activities WHERE activity->"$.object.id" = %s',
+        "
+       SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE object->\"$.object.id\" = %s
+       ",
         $object['id']
     ) );
     if ( $referencing_activities ) {
         foreach ( $referencing_activities as $activity_row ) {
             $activity = json_decode( $activity_row->activity, true );
             $activity['object'] = $object;
-            \activities\persist_activity( $activity );
+            update_object( $activity );
         }
     }
 }
@@ -162,7 +172,7 @@ function update_referencing_activities( $object ) {
 function get_object( $id ) {
     global $wpdb;
     $object_json = $wpdb->get_var( $wpdb->prepare(
-        'SELECT object FROM pterotype_objects WHERE id = %d', $id
+        "SELECT object FROM {$wpdb->prefix}pterotype_objects WHERE id = %d", $id
     ) ); 
     if ( is_null( $object_json ) ) {
         return new \WP_Error(
@@ -175,7 +185,8 @@ function get_object( $id ) {
 function get_object_by_activitypub_id( $activitypub_id ) {
     global $wpdb;
     $object_json = $wpdb->get_var( $wpdb->prepare(
-        'SELECT object FROM pterotype_objects WHERE activitypub_id = %s', $activitypub_id
+        "SELECT object FROM {$wpdb->prefix}pterotype_objects WHERE activitypub_id = %s",
+        $activitypub_id
     ) );
     if ( is_null( $object_json ) ) {
         return new \WP_Error(
@@ -188,7 +199,8 @@ function get_object_by_activitypub_id( $activitypub_id ) {
 function get_object_id( $activitypub_id ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
-        'SELECT id FROM pterotype_objects WHERE activitypub_id = %s', $activitypub_id
+        "SELECT id FROM {$wpdb->prefix}pterotype_objects WHERE activitypub_id = %s",
+        $activitypub_id
     ) );
 }
 
@@ -215,7 +227,7 @@ function delete_object( $object ) {
     $activitypub_id = $object['id'];
     $tombstone = make_tombstone( $object );
     $res = $wpdb->update(
-        'pterotype_objects',
+        $wpdb->prefix . 'pterotype_objects',
         array(
             'type' => $tombstone['type'],
             'object' => wp_json_encode( $tombstone ),
@@ -248,5 +260,15 @@ function is_local_object( $object ) {
         return false;
     }
     return \util\is_local_url( $url );
+}
+
+function strip_private_fields( $object ) {
+    if ( array_key_exists( 'bto', $object ) ) {
+        unset( $object['bto'] );
+    }
+    if ( array_key_exists( 'bcc', $object ) ) {
+        unset( $object['bcc'] );
+    }
+    return $object;
 }
 ?>

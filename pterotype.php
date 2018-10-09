@@ -5,7 +5,7 @@ Plugin Name: Pterotype
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/init.php';
 
-define( 'PTEROTYPE_VERSION', '0.0.5' );
+define( 'PTEROTYPE_VERSION', '0.0.1' );
 define( 'PTEROTYPE_BLOG_ACTOR_SLUG', '-blog' );
 define( 'PTEROTYPE_BLOG_ACTOR_USERNAME', 'blog' );
 

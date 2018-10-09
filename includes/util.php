@@ -1,9 +1,6 @@
 <?php
 namespace util;
 
-// TODO audit places throughout the repo where I need to dereference objects
-// (this is anywhere I access a field on an object, basically)
-
 function dereference_object( $object ) {
     return dereference_object_helper( $object, 0 );
 }
