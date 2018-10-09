@@ -21,6 +21,11 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
         $activity = \activities\delete\make_delete( $actor_slug, $post_object );
     }
     if ( $activity && ! is_wp_error( $activity ) ) {
+        $followers = \followers\get_followers_collection( $actor_slug );
+        $activity['to'] = array(
+            'https://www.w3.org/ns/activitystreams#Public',
+            $followers['id']
+        );
         $server = rest_get_server();
         $request = \WP_REST_Request::from_url( $actor_outbox );
         $request->set_method('POST');
