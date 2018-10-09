@@ -14,7 +14,7 @@ function pterotype_init() {
     flush_rewrite_rules();
 }
 
-function pterotype_deactive() {
+function pterotype_deactivate() {
     do_action( 'pterotype_deactivate' );
     flush_rewrite_rules();
 }

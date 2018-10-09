@@ -72,9 +72,9 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $authorized ) ) {
         return $authorized;
     }
-    $object = \objects\upsert_object( $object );
-    if ( is_wp_error( $object ) ) {
-        return $object;
+    $object_row = \objects\upsert_object( $object );
+    if ( is_wp_error( $object_row ) ) {
+        return $object_row;
     }
     return $activity;
 }

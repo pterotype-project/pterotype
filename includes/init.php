@@ -17,6 +17,7 @@ add_action( 'user_register', function( $user_id ) {
 } );
 
 add_action( 'pterotype_init', function() {
+    \schema\run_migrations();
     \actors\initialize_actors();
 } );
 

@@ -60,7 +60,7 @@ function post_to_object( $post ) {
 function get_existing_object( $permalink ) {
     global $wpdb;
     return $wpdb->get_row( $wpdb->prepare(
-        'SELECT * FROM pterotype_objects WHERE object->"$.url" = %s', $permalink
+        "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE object->\"$.url\" = %s", $permalink
     ) );
 }
 ?>

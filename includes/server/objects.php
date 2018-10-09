@@ -104,11 +104,12 @@ function upsert_object( $object ) {
             '%s',
             '%d'
         );
+        $id = $row->id;
         $row = new \stdClass();
-        $row->id = $wpdb->insert_id;
+        $row->id = $id;
         update_referencing_activities( $object );
     }
-    if ( !$res ) {
+    if ( $res === false ) {
         return new \WP_Error(
             'db_error', __( 'Failed to upsert object row', 'pterotype' )
         );
@@ -142,7 +143,7 @@ function update_object( $object ) {
         $wpdb->prefix . 'pterotype_objects',
         array( 'object' => $object_json, 'type' => $object['type'] ),
         array( 'activitypub_id' => $object['id'] ),
-        '%s', '%d' );
+        '%s', '%s' );
     if ( !$res ) {
         return new \WP_Error(
             'db_error', __( 'Failed to update object row', 'pterotype' )
@@ -162,7 +163,7 @@ function update_referencing_activities( $object ) {
     ) );
     if ( $referencing_activities ) {
         foreach ( $referencing_activities as $activity_row ) {
-            $activity = json_decode( $activity_row->activity, true );
+            $activity = json_decode( $activity_row->object, true );
             $activity['object'] = $object;
             update_object( $activity );
         }

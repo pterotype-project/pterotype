@@ -112,10 +112,11 @@ function handle_activity( $actor_slug, $activity ) {
         return $activity;
     }
     // the activity may have changed while processing side effects, so persist the new version
-    $activity = \objects\upsert_object( $activity );
-    if ( is_wp_error( $activity ) ) {
-        return $activity;
+    $row = \objects\upsert_object( $activity );
+    if ( is_wp_error( $row) ) {
+        return $row;
     }
+    $activity = $row->object;
     deliver_activity( $actor_slug, $activity );
     $res = new \WP_REST_Response();
     $res->set_status(201);
@@ -150,7 +151,7 @@ function get_outbox( $actor_slug ) {
     // TODO return PagedCollection if $activites is too big
     return \collections\make_ordered_collection( array_map(
         function ( $result) {
-            return json_decode( $result['activity'], true);
+            return json_decode( $result['object'], true);
         },
         $results
     ) );

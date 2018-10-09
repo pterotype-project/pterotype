@@ -122,10 +122,11 @@ function references_local_object( $object, $depth ) {
 
 function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
-    $activity = \objects\upsert_object( $activity );
-    if ( is_wp_error( $activity ) ) {
-        return $activity;
+    $row = \objects\upsert_object( $activity );
+    if ( is_wp_error( $row ) ) {
+        return $row;
     }
+    $activity = $row->object;
     $activity_id = \objects\get_object_id( $activity['id'] );
     if ( !$activity_id ) {
         return new \WP_Error(
@@ -184,7 +185,7 @@ function get_inbox( $actor_slug ) {
     ), ARRAY_A );
     return \collections\make_ordered_collection( array_map(
         function ( $result ) {
-            return json_decode( $result['activity'], true );
+            return json_decode( $result['object'], true );
         },
         $results
     ) );
