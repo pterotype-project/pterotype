@@ -51,6 +51,9 @@ a single object id (url), or an array of object ids. If it's a url, it
 should dereference to one of the above types
 */
 function get_recipient_urls( $object, $depth, $acc ) {
+    if ( $object === 'https://www.w3.org/ns/activitystreams#Public' ) {
+        return array( $object );
+    }
     if ( $depth === 30 ) {
         return $acc;
     }
@@ -118,6 +121,9 @@ function get_recipient_urls( $object, $depth, $acc ) {
 
 function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
     foreach ( $recipients as $inbox ) {
+        if ( $inbox === 'https://www.w3.org/ns/activitystreams#Public' ) {
+            continue;
+        }
         if ( \util\is_local_url( $inbox ) ) {
             $request = \WP_REST_Request::from_url( $inbox );
             $request->set_method('POST');
