@@ -89,12 +89,17 @@ function get_followers_collection( $actor_slug ) {
             ",
             $actor_id
         ),
-        ARRAY_N
+        ARRAY_A
     );
     if ( !$followers ) {
         $followers = array();
     }
-    $collection = \collections\make_ordered_collection( $followers );
+    $collection = \collections\make_ordered_collection( array_map(
+        function ( $result ) {
+            return json_decode( $result['object'], true );
+        },
+        $followers
+    ) );
     $collection['id'] = get_rest_url( null, sprintf(
         '/pterotype/v1/actor/%s/followers', $actor_slug
     ) );

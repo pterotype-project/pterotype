@@ -62,7 +62,12 @@ function get_following_collection( $actor_slug ) {
     if ( !$objects ) {
         $objects = array();
     }
-    $collection = \collections\make_ordered_collection( $objects );
+    $collection = \collections\make_ordered_collection( array_map(
+        function( $result ) {
+            return json_decode( $result['object'], true );
+        },
+        $objects
+    ) );
     $collection['id'] = get_rest_url( null, sprintf(
         '/pterotype/v1/actor/%s/following', $actor_slug
     ) );

@@ -25,6 +25,8 @@ require_once plugin_dir_path( __FILE__ ) . '../util.php';
 function handle_activity( $actor_slug, $activity ) {
     // TODO how should I handle duplicate activities getting posted here and in the outbox?
     // Is it okay to just drop them if I already have the activity id in the objects table?
+    // A good strategy would just be to make sure all activities are idempotent, e.g.
+    // don't create multiple Accepts of the same Follow
     // TODO verify the authenticity of the activity
     $activity = \util\dereference_object( $activity );
     if ( !array_key_exists( 'type', $activity ) ) {
