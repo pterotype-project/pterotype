@@ -28,13 +28,10 @@ function add_follower( $actor_slug, $follower ) {
         $row = \objects\upsert_object( $follower );
         $object_id = $row->id;
     }
-    $wpdb->insert(
-        $wpdb->prefix . 'pterotype_followers',
-        array(
-            'actor_id' => $actor_id,
-            'object_id' => $object_id,
-        )
-    );
+    return $wpdb->query( $wpdb->prepare(
+        "INSERT IGNORE INTO {$wpdb->prefix}pterotype_followers(actor_id, object_id)
+             VALUES(%d, %d)", $actor_id, $object_id
+    ) );
 }
 
 function remove_follower( $actor_slug, $follower ) {
@@ -85,14 +82,14 @@ function get_followers_collection( $actor_slug ) {
     $followers = $wpdb->get_results(
         $wpdb->prepare(
             "
-           SELECT object FROM {$wpdb->prefix}pterotype_followers
-           JOIN {$wpdb->prefix}pterotype_objects 
-               ON object_id = {$wpdb->prefix}pterotype_objects.id
-           WHERE actor_id = %d
-           ",
+            SELECT object FROM {$wpdb->prefix}pterotype_followers
+            JOIN {$wpdb->prefix}pterotype_objects 
+                ON object_id = {$wpdb->prefix}pterotype_objects.id
+            WHERE actor_id = %d
+            ",
             $actor_id
         ),
-        ARRAY_A
+        ARRAY_N
     );
     if ( !$followers ) {
         $followers = array();

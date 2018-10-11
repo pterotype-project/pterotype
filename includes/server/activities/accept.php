@@ -5,6 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . '../following.php';
 require_once plugin_dir_path( __FILE__ ) . '../followers.php';
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../../util.php';
 
 function handle_inbox( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
@@ -14,14 +15,14 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \util\dereference_object( $activity['object'] );
     if ( array_key_exists( 'type', $object ) ) {
         switch ( $object['type'] ) {
         case 'Follow':
             if ( !array_key_exists( 'object', $object ) ) {
                 break;
             }
-            $follow_object = $object['object'];
+            $follow_object = \util\dereference_object( $object['object'] );
             if ( !array_key_exists( 'id', $follow_object ) ) {
                 break;
             }
@@ -47,14 +48,14 @@ function handle_outbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \util\dereference_object( $activity['object'] );
     if ( array_key_exists( 'type', $object ) ) {
         switch ( $object['type'] ) {
         case 'Follow':
             if ( !array_key_exists( 'actor', $object ) ) {
                 break;
             }
-            $follower = $object['actor'];
+            $follower = \util\dereference_object( $object['actor'] );
             \followers\add_follower( $actor_slug, $follower );
             break;
         }

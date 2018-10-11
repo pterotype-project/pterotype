@@ -36,7 +36,11 @@ function get_object_from_url_helper( $url, $depth ) {
     if ( is_local_url( $url ) ) {
         return retrieve_local_object( $url );
     }
-    $response = wp_remote_get( $url );
+    $response = wp_remote_get( $url, array(
+        'headers' => array(
+            'Accept' => 'application/ld+json',
+        ),
+    ) );
     if ( is_wp_error( $response ) ) {
         return $response;
     }

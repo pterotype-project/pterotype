@@ -23,6 +23,8 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
+    // TODO how should I handle duplicate activities getting posted here and in the outbox?
+    // Is it okay to just drop them if I already have the activity id in the objects table?
     // TODO verify the authenticity of the activity
     $activity = \util\dereference_object( $activity );
     if ( !array_key_exists( 'type', $activity ) ) {
@@ -137,7 +139,7 @@ function persist_activity( $actor_slug, $activity ) {
     $actor_id = \actors\get_actor_id( $actor_slug );
     $seen_before = $wpdb->get_row( $wpdb->prepare(
         "SELECT * FROM {$wpdb->prefix}pterotype_inbox 
-            WHERE actor_id = %d AND activity_id = %d",
+            WHERE actor_id = %d AND object_id = %d",
         $actor_id,
         $activity_id
     ) );
@@ -148,7 +150,7 @@ function persist_activity( $actor_slug, $activity ) {
         $wpdb->prefix . 'pterotype_inbox',
         array(
             'actor_id' => $actor_id,
-            'activity_id' => $activity_id,
+            'object_id' => $activity_id,
         ),
         '%d'
     );

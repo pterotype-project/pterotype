@@ -128,11 +128,12 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
             $server->dispatch( $request );
         } else {
             $args = array(
-                'body' => $activity,
+                'body' => wp_json_encode( $activity ),
                 'headers' => array(
                     'Content-Type' => 'application/ld+json',
                     'Signature' => get_signing_string( $inbox, $actor_id ),
-                )
+                ),
+                'data_format' => 'body',
             );
             wp_remote_post( $inbox, $args );
         }

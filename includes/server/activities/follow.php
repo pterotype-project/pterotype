@@ -5,6 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . '../following.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../outbox.php';
+require_once plugin_dir_path( __FILE__ ) . '../../util.php';
 
 function handle_outbox( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
@@ -36,7 +37,7 @@ function handle_inbox( $actor_slug, $activity ) {
                 array( 'status' => 400 )
             );
         }
-        $follower = $activity['actor'];
+        $follower = \util\dereference_object( $activity['actor'] );
         \objects\upsert_object( $follower );
         $accept = make_accept( $actor_slug, $activity );
         if ( is_wp_error( $accept ) ) {
@@ -61,7 +62,7 @@ function actor_is_object( $actor_slug, $activity ) {
     if ( is_wp_error( $actor ) ) {
         return false;
     }
-    $object = $activity['object'];
+    $object = \util\dereference_object( $activity['object'] );
     if ( !array_key_exists( 'type', $object ) ) {
         return false;
     }

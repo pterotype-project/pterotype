@@ -77,7 +77,7 @@ function handle_activity( $actor_slug, $activity ) {
         $activity = \activities\undo\handle_outbox( $actor_slug, $activity );
         break;
     case 'Accept':
-        $activity = \activities\accept\handle_inbox( $actor_slug, $activity );
+        $activity = \activities\accept\handle_outbox( $actor_slug, $activity );
         break;
     // For the other activities, just persist and deliver
     case 'Reject':
