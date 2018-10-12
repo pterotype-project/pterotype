@@ -20,7 +20,11 @@ add_action( 'pterotype_init', function() {
     \schema\run_migrations();
     \actors\initialize_actors();
     if ( WP_DEBUG ) {
-        file_put_contents( __DIR__ . '/activation_errors.log', ob_get_contents() );
+        $log_dir = plugin_dir_path( __FILE__ ) . '../log';
+        if ( ! file_exists( $log_dir ) ) {
+            mkdir( $log_dir, 0777, true );
+        }
+        file_put_contents( $log_dir, ob_get_contents() );
     }
 } );
 
