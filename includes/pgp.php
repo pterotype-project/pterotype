@@ -22,7 +22,7 @@ function persist_key( $actor_id, $public_key, $private_key ) {
 function sign_data( $data, $actor_id ) {
     $secret_key = get_private_key( $actor_id );
     $sig = null;
-    openssl_sign( $data, $sig, $secret_key );
+    openssl_sign( $data, $sig, $secret_key, OPENSSL_ALGO_SHA256 );
     if ( ! $sig ) {
         return new \WP_Error(
             'pgp_error',

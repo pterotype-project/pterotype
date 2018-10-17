@@ -124,12 +124,14 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
         if ( $inbox === 'https://www.w3.org/ns/activitystreams#Public' ) {
             continue;
         }
+        $date_str = get_now_date();
         if ( \util\is_local_url( $inbox ) ) {
             $request = \WP_REST_Request::from_url( $inbox );
             $request->set_method('POST');
             $request->set_body( $activity );
             $request->add_header( 'Content-Type', 'application/ld+json' );
             $request->add_header( 'Signature', signature_header( $inbox, $actor_id ) );
+            $request->add_header( 'Date', $date_str );
             $server = rest_get_server();
             $response = $server->dispatch( $request );
         } else {
@@ -137,11 +139,13 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
                 'body' => wp_json_encode( $activity ),
                 'headers' => array(
                     'Content-Type' => 'application/ld+json',
-                    'Signature' => signature_header( $inbox, $actor_id ),
+                    'Signature' => signature_header( $inbox, $actor_id, $date_str ),
+                    'Date' => $date_str,
                 ),
                 'data_format' => 'body',
             );
-            \util\log( 'debug.html', 'Request:', false );
+            \util\log( 'debug.html', 'Request:' );
+            \util\log( 'debug.html', "POST $inbox" );
             \util\log_var( 'debug.html', $args );
             $response = wp_remote_post( $inbox, $args );
             \util\log( 'debug.html', 'Response:' );
@@ -150,19 +154,26 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
     }
 }
 
-function get_signing_string( $inbox_url ) {
+function get_now_date() {
     $now = new \DateTime( 'now', new \DateTimeZone('GMT') );
-    $now_str = $now->format( 'D, d M Y H:i:s T' );
-    $parsed = parse_url( $inbox_url );
-    return "(request-target): post $parsed[path]
-host: $parsed[host]
-date: $now_str";
+    return $now->format( 'D, d M Y H:i:s T' );
 }
 
-function signature_header( $inbox_url, $actor_id ) {
+function get_signing_string( $inbox_url, $date_str ) {
+    $parsed = parse_url( $inbox_url );
+    $host = $parsed['host'];
+    if ( $parsed['port'] ) {
+        $host = $host . ':' . $parsed['port'];
+    }
+    return "(request-target): post $parsed[path]\nhost: $host\ndate: $date_str";
+}
+
+function signature_header( $inbox_url, $actor_id, $date_str ) {
     $actor = \actors\get_actor( $actor_id );
     $key_id = $actor['publicKey']['id'];
-    $signature = \pgp\sign_data( get_signing_string( $inbox_url ), $actor_id );
+    $signing_string = get_signing_string( $inbox_url, $date_str );
+    \util\log_var( 'debug.html', $signing_string, false );
+    $signature = \pgp\sign_data( $signing_string, $actor_id );
     $headers = '(request-target) host date';
     return "keyId=\"$key_id\",headers=\"$headers\",signature=\"$signature\"";
 }
