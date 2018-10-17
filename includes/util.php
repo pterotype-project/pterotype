@@ -95,4 +95,34 @@ function get_id( $object ) {
         return $object;
     }
 }
+
+function get_log_dir() {
+    return plugin_dir_path( __FILE__ ) . '../log';
+}
+
+function log( $log_file, $str, $append = true ) {
+    if ( ! WP_DEBUG ) {
+        return;
+    }
+    $log_dir = get_log_dir();
+    $log_file = '/' . $log_file;
+    if ( ! file_exists( $log_dir ) ) {
+        mkdir( $log_dir, 0777, true );
+    }
+    if ( $append ) {
+        file_put_contents( $log_dir . $log_file, $str, FILE_APPEND );
+    } else {
+        file_put_contents( $log_dir . $log_file, $str );
+    }
+}
+
+function log_var( $log_file, $var, $append = true ) {
+    if ( ! WP_DEBUG ) {
+        return;
+    }
+    ob_start();
+    var_dump( $var );
+    $dump = ob_get_clean();
+    log( $log_file, $dump, $append );
+}
 ?>

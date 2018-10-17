@@ -8,7 +8,7 @@ function get_actor( $id ) {
     $row = $wpdb->get_row( $wpdb->prepare(
         "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE id = %d", $id
     ) );
-    return get_user_from_row( $row );
+    return get_actor_from_row( $row );
 }
 
 function get_actor_by_slug ( $slug ) {
@@ -48,7 +48,10 @@ function get_actor_from_row( $row ) {
 function get_blog_actor() {
     $actor_id = get_actor_id( PTEROTYPE_BLOG_ACTOR_SLUG );
     $actor = array(
-        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
+        '@context' => array(
+            'https://www.w3.org/ns/activitystreams',
+            'https://w3id.org/security/v1',
+        ),
         'type' => 'Organization',
         'id' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
@@ -93,7 +96,10 @@ function get_user_actor( $user ) {
     $handle = get_the_author_meta( 'user_nicename', $user->get('ID'));
     $actor_id = get_actor_id( $handle );
     $actor = array(
-        '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
+        '@context' => array(
+            'https://www.w3.org/ns/activitystreams',
+            'https://w3id.org/security/v1',
+        ),
         'type' => 'Person',
         'id' => get_rest_url( null, sprintf( '/pterotype/v1/actor/%s', $handle ) ),
         'following' => get_rest_url(

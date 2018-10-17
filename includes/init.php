@@ -1,6 +1,7 @@
 <?php
 namespace init;
 
+require_once plugin_dir_path( __FILE__ ) . 'util.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/api.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'schema.php';
@@ -19,12 +20,8 @@ add_action( 'user_register', function( $user_id ) {
 add_action( 'pterotype_init', function() {
     \schema\run_migrations();
     \actors\initialize_actors();
-    if ( WP_DEBUG ) {
-        $log_dir = plugin_dir_path( __FILE__ ) . '../log';
-        if ( ! file_exists( $log_dir ) ) {
-            mkdir( $log_dir, 0777, true );
-        }
-        file_put_contents( $log_dir, ob_get_contents() );
+    if ( ! empty( ob_get_contents() ) ) {
+        \util\log( 'init.log', ob_get_contents(), false );
     }
 } );
 

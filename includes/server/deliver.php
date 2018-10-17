@@ -131,17 +131,21 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
             $request->add_header( 'Content-Type', 'application/ld+json' );
             $request->add_header( 'Signature', signature_header( $inbox, $actor_id ) );
             $server = rest_get_server();
-            $server->dispatch( $request );
+            $response = $server->dispatch( $request );
         } else {
             $args = array(
                 'body' => wp_json_encode( $activity ),
                 'headers' => array(
                     'Content-Type' => 'application/ld+json',
-                    'Signature' => get_signing_string( $inbox, $actor_id ),
+                    'Signature' => signature_header( $inbox, $actor_id ),
                 ),
                 'data_format' => 'body',
             );
-            wp_remote_post( $inbox, $args );
+            \util\log( 'debug.html', 'Request:', false );
+            \util\log_var( 'debug.html', $args );
+            $response = wp_remote_post( $inbox, $args );
+            \util\log( 'debug.html', 'Response:' );
+            \util\log_var( 'debug.html', $response );
         }
     }
 }
@@ -156,6 +160,10 @@ date: $now_str";
 }
 
 function signature_header( $inbox_url, $actor_id ) {
-    return \pgp\sign_data( get_signing_string( $inbox_url ), $actor_id );
+    $actor = \actors\get_actor( $actor_id );
+    $key_id = $actor['publicKey']['id'];
+    $signature = \pgp\sign_data( get_signing_string( $inbox_url ), $actor_id );
+    $headers = '(request-target) host date';
+    return "keyId=\"$key_id\",headers=\"$headers\",signature=\"$signature\"";
 }
 ?>
