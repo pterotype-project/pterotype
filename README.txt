@@ -4,7 +4,7 @@ Tags: ActivityPub,Fediverse,Federation
 Requires at least: 4.9.8
 Requires PHP: 7.2.11
 License: MIT
-License URI: https://github.com/jdormit/pterotype/LICENSE
+License URI: https://github.com/jdormit/pterotype/blob/master/LICENSE
 
 Pterotype expands your audience by giving your blog an ActivityPub stream,
 making it a part of the Fediverse.
