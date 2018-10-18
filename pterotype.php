@@ -1,6 +1,13 @@
 <?php
 /*
 Plugin Name: Pterotype
+Plugin URI: https://getpterotype.com
+Description: Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse.
+Version: 0.0.1
+Author: Jeremy Dormitzer
+Author URI: https://jeremydormitzer.com
+License: MIT
+License URI: https://github.com/jdormit/blob/master/LICENSE
 */
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/init.php';
