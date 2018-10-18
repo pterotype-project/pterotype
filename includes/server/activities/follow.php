@@ -43,10 +43,7 @@ function handle_inbox( $actor_slug, $activity ) {
         if ( is_wp_error( $accept ) ) {
             return $accept;
         }
-        $res = \outbox\handle_activity( $actor_slug, $accept );
-        if ( is_wp_error( $res ) ) {
-            return $res;
-        }
+        do_action( 'pterotype_send_accept', $actor_slug, $accept );
     }
     return $activity;
 }

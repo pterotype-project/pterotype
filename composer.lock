@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f89229825d6a5fb0c6b4631f153ace78",
+    "content-hash": "639c41ba8fc796bb88630bf51bb0ce38",
     "packages": [
         {
             "name": "phpseclib/phpseclib",
@@ -140,12 +140,65 @@
             ],
             "description": "Pure-PHP implementation of the OpenPGP Message Format (RFC 4880)",
             "time": "2017-04-12T21:23:15+00:00"
+        },
+        {
+            "name": "techcrunch/wp-async-task",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/techcrunch/wp-async-task.git",
+                "reference": "9bdbbf9df4ff5179711bb58b9a2451296f6753dc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/techcrunch/wp-async-task/zipball/9bdbbf9df4ff5179711bb58b9a2451296f6753dc",
+                "reference": "9bdbbf9df4ff5179711bb58b9a2451296f6753dc",
+                "shasum": ""
+            },
+            "require-dev": {
+                "10up/wp_mock": "dev-master",
+                "phpunit/phpunit": "*@stable"
+            },
+            "type": "wordpress-plugin",
+            "autoload": {
+                "classmap": [
+                    "wp-async-task.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Khadiwala",
+                    "role": "developer"
+                },
+                {
+                    "name": "Nicolas Vincent",
+                    "role": "developer"
+                },
+                {
+                    "name": "Eric Mann",
+                    "email": "eric.mann@10up.com",
+                    "role": "developer"
+                },
+                {
+                    "name": "John P. Bloch",
+                    "email": "john.bloch@10up.com",
+                    "role": "developer"
+                }
+            ],
+            "description": "Run asynchronous tasks for long-running operations in WordPress",
+            "time": "2016-03-10T17:37:13+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "techcrunch/wp-async-task": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

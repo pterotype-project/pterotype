@@ -7,6 +7,7 @@ require_once plugin_dir_path( __FILE__ ) . 'server/actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'schema.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/webfinger.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/posts.php';
+require_once plugin_dir_path( __FILE__ ) . 'server/async.php';
 
 add_action( 'rest_api_init', function() {
     \api\register_routes();
@@ -27,6 +28,7 @@ add_action( 'pterotype_init', function() {
 
 add_action( 'pterotype_load', function() {
     \schema\run_migrations();
+    \async\init_tasks();
 } );
 
 add_action( 'generate_rewrite_rules', '\webfinger\generate_rewrite_rules', 111 );
