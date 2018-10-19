@@ -41,6 +41,10 @@ Return an object of type Article
 function post_to_object( $post ) {
     setup_postdata( $post );
     $permalink = get_permalink( $post );
+    $summary = null;
+    if ( $post->post_content ) {
+        $summary = get_the_excerpt( $post );
+    }
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
         $permalink = $matches[1] . '/';
@@ -54,7 +58,7 @@ function post_to_object( $post ) {
             null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
         'url' => $permalink,
-        'summary' => get_the_excerpt( $post ),
+        'summary' => $summary,
     );
     $existing = get_existing_object( $permalink );
     if ( $existing ) {
