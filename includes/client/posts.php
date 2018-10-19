@@ -39,6 +39,7 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
 Return an object of type Article
 */
 function post_to_object( $post ) {
+    setup_postdata( $post );
     $permalink = get_permalink( $post );
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
@@ -53,7 +54,7 @@ function post_to_object( $post ) {
             null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
         'url' => $permalink,
-        'summary' => $post->post_excerpt,
+        'summary' => get_the_excerpt( $post ),
     );
     $existing = get_existing_object( $permalink );
     if ( $existing ) {
