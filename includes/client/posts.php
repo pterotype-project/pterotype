@@ -39,6 +39,10 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
 Return an object of type Article
 */
 function post_to_object( $post ) {
+    $supported_post_types = array( 'post' );
+    if ( ! in_array( $post->post_type, $supported_post_types ) ) {
+        return;
+    }
     setup_postdata( $post );
     $permalink = get_permalink( $post );
     $summary = null;
