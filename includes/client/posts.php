@@ -43,7 +43,11 @@ function post_to_object( $post ) {
     $permalink = get_permalink( $post );
     $summary = null;
     if ( $post->post_content ) {
-        $summary = get_the_excerpt( $post );
+        $summary = \html_entity_decode(
+            get_the_excerpt( $post ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
     }
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
