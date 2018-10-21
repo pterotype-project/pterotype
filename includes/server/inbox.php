@@ -92,7 +92,7 @@ function forward_activity( $actor_slug, $activity ) {
     if ( count( $collections ) === 0 ) {
         return;
     }
-    \pterotype\deliver\pterotype\deliver_activity( $actor_slug, $activity );
+    \pterotype\deliver\deliver_activity( $actor_slug, $activity );
 }
 
 function references_local_object( $object, $depth ) {

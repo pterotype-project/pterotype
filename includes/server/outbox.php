@@ -161,7 +161,7 @@ function get_outbox( $actor_slug ) {
 }
 
 function deliver_activity( $actor_slug, $activity ) {
-    \pterotype\deliver\pterotype\deliver_activity( $actor_slug, $activity );
+    \pterotype\deliver\deliver_activity( $actor_slug, $activity );
     $activity = \pterotype\objects\strip_private_fields( $activity );
     return $activity;
 }

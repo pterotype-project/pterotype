@@ -20,7 +20,7 @@ add_action( 'user_register', function( $user_id ) {
 
 add_action( 'pterotype_init', function() {
     \pterotype\schema\run_migrations();
-    \pterotype\actors\pterotype\initialize_actors();
+    \pterotype\actors\initialize_actors();
     if ( ! empty( ob_get_contents() ) ) {
         \pterotype\util\log( 'init.log', ob_get_contents(), false );
     }
@@ -28,7 +28,7 @@ add_action( 'pterotype_init', function() {
 
 add_action( 'pterotype_load', function() {
     \pterotype\schema\run_migrations();
-    \pterotype\async\pterotype\init_tasks();
+    \pterotype\async\init_tasks();
 } );
 
 add_action( 'generate_rewrite_rules', '\pterotype\webfinger\generate_rewrite_rules', 111 );
