@@ -205,6 +205,29 @@ function get_object_id( $activitypub_id ) {
     ) );
 }
 
+function get_objects_by( $field, $value ) {
+    global $wpdb;
+    $objects = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT object FROM {$wpdb->prefix}pterotype_objects
+            WHERE object->\"$.$field\" = %s
+            ",
+            $value
+        ),
+        ARRAY_A
+    );
+    if ( ! $objects ) {
+        $objects = array();
+    }
+    return array_map(
+        function( $result ) {
+            return json_decode( $result['object'], true );
+        },
+        $objects
+    );
+}
+
 function delete_object( $object ) {
     global $wpdb;
     $object = \pterotype\util\dereference_object( $object );

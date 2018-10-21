@@ -108,4 +108,21 @@ function register_routes() {
         'callback' => __NAMESPACE__ . '\get_shares',
     ) );
 }
+
+function handle_non_api_requests() {
+    global $wp;
+    $accept = $_SERVER['HTTP_ACCEPT'];
+    if ( strpos( $accept, 'application/ld+json' ) !== false ) {
+        $current_url = \trailingslashit(
+            home_url( add_query_arg( $_GET, $wp->request ) )
+        );
+        $objects = \pterotype\objects\get_objects_by( 'url', $current_url );
+        if ( count( $objects ) > 0 ) {
+            $object = $objects[0];
+            header( 'Content-Type: application/activity+json', true );
+            echo wp_json_encode( $object );
+            exit;
+        }
+    }
+}
 ?>

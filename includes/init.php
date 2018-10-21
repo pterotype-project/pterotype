@@ -36,4 +36,5 @@ add_action( 'parse_request', '\pterotype\webfinger\parse_request', 111 );
 add_filter( 'query_vars', '\pterotype\webfinger\query_vars' );
 add_action( 'well_known_webfinger', '\pterotype\webfinger\handle' );
 add_action( 'transition_post_status', '\pterotype\posts\handle_post_status_change', 10, 3 );
+add_action( 'template_redirect', '\pterotype\api\handle_non_api_requests' );
 ?>
