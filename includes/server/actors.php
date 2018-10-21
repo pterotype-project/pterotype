@@ -2,6 +2,7 @@
 namespace pterotype\actors;
 
 require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
+require_once plugin_dir_path( __FILE__ ) . 'objects.php';
 
 function get_actor( $id ) {
     global $wpdb;
@@ -155,11 +156,23 @@ function initialize_actors() {
 
 function create_actor( $slug, $type ) {
     global $wpdb;
-    return $wpdb->query( $wpdb->prepare(
+    $res = $wpdb->query( $wpdb->prepare(
         "INSERT IGNORE INTO {$wpdb->prefix}pterotype_actors(slug, type) 
             VALUES(%s, %s)",
         $slug,
         $type
     ) );
+    if ( $res === false ) {
+        return new \WP_Error(
+            'db_error',
+            __( 'Error creating actor', 'pterotype' )
+        );
+    }
+    $actor = get_actor_by_slug( $slug );
+    $res = \pterotype\objects\upsert_object( $actor );
+    if ( is_wp_error( $res ) ) {
+        return $res;
+    }
+    return $res->object;
 }
 ?>
