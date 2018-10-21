@@ -52,6 +52,7 @@ function post_to_object( $post ) {
             ENT_QUOTES,
             'UTF-8'
         );
+        $summary = $summary . '<br><br>' . $permalink;
     }
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
@@ -61,12 +62,12 @@ function post_to_object( $post ) {
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Article',
         'name' => $post->post_title,
-        'content' => $post->post_content,
+        'content' => $summary,
         'attributedTo' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
         'url' => $permalink,
-        'summary' => $summary,
+        'summary' => $post->post_title,
     );
     $existing = get_existing_object( $permalink );
     if ( $existing ) {
