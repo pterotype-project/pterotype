@@ -188,7 +188,7 @@ function get_inbox( $actor_slug ) {
         $actor_id
     ), ARRAY_A );
     return \pterotype\collections\make_ordered_collection( array_map(
-        function ( $result ) {
+        function( $result ) {
             return json_decode( $result['object'], true );
         },
         $results

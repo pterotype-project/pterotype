@@ -32,7 +32,12 @@ function get_shares_collection( $object_id ) {
     if ( !$shares ) {
         $shares = array();
     }
-    $collection = \pterotype\collections\make_ordered_collection( $shares );
+    $collection = \pterotype\collections\make_ordered_collection( array_map(
+        function( $result ) {
+            return json_decode( $result['object'], true );
+        },
+        $shares
+    ) );
     $collection['id'] = get_rest_url( null, sprintf(
         '/pterotype/v1/object/%d/shares', $object_id
     ) );
