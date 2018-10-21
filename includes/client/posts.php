@@ -52,7 +52,7 @@ function post_to_object( $post ) {
             ENT_QUOTES,
             'UTF-8'
         );
-        $summary = $summary . '<br><br>' . $permalink;
+        $summary = "$summary<br><br><a href=\"$permalink\" target=\"_blank\">$permalink</a>";
     }
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
@@ -60,7 +60,7 @@ function post_to_object( $post ) {
     }
     $object = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
-        'type' => 'Article',
+        'type' => 'Note',
         'name' => $post->post_title,
         'content' => $summary,
         'attributedTo' => get_rest_url(
