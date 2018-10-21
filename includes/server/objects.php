@@ -1,5 +1,5 @@
 <?php
-namespace objects;
+namespace pterotype\objects;
 
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
@@ -8,7 +8,7 @@ require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function create_local_object( $object ) {
     global $wpdb;
-    $object = \util\dereference_object( $object );
+    $object = \pterotype\util\dereference_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
     }
@@ -58,7 +58,7 @@ function create_local_object( $object ) {
 
 function upsert_object( $object ) {
     global $wpdb;
-    $object = \util\dereference_object( $object );
+    $object = \pterotype\util\dereference_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
     }
@@ -120,7 +120,7 @@ function upsert_object( $object ) {
 
 function update_object( $object ) {
     global $wpdb;
-    $object = \util\dereference_object( $object );
+    $object = \pterotype\util\dereference_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
     }
@@ -207,7 +207,7 @@ function get_object_id( $activitypub_id ) {
 
 function delete_object( $object ) {
     global $wpdb;
-    $object = \util\dereference_object( $object );
+    $object = \pterotype\util\dereference_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
     }
@@ -256,11 +256,11 @@ function make_tombstone( $object ) {
 }
 
 function is_local_object( $object ) {
-    $url = \util\get_id( $object );
+    $url = \pterotype\util\get_id( $object );
     if ( !$url ) {
         return false;
     }
-    return \util\is_local_url( $url );
+    return \pterotype\util\is_local_url( $url );
 }
 
 function strip_private_fields( $object ) {

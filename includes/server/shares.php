@@ -1,5 +1,5 @@
 <?php
-namespace shares;
+namespace pterotype\shares;
 
 require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 
@@ -32,7 +32,7 @@ function get_shares_collection( $object_id ) {
     if ( !$shares ) {
         $shares = array();
     }
-    $collection = \collections\make_ordered_collection( $shares );
+    $collection = \pterotype\collections\make_ordered_collection( $shares );
     $collection['id'] = get_rest_url( null, sprintf(
         '/pterotype/v1/object/%d/shares', $object_id
     ) );

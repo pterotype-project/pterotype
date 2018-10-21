@@ -1,5 +1,5 @@
 <?php
-namespace util;
+namespace pterotype\util;
 
 function dereference_object( $object ) {
     return dereference_object_helper( $object, 0 );

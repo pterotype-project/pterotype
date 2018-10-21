@@ -1,5 +1,5 @@
 <?php
-namespace activities\announce;
+namespace pterotype\activities\announce;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../shares.php';
@@ -20,10 +20,10 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    if ( !\objects\is_local_object( $object ) ) {
+    if ( !\pterotype\objects\is_local_object( $object ) ) {
         return $activity;
     }
-    $object_id = \objects\get_object_id( $object['id'] );
+    $object_id = \pterotype\objects\get_object_id( $object['id'] );
     if ( !$object_id ) {
         return new \WP_Error(
             'not_found',
@@ -39,7 +39,7 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 404 )
         );
     }
-    \shares\add_share( $object_id, $activity_id );
+    \pterotype\shares\add_share( $object_id, $activity_id );
     return $activity;
 }
 ?>

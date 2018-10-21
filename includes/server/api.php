@@ -1,5 +1,5 @@
 <?php
-namespace api;
+namespace pterotype\api;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'outbox.php';
@@ -11,54 +11,54 @@ require_once plugin_dir_path( __FILE__ ) . 'shares.php';
 
 function get_actor( $request ) {
     $actor = $request->get_url_params()['actor'];
-    return \actors\get_actor_by_slug( $actor );
+    return \pterotype\actors\get_actor_by_slug( $actor );
 }
 
 function post_to_outbox( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
     $activity = json_decode( $request->get_body(), true );
-    return \outbox\handle_activity( $actor_slug, $activity );
+    return \pterotype\outbox\handle_activity( $actor_slug, $activity );
 }
 
 function get_outbox( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
-    return \outbox\get_outbox( $actor_slug );
+    return \pterotype\outbox\get_outbox( $actor_slug );
 }
 
 function post_to_inbox( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
     $activity = json_decode( $request->get_body(), true );
-    return \inbox\handle_activity( $actor_slug, $activity );
+    return \pterotype\inbox\handle_activity( $actor_slug, $activity );
 }
 
 function get_inbox( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
-    return \inbox\get_inbox( $actor_slug );
+    return \pterotype\inbox\get_inbox( $actor_slug );
 }
 
 function get_object( $request ) {
     $id = $request->get_url_params()['id'];
-    return \objects\get_object( $id );
+    return \pterotype\objects\get_object( $id );
 }
 
 function get_following( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
-    return \following\get_following_collection( $actor_slug );
+    return \pterotype\following\get_following_collection( $actor_slug );
 }
 
 function get_followers( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
-    return \followers\get_followers_collection( $actor_slug );
+    return \pterotype\followers\get_followers_collection( $actor_slug );
 }
 
 function get_likes( $request ) {
     $object_id = $request->get_url_params()['object'];
-    return \likes\get_likes_collection( $object_id );
+    return \pterotype\likes\get_likes_collection( $object_id );
 }
 
 function get_shares( $request ) {
     $object_id = $request->get_url_params()['object'];
-    return \shares\get_shares_collection( $object_id );
+    return \pterotype\shares\get_shares_collection( $object_id );
 }
 
 function user_can_post_to_outbox() {

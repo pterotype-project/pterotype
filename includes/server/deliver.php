@@ -1,5 +1,5 @@
 <?php
-namespace deliver;
+namespace pterotype\deliver;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
@@ -10,8 +10,8 @@ require_once plugin_dir_path( __FILE__ ) . '../util.php';
 // objects up to some limit
 
 function deliver_activity( $actor_slug, $activity ) {
-    $actor_id = \actors\get_actor_id( $actor_slug );
-    $activity = \util\dereference_object( $activity );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
+    $activity = \pterotype\util\dereference_object( $activity );
     $recipients = array();
     foreach ( array( 'to', 'bto', 'cc', 'bcc', 'audience' ) as $field ) {
         $recipients = array_merge(
@@ -20,10 +20,10 @@ function deliver_activity( $actor_slug, $activity ) {
     }
     $recipients = array_unique( $recipients );
     if ( array_key_exists( 'actor', $activity ) ) {
-        $actor = \util\dereference_object( $activity['actor'] );
+        $actor = \pterotype\util\dereference_object( $activity['actor'] );
         $recipients = remove_actor_inbox_from_recipients( $actor, $recipients );
     }
-    $activity = \objects\strip_private_fields( $activity );
+    $activity = \pterotype\objects\strip_private_fields( $activity );
     post_activity_to_inboxes( $actor_id, $activity, $recipients );
 }
 
@@ -78,7 +78,7 @@ function get_recipient_urls( $object, $depth, $acc ) {
             return $recipients;
         case 'Link':
             if ( array_key_exists( 'href', $object ) ) {
-                $response = \util\get_object_from_url( $object['href'] );
+                $response = \pterotype\util\get_object_from_url( $object['href'] );
                 if ( is_wp_error( $response ) ) {
                     return array();
                 }
@@ -107,7 +107,7 @@ function get_recipient_urls( $object, $depth, $acc ) {
             return $recipients;
         } else {
             if ( filter_var( $object, FILTER_VALIDATE_URL ) ) {
-                $response = \util\get_object_from_url( $object );
+                $response = \pterotype\util\get_object_from_url( $object );
                 if ( is_wp_error( $response ) ) {
                     return array();
                 }
@@ -125,7 +125,7 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
             continue;
         }
         $date_str = get_now_date();
-        if ( \util\is_local_url( $inbox ) ) {
+        if ( \pterotype\util\is_local_url( $inbox ) ) {
             $request = \WP_REST_Request::from_url( $inbox );
             $request->set_method('POST');
             $request->set_body( $activity );
@@ -144,12 +144,12 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
                 ),
                 'data_format' => 'body',
             );
-            \util\log( 'debug.html', 'Request:' );
-            \util\log( 'debug.html', "POST $inbox" );
-            \util\log_var( 'debug.html', $args );
+            \pterotype\util\log( 'debug.html', 'Request:' );
+            \pterotype\util\log( 'debug.html', "POST $inbox" );
+            \pterotype\util\log_var( 'debug.html', $args );
             $response = wp_remote_post( $inbox, $args );
-            \util\log( 'debug.html', 'Response:' );
-            \util\log_var( 'debug.html', $response );
+            \pterotype\util\log( 'debug.html', 'Response:' );
+            \pterotype\util\log_var( 'debug.html', $response );
         }
     }
 }
@@ -169,11 +169,11 @@ function get_signing_string( $inbox_url, $date_str ) {
 }
 
 function signature_header( $inbox_url, $actor_id, $date_str ) {
-    $actor = \actors\get_actor( $actor_id );
+    $actor = \pterotype\actors\get_actor( $actor_id );
     $key_id = $actor['publicKey']['id'];
     $signing_string = get_signing_string( $inbox_url, $date_str );
-    \util\log_var( 'debug.html', $signing_string, false );
-    $signature = \pgp\sign_data( $signing_string, $actor_id );
+    \pterotype\util\log_var( 'debug.html', $signing_string, false );
+    $signature = \pterotype\pgp\sign_data( $signing_string, $actor_id );
     $headers = '(request-target) host date';
     return "keyId=\"$key_id\",headers=\"$headers\",signature=\"$signature\"";
 }

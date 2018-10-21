@@ -1,5 +1,5 @@
 <?php
-namespace blocks;
+namespace pterotype\blocks;
 
 /*
 If an actor is in another actor's block list, any activities

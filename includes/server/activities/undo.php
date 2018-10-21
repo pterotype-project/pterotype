@@ -1,5 +1,5 @@
 <?php
-namespace activities\undo;
+namespace pterotype\activities\undo;
 
 require_once plugin_dir_path( __FILE__ ) . '../../util.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
@@ -13,7 +13,7 @@ function handle_outbox( $actor_slug, $activity ) {
     if ( is_wp_error( $object ) ) {
         return $object;
     }
-    $actor_id = \actors\get_actor_id( $actor_slug );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found',
@@ -30,30 +30,30 @@ function handle_outbox( $actor_slug, $activity ) {
                 array( 'status' => 400 )
             );
         }
-        $liked_object_url = \util\get_id( $object['object'] );
+        $liked_object_url = \pterotype\util\get_id( $object['object'] );
         if ( !$liked_object_url ) {
             break;
         }
-        $liked_object_id = \objects\get_object_id( $liked_object_url );
+        $liked_object_id = \pterotype\objects\get_object_id( $liked_object_url );
         if ( !$liked_object_id ) {
             break;
         }
-        \likes\delete_local_actor_like( $actor_id, $liked_object_id );
-        $like_id = \objects\get_object_id( $object['id'] );
+        \pterotype\likes\delete_local_actor_like( $actor_id, $liked_object_id );
+        $like_id = \pterotype\objects\get_object_id( $object['id'] );
         if ( !$like_id ) {
             break;
         }
-        \likes\delete_object_like( $liked_object_id, $like_id );
+        \pterotype\likes\delete_object_like( $liked_object_id, $like_id );
         break;
     case 'Block':
         if ( !array_key_exists( 'object', $object ) ) {
             break;
         }
-        $blocked_object_url = \util\get_id( $object['object'] );
+        $blocked_object_url = \pterotype\util\get_id( $object['object'] );
         if ( !$blocked_object_url ) {
             break;
         }
-        $res = \blocks\delete_block( $actor_id, $blocked_object_url );
+        $res = \pterotype\blocks\delete_block( $actor_id, $blocked_object_url );
         if ( is_wp_error( $res ) ) {
             return $res;
         }
@@ -62,15 +62,15 @@ function handle_outbox( $actor_slug, $activity ) {
         if ( !array_key_exists( 'object', $object ) ) {
             break;
         }
-        $follow_object_url = \util\get_id( $object['object'] );
+        $follow_object_url = \pterotype\util\get_id( $object['object'] );
         if ( !$follow_object_url ) {
             break;
         }
-        $follow_object_id = \objects\get_object_id( $follow_object_url );
+        $follow_object_id = \pterotype\objects\get_object_id( $follow_object_url );
         if ( !$follow_object_id ) {
             break;
         }
-        \following\reject_follow( $actor_id, $follow_object_id );
+        \pterotype\following\reject_follow( $actor_id, $follow_object_id );
         break;
     // TODO I should support Undoing these as well
     case 'Add':
@@ -88,7 +88,7 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $object ) ) {
         return $object;
     }
-    $actor_id = \actors\get_actor_id( $actor_slug );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found',
@@ -101,17 +101,17 @@ function handle_inbox( $actor_slug, $activity ) {
         if ( !array_key_exists( 'object', $object ) ) {
             break;
         }
-        if ( \objects\is_local_object( $object['object'] ) ) {
-            $object_url = \objects\get_object_id( $object['object'] );
+        if ( \pterotype\objects\is_local_object( $object['object'] ) ) {
+            $object_url = \pterotype\objects\get_object_id( $object['object'] );
             if ( !$object_url ) {
                 break;
             }
-            $object_id = \objects\get_object_id( $object_url );
-            $like_id = \objects\get_object_id( $object['id'] );
+            $object_id = \pterotype\objects\get_object_id( $object_url );
+            $like_id = \pterotype\objects\get_object_id( $object['id'] );
             if ( !$like_id ) {
                 break;
             }
-            \likes\delete_object_like( $object_id, $like_id );
+            \pterotype\likes\delete_object_like( $object_id, $like_id );
         }
         break;
     case 'Follow':
@@ -119,13 +119,13 @@ function handle_inbox( $actor_slug, $activity ) {
             break;
         }
         $follower = $object['actor'];
-        \followers\remove_follower( $actor_slug, $follower );
+        \pterotype\followers\remove_follower( $actor_slug, $follower );
         break;
     case 'Accept':
         if ( !array_key_exists( 'object', $object ) ) {
             break;
         }
-        $accept_object = \util\dereference_object( $object['object'] );
+        $accept_object = \pterotype\util\dereference_object( $object['object'] );
         if ( is_wp_error( $object ) ) {
             break;
         }
@@ -133,13 +133,13 @@ function handle_inbox( $actor_slug, $activity ) {
             if ( !array_key_exists( 'object', $accept_object ) ) {
                 break;
             }
-            $followed_object_url = \util\get_id( $accept_object['object'] );
-            $followed_object_id = \objects\get_object_id( $followed_object_url );
+            $followed_object_url = \pterotype\util\get_id( $accept_object['object'] );
+            $followed_object_id = \pterotype\objects\get_object_id( $followed_object_url );
             if ( !$followed_object_id ) {
                 break;
             }
             // Put the follow request back into the PENDING state
-            \following\request_follow( $actor_id, $followed_object_id );
+            \pterotype\following\request_follow( $actor_id, $followed_object_id );
         }
         break;
     default:
@@ -163,7 +163,7 @@ function validate_undo( $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = \util\dereference_object( $activity['object'] );
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     if ( is_wp_error( $object ) ) {
         return $object;
     }
@@ -181,7 +181,7 @@ function validate_undo( $activity ) {
             array( 'status' => 400 )
         );
     }
-    if ( !\util\is_same_object( $activity['actor'], $object['actor'] ) ) {
+    if ( !\pterotype\util\is_same_object( $activity['actor'], $object['actor'] ) ) {
         return new \WP_Error(
             'unauthorized',
             __( 'Unauthorzed Undo activity', 'pterotype' ),

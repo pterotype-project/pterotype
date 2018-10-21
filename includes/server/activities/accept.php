@@ -1,5 +1,5 @@
 <?php
-namespace activities\accept;
+namespace pterotype\activities\accept;
 
 require_once plugin_dir_path( __FILE__ ) . '../following.php';
 require_once plugin_dir_path( __FILE__ ) . '../followers.php';
@@ -15,23 +15,23 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = \util\dereference_object( $activity['object'] );
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     if ( array_key_exists( 'type', $object ) ) {
         switch ( $object['type'] ) {
         case 'Follow':
             if ( !array_key_exists( 'object', $object ) ) {
                 break;
             }
-            $follow_object = \util\dereference_object( $object['object'] );
+            $follow_object = \pterotype\util\dereference_object( $object['object'] );
             if ( !array_key_exists( 'id', $follow_object ) ) {
                 break;
             }
-            $object_id = \objects\get_object_by_activitypub_id( $follow_object['id'] );
+            $object_id = \pterotype\objects\get_object_by_activitypub_id( $follow_object['id'] );
             if ( is_wp_error( $object_id ) ) {
                 break;
             }
-            $actor_id = \actors\get_actor_id( $actor_slug );
-            \following\accept_follow( $actor_id, $object_id );
+            $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
+            \pterotype\following\accept_follow( $actor_id, $object_id );
             break;
         default:
             break;
@@ -48,15 +48,15 @@ function handle_outbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = \util\dereference_object( $activity['object'] );
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     if ( array_key_exists( 'type', $object ) ) {
         switch ( $object['type'] ) {
         case 'Follow':
             if ( !array_key_exists( 'actor', $object ) ) {
                 break;
             }
-            $follower = \util\dereference_object( $object['actor'] );
-            \followers\add_follower( $actor_slug, $follower );
+            $follower = \pterotype\util\dereference_object( $object['actor'] );
+            \pterotype\followers\add_follower( $actor_slug, $follower );
             break;
         }
     }

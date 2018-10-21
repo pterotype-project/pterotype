@@ -1,5 +1,5 @@
 <?php
-namespace following;
+namespace pterotype\following;
 
 require_once plugin_dir_path( __FILE__ ) . 'collections.php';
 
@@ -40,7 +40,7 @@ function reject_follow( $actor_id, $object_id ) {
 
 function get_following_collection( $actor_slug ) {
     global $wpdb;
-    $actor_id = \actors\get_actor_id( $actor_slug );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found', __( 'Actor not found', 'pterotype' ), array( 'status' => 404 )
@@ -62,7 +62,7 @@ function get_following_collection( $actor_slug ) {
     if ( !$objects ) {
         $objects = array();
     }
-    $collection = \collections\make_ordered_collection( array_map(
+    $collection = \pterotype\collections\make_ordered_collection( array_map(
         function( $result ) {
             return json_decode( $result['object'], true );
         },

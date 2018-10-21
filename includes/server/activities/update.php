@@ -1,5 +1,5 @@
 <?php
-namespace activities\update;
+namespace pterotype\activities\update;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 
@@ -26,12 +26,12 @@ function handle_outbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $existing_object = \objects\get_object_by_activitypub_id( $update_object['id'] );
+    $existing_object = \pterotype\objects\get_object_by_activitypub_id( $update_object['id'] );
     if ( is_wp_error( $existing_object ) ) {
         return $existing_object;
     }
     $updated_object = array_merge( $existing_object, $update_object );
-    $updated_object = \objects\update_object( $updated_object );
+    $updated_object = \pterotype\objects\update_object( $updated_object );
     if ( is_wp_error( $updated_object ) ) {
         return $updated_object;
     }
@@ -72,7 +72,7 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $authorized ) ) {
         return $authorized;
     }
-    $object_row = \objects\upsert_object( $object );
+    $object_row = \pterotype\objects\upsert_object( $object );
     if ( is_wp_error( $object_row ) ) {
         return $object_row;
     }
@@ -94,7 +94,7 @@ function check_authorization( $activity ) {
 }
 
 function make_update( $actor_slug, $object ) {
-    $actor = \actors\get_actor_by_slug( $actor_slug );
+    $actor = \pterotype\actors\get_actor_by_slug( $actor_slug );
     if ( is_wp_error( $actor ) ) {
         return $actor;
     }

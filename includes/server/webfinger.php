@@ -1,5 +1,5 @@
 <?php
-namespace webfinger;
+namespace pterotype\webfinger;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 
@@ -54,7 +54,7 @@ function handle( $query ) {
 }
 
 function get_webfinger_json( $resource, $actor_slug ) {
-    $actor = \actors\get_actor_by_slug( $actor_slug );
+    $actor = \pterotype\actors\get_actor_by_slug( $actor_slug );
     if ( is_wp_error( $actor ) ) {
         header( 'HTTP/1.1 404 Not Found', true, 404 );
         echo __( 'Resource not found', 'pterotype' );

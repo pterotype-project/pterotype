@@ -1,5 +1,5 @@
 <?php
-namespace activities\like;
+namespace pterotype\activities\like;
 
 require_once plugin_dir_path( __FILE__ ) . '../likes.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
@@ -21,14 +21,14 @@ function handle_outbox( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object_row = \objects\upsert_object( $object );
-    $actor_id = \actors\get_actor_id( $actor );
-    $res = \likes\create_local_actor_like( $actor_id, $object_row->id );
+    $object_row = \pterotype\objects\upsert_object( $object );
+    $actor_id = \pterotype\actors\get_actor_id( $actor );
+    $res = \pterotype\likes\create_local_actor_like( $actor_id, $object_row->id );
     if ( is_wp_error( $res ) ) {
         return $res;
     }
-    if ( \objects\is_local_object( $object ) ) {
-        $activity_id = \objects\get_object_id( $activity['id'] );
+    if ( \pterotype\objects\is_local_object( $object ) ) {
+        $activity_id = \pterotype\objects\get_object_id( $activity['id'] );
         if ( !$activity_id ) {
             return new \WP_Error(
                 'not_found',
@@ -37,7 +37,7 @@ function handle_outbox( $actor, $activity ) {
             );
         }
         $object_id = $object_row->id;
-        \likes\record_like( $object_id, $activity_id );
+        \pterotype\likes\record_like( $object_id, $activity_id );
     }
     return $activity;
 }
@@ -65,8 +65,8 @@ function handle_inbox( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    if ( \objects\is_local_object( $object ) ) {
-        $activity_id = \objects\get_object_id( $activity['id'] );
+    if ( \pterotype\objects\is_local_object( $object ) ) {
+        $activity_id = \pterotype\objects\get_object_id( $activity['id'] );
         if ( !$activity_id ) {
             return new \WP_Error(
                 'not_found',
@@ -74,7 +74,7 @@ function handle_inbox( $actor, $activity ) {
                 array( 'status' => 404 )
             );
         }
-        $object_id = \objects\get_object_id( $object['id'] );
+        $object_id = \pterotype\objects\get_object_id( $object['id'] );
         if ( !$object_id ) {
             return new \WP_Error(
                 'not_found',
@@ -82,7 +82,7 @@ function handle_inbox( $actor, $activity ) {
                 array( 'status' => 404 )
             );
         }
-        \likes\record_like( $object_id, $activity_id );
+        \pterotype\likes\record_like( $object_id, $activity_id );
     }
     return $activity;
 }

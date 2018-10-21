@@ -1,5 +1,5 @@
 <?php
-namespace actors;
+namespace pterotype\actors;
 
 require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
 
@@ -83,7 +83,7 @@ function get_blog_actor() {
             'owner' => get_rest_url(
                 null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
             ),
-            'publicKeyPem' => \pgp\get_public_key( $actor_id ),
+            'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
     );
     if ( has_custom_logo() ) {
@@ -124,7 +124,7 @@ function get_user_actor( $user ) {
             'owner' => get_rest_url(
                 null, sprintf( '/pterotype/v1/actor/%s', $handle )
             ),
-            'publicKeyPem' => \pgp\get_public_key( $actor_id ),
+            'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
     );
     return $actor;
@@ -138,18 +138,18 @@ function initialize_actors() {
     foreach ( $user_slugs as $user_slug ) {
         create_actor( $user_slug, 'user' );
         $actor_id = get_actor_id( $user_slug );
-        $keys_created = \pgp\get_public_key( $actor_id );
+        $keys_created = \pterotype\pgp\get_public_key( $actor_id );
         if ( ! $keys_created ) {
-            $keys = \pgp\gen_key( $user_slug );
-            \pgp\persist_key( $actor_id, $keys['publickey'], $keys['privatekey'] );
+            $keys = \pterotype\pgp\gen_key( $user_slug );
+            \pterotype\pgp\persist_key( $actor_id, $keys['publickey'], $keys['privatekey'] );
         }
     }
     create_actor( PTEROTYPE_BLOG_ACTOR_SLUG, 'blog' );
     $blog_actor_id = get_actor_id( PTEROTYPE_BLOG_ACTOR_SLUG );
-    $keys_created = \pgp\get_public_key( $blog_actor_id );
+    $keys_created = \pterotype\pgp\get_public_key( $blog_actor_id );
     if ( ! $keys_created ) {
-        $keys = \pgp\gen_key( PTEROTYPE_BLOG_ACTOR_SLUG );
-        \pgp\persist_key( $blog_actor_id, $keys['publickey'], $keys['privatekey'] );
+        $keys = \pterotype\pgp\gen_key( PTEROTYPE_BLOG_ACTOR_SLUG );
+        \pterotype\pgp\persist_key( $blog_actor_id, $keys['publickey'], $keys['privatekey'] );
     }
 }
 

@@ -1,5 +1,5 @@
 <?php
-namespace activities\create;
+namespace pterotype\activities\create;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
@@ -33,7 +33,7 @@ function handle_outbox( $actor_slug, $activity ) {
     $object['attributedTo'] = $attributed_actor;
     reconcile_receivers( $object, $activity );
     $object = scrub_object( $object );
-    $object = \objects\create_local_object( $object );
+    $object = \pterotype\objects\create_local_object( $object );
     if ( is_wp_error( $object ) ) {
         return $object;
     }
@@ -50,7 +50,7 @@ function handle_inbox( $actor_slug, $activity ) {
         );
     }
     $object = $activity['object'];
-    $object_row = \objects\upsert_object( $object );
+    $object_row = \pterotype\objects\upsert_object( $object );
     if ( is_wp_error( $object_row ) ) {
         return $object_row;
     }
@@ -91,7 +91,7 @@ function scrub_object( $object ) {
 }
 
 function make_create( $actor_slug, $object ) {
-    $actor = \actors\get_actor_by_slug( $actor_slug );
+    $actor = \pterotype\actors\get_actor_by_slug( $actor_slug );
     if ( is_wp_error( $actor ) ) {
         return $actor;
     }

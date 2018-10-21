@@ -1,5 +1,5 @@
 <?php
-namespace followers;
+namespace pterotype\followers;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
@@ -7,7 +7,7 @@ require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function add_follower( $actor_slug, $follower ) {
     global $wpdb;
-    $actor_id = \actors\get_actor_id( $actor_slug ); 
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug ); 
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found',
@@ -15,7 +15,7 @@ function add_follower( $actor_slug, $follower ) {
             array( 'status' => 404 )
         );
     }
-    $follower = \util\dereference_object( $follower );
+    $follower = \pterotype\util\dereference_object( $follower );
     if ( !array_key_exists( 'id', $follower ) ) {
         return new \WP_Error(
             'invalid_object',
@@ -23,9 +23,9 @@ function add_follower( $actor_slug, $follower ) {
             array( 'status' => 400 )
         );
     }
-    $object_id = \objects\get_object_id( $follower['id'] );
+    $object_id = \pterotype\objects\get_object_id( $follower['id'] );
     if ( !$object_id ) {
-        $row = \objects\upsert_object( $follower );
+        $row = \pterotype\objects\upsert_object( $follower );
         $object_id = $row->id;
     }
     return $wpdb->query( $wpdb->prepare(
@@ -36,7 +36,7 @@ function add_follower( $actor_slug, $follower ) {
 
 function remove_follower( $actor_slug, $follower ) {
     global $wpdb;
-    $actor_id = \actors\get_actor_id( $actor_slug ); 
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug ); 
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found',
@@ -44,7 +44,7 @@ function remove_follower( $actor_slug, $follower ) {
             array( 'status' => 404 )
         );
     }
-    $follower = \util\dereference_object( $follower );
+    $follower = \pterotype\util\dereference_object( $follower );
     if ( !array_key_exists( 'id', $follower ) ) {
         return new \WP_Error(
             'invalid_object',
@@ -52,7 +52,7 @@ function remove_follower( $actor_slug, $follower ) {
             array( 'status' => 400 )
         );
     }
-    $object_id = \objects\get_object_id( $follower['id'] );
+    $object_id = \pterotype\objects\get_object_id( $follower['id'] );
     if ( !$object_id ) {
         return new \WP_Error(
             'not_found',
@@ -71,7 +71,7 @@ function remove_follower( $actor_slug, $follower ) {
 
 function get_followers_collection( $actor_slug ) {
     global $wpdb;
-    $actor_id = \actors\get_actor_id( $actor_slug ); 
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug ); 
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found',
@@ -94,7 +94,7 @@ function get_followers_collection( $actor_slug ) {
     if ( !$followers ) {
         $followers = array();
     }
-    $collection = \collections\make_ordered_collection( array_map(
+    $collection = \pterotype\collections\make_ordered_collection( array_map(
         function ( $result ) {
             return json_decode( $result['object'], true );
         },

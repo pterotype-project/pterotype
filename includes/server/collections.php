@@ -1,5 +1,5 @@
 <?php
-namespace collections;
+namespace pterotype\collections;
 
 function make_ordered_collection( $objects ) {
     $ordered_collection = array(

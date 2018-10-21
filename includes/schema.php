@@ -1,5 +1,5 @@
 <?php
-namespace schema;
+namespace pterotype\schema;
 
 function get_previous_version() {
     $previous_version = get_option( 'pterotype_previously_migrated_version' );

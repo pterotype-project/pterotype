@@ -1,5 +1,5 @@
 <?php
-namespace pgp;
+namespace pterotype\pgp;
 
 function gen_key( $actor_slug ) {
     $rsa = new \phpseclib\Crypt\RSA();

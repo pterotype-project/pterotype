@@ -10,7 +10,7 @@ When an Activity is received (i.e. POSTed) to an Actor's outbox, the server must
        target inbox.
   3. Perform side effects as necessary
 */
-namespace outbox;
+namespace pterotype\outbox;
 
 require_once plugin_dir_path( __FILE__ ) . 'actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
@@ -24,11 +24,11 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
-    \util\log( 'outbox.html', 'Got outbox request', false );
-    \util\log_var( 'outbox.html', $actor_slug );
-    \util\log_var( 'outbox.html', $activity );
+    \pterotype\util\log( 'outbox.html', 'Got outbox request', false );
+    \pterotype\util\log_var( 'outbox.html', $actor_slug );
+    \pterotype\util\log_var( 'outbox.html', $activity );
     // TODO handle authentication/authorization
-    $activity = \util\dereference_object( $activity );
+    $activity = \pterotype\util\dereference_object( $activity );
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
@@ -45,16 +45,16 @@ function handle_activity( $actor_slug, $activity ) {
     }
     switch ( $activity['type'] ) {
     case 'Create':
-        $activity = \activities\create\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\create\handle_outbox( $actor_slug, $activity );
         break;
     case 'Update':
-        $activity = \activities\update\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\update\handle_outbox( $actor_slug, $activity );
         break;
     case 'Delete':
-        $activity = \activities\delete\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\delete\handle_outbox( $actor_slug, $activity );
         break;
     case 'Follow':
-        $activity = \activities\follow\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\follow\handle_outbox( $actor_slug, $activity );
         break;
     case 'Add':
         return new \WP_Error(
@@ -71,16 +71,16 @@ function handle_activity( $actor_slug, $activity ) {
         );
         break;
     case 'Like':
-        $activity = \activities\like\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\like\handle_outbox( $actor_slug, $activity );
         break;
     case 'Block':
-        $activity = \activities\block\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\block\handle_outbox( $actor_slug, $activity );
         break;
     case 'Undo':
-        $activity = \activities\undo\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\undo\handle_outbox( $actor_slug, $activity );
         break;
     case 'Accept':
-        $activity = \activities\accept\handle_outbox( $actor_slug, $activity );
+        $activity = \pterotype\activities\accept\handle_outbox( $actor_slug, $activity );
         break;
     // For the other activities, just persist and deliver
     case 'Reject':
@@ -108,14 +108,14 @@ function handle_activity( $actor_slug, $activity ) {
         if ( is_wp_error( $create_activity ) ) {
             return $create_activity;
         }
-        $activity = \activities\create\handle_outbox( $actor_slug, $create_activity );
+        $activity = \pterotype\activities\create\handle_outbox( $actor_slug, $create_activity );
         break;
     }
     if ( is_wp_error( $activity ) ) {
         return $activity;
     }
     // the activity may have changed while processing side effects, so persist the new version
-    $row = \objects\upsert_object( $activity );
+    $row = \pterotype\objects\upsert_object( $activity );
     if ( is_wp_error( $row) ) {
         return $row;
     }
@@ -131,7 +131,7 @@ function handle_activity( $actor_slug, $activity ) {
 function get_outbox( $actor_slug ) {
     global $wpdb;
     // TODO what sort of joins should these be?
-    $actor_id = \actors\get_actor_id( $actor_slug );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     if ( !$actor_id ) {
         return new \WP_Error(
             'not_found',
@@ -152,7 +152,7 @@ function get_outbox( $actor_slug ) {
             $actor_id
     ), ARRAY_A );
     // TODO return PagedCollection if $activites is too big
-    return \collections\make_ordered_collection( array_map(
+    return \pterotype\collections\make_ordered_collection( array_map(
         function ( $result) {
             return json_decode( $result['object'], true);
         },
@@ -161,17 +161,17 @@ function get_outbox( $actor_slug ) {
 }
 
 function deliver_activity( $actor_slug, $activity ) {
-    \deliver\deliver_activity( $actor_slug, $activity );
-    $activity = \objects\strip_private_fields( $activity );
+    \pterotype\deliver\pterotype\deliver_activity( $actor_slug, $activity );
+    $activity = \pterotype\objects\strip_private_fields( $activity );
     return $activity;
 }
 
 function persist_activity( $actor_slug, $activity ) {
     global $wpdb;
-    $activity = \objects\strip_private_fields( $activity );
-    $activity = \objects\create_local_object( $activity );
+    $activity = \pterotype\objects\strip_private_fields( $activity );
+    $activity = \pterotype\objects\create_local_object( $activity );
     $activity_id = $wpdb->insert_id;
-    $actor_id = \actors\get_actor_id( $actor_slug );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     $res = $wpdb->insert( $wpdb->prefix . 'pterotype_outbox', array(
         'actor_id' => $actor_id,
         'object_id' => $activity_id,
@@ -186,6 +186,6 @@ function persist_activity( $actor_slug, $activity ) {
 }
 
 function wrap_object_in_create( $actor_slug, $object ) {
-    return \activities\create\make_create( $actor_slug, $object );
+    return \pterotype\activities\create\make_create( $actor_slug, $object );
 }
 ?>

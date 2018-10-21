@@ -1,5 +1,5 @@
 <?php
-namespace activities\delete;
+namespace pterotype\activities\delete;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
@@ -13,7 +13,7 @@ function handle_outbox( $actor, $activity ) {
         );
     }
     $object = $activity['object'];
-    $tombstone = \objects\delete_object( $object );
+    $tombstone = \pterotype\objects\delete_object( $object );
     if ( is_wp_error( $tombstone ) ) {
         return $tombstone;
     }
@@ -48,7 +48,7 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $authorized ) ) {
         return $authorized;
     }
-    $res = \objects\delete_object( $object );
+    $res = \pterotype\objects\delete_object( $object );
     if ( is_wp_error( $res ) ) {
         return $res;
     }
@@ -70,7 +70,7 @@ function check_authorization( $activity ) {
 }
 
 function make_delete( $actor_slug, $object ) {
-    $actor = \actors\get_actor_by_slug( $actor_slug );
+    $actor = \pterotype\actors\get_actor_by_slug( $actor_slug );
     if ( is_wp_error( $actor ) ) {
         return $actor;
     }

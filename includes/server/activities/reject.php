@@ -1,5 +1,5 @@
 <?php
-namespace activities\reject;
+namespace pterotype\activities\reject;
 
 require_once plugin_dir_path( __FILE__ ) . '../following.php';
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
@@ -24,12 +24,12 @@ function handle_inbox( $actor_slug, $activity ) {
             if ( !array_key_exists( 'id', $follow_object ) ) {
                 break;
             }
-            $object_id = \objects\get_object_by_activitypub_id( $follow_object['id'] );
+            $object_id = \pterotype\objects\get_object_by_activitypub_id( $follow_object['id'] );
             if ( is_wp_error( $object_id ) ) {
                 break;
             }
-            $actor_id = \actors\get_actor_id( $actor_slug );
-            \following\reject_follow( $actor_id, $object_id );
+            $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
+            \pterotype\following\reject_follow( $actor_id, $object_id );
             break;
         default:
             break;

@@ -1,5 +1,5 @@
 <?php
-namespace activities\follow;
+namespace pterotype\activities\follow;
 
 require_once plugin_dir_path( __FILE__ ) . '../following.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
@@ -16,9 +16,9 @@ function handle_outbox( $actor_slug, $activity ) {
         );
     }
     $object = $activity['object'];
-    $object_row = \objects\upsert_object( $object );
-    $actor_id = \actors\get_actor_id( $actor_slug );
-    $res = \following\request_follow( $actor_id, $object_row->id );
+    $object_row = \pterotype\objects\upsert_object( $object );
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
+    $res = \pterotype\following\request_follow( $actor_id, $object_row->id );
     if ( is_wp_error( $res ) ) {
         return $res;
     }
@@ -37,8 +37,8 @@ function handle_inbox( $actor_slug, $activity ) {
                 array( 'status' => 400 )
             );
         }
-        $follower = \util\dereference_object( $activity['actor'] );
-        \objects\upsert_object( $follower );
+        $follower = \pterotype\util\dereference_object( $activity['actor'] );
+        \pterotype\objects\upsert_object( $follower );
         $accept = make_accept( $actor_slug, $activity );
         if ( is_wp_error( $accept ) ) {
             return $accept;
@@ -55,11 +55,11 @@ function actor_is_object( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
         return false;
     }
-    $actor = \actors\get_actor_by_slug( $actor_slug );
+    $actor = \pterotype\actors\get_actor_by_slug( $actor_slug );
     if ( is_wp_error( $actor ) ) {
         return false;
     }
-    $object = \util\dereference_object( $activity['object'] );
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     if ( !array_key_exists( 'type', $object ) ) {
         return false;
     }
@@ -82,7 +82,7 @@ function make_accept( $actor_slug, $follow ) {
     $accept = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Accept',
-        'actor' => \actors\get_actor_by_slug( $actor_slug ),
+        'actor' => \pterotype\actors\get_actor_by_slug( $actor_slug ),
         'object' => $follow,
         'to' => $follow['actor'],
     );

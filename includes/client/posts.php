@@ -1,5 +1,5 @@
 <?php
-namespace posts;
+namespace pterotype\posts;
 
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/create.php';
 
@@ -12,16 +12,16 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
     $activity = null;
     if ( $new_status == 'publish' && $old_status != 'publish' ) {
         // Create
-        $activity = \activities\create\make_create( $actor_slug, $post_object );
+        $activity = \pterotype\activities\create\make_create( $actor_slug, $post_object );
     } else if ( $new_status == 'publish' && $old_status == 'publish' ) {
         // Update
-        $activity = \activities\update\make_update( $actor_slug, $post_object );
+        $activity = \pterotype\activities\update\make_update( $actor_slug, $post_object );
     } else if ( $new_status != 'publish' && $old_status == 'publish' ) {
         // Delete
-        $activity = \activities\delete\make_delete( $actor_slug, $post_object );
+        $activity = \pterotype\activities\delete\make_delete( $actor_slug, $post_object );
     }
     if ( $activity && ! is_wp_error( $activity ) ) {
-        $followers = \followers\get_followers_collection( $actor_slug );
+        $followers = \pterotype\followers\get_followers_collection( $actor_slug );
         $activity['to'] = array(
             'https://www.w3.org/ns/activitystreams#Public',
             $followers['id']
