@@ -15,6 +15,7 @@ function run_migrations() {
         return;
     }
     apply_migration( '0.0.1', 'migration_0_0_1' );
+    apply_migration( '1.1.0', 'migration_1_1_0' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -172,6 +173,23 @@ function migration_0_0_1() {
            private_key TEXT NOT NULL,
            FOREIGN KEY keys_actor_fk(actor_id)
                REFERENCES {$wpdb->prefix}pterotype_actors(id)
+       )
+       ENGINE=InnoDB DEFAULT CHARSET=utf8;
+       "
+    );
+}
+
+function migration_1_1_0() {
+    $wpdb->query(
+        "
+       CREATE TABLE {$wpdb->prefix}pterotype_comments (
+           comment_id BIGINT(20) UNSIGNED NOT NULL,
+           object_id INT UNSIGNED NOT NULL,
+           PRIMARY KEY (comment_id, object_id),
+           FOREIGN KEY pt_comments_comment_fk(comment_id)
+               REFERENCES {$wpdb->comments}(comment_ID),
+           FOREIGN KEY pt_comments_object_fk(object_id)
+               references {$wpdb->prefix}pterotype_objects(id)
        )
        ENGINE=InnoDB DEFAULT CHARSET=utf8;
        "
