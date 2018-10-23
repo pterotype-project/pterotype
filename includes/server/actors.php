@@ -40,10 +40,52 @@ function get_actor_from_row( $row ) {
         $user = get_user_by( 'slug', $row->slug );
         return get_user_actor( $user );
     case 'commenter':
-        return new \WP_Error(
-            'not_implemented', __( 'Commenter actors not yet implemented', 'pterotype' )
-        );
+        return get_commenter_actor( $row->slug );
     }
+}
+
+function get_commenter_actor( $slug ) {
+    $actor_id = get_actor_id( $slug );
+    $email_address = str_replace( '[AT]', '@', $slug );
+    $actor = array(
+        '@context' => array(
+            'https://www.w3.org/ns/activitystreams',
+            'https://w3id.org/security/v1',
+        ),
+        'type' => 'Person',
+        'id' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s', $slug )
+        ),
+        'following' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/following', $slug )
+        ),
+        'followers' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/followers', $slug )
+        ),
+        'liked' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/liked', $slug )
+        ),
+        'inbox' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/inbox', $slug )
+        ),
+        'outbox' => get_rest_url(
+            null, sprintf( '/pterotype/v1/actor/%s/outbox', $slug )
+        ),
+        'name' => $email_address,
+        // TODO in the future, make this configurable, both here and in the Webfinger handler
+        'preferredUsername' => $email_address,
+        'publicKey' => array(
+            'id' => get_rest_url(
+                null, sprintf( '/pterotype/v1/actor/%s#publicKey', $slug )
+            ),
+            'owner' => get_rest_url(
+                null, sprintf( '/pterotype/v1/actor/%s', $slug )
+            ),
+            'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
+        ),
+    );
+    // TODO retrieve commenter name, url, and icon
+    return $actor;
 }
 
 function get_blog_actor() {
@@ -174,5 +216,25 @@ function create_actor( $slug, $type ) {
         return $res;
     }
     return $res->object;
+}
+
+function upsert_commenter_actor( $email_address ) {
+    global $wpdb;
+    $slug = str_replace( '@', '[AT]', $email_address );
+    $existing = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE slug = %s",
+        $slug
+    ) );
+    if ( $existing !== null ) {
+        return $slug;
+    }
+    create_actor( $slug, 'commenter' );
+    $actor_id = get_actor_id( $slug );
+    $keys_created = \pterotype\pgp\get_public_key( $actor_id );
+    if ( ! $keys_created ) {
+        $keys = \pterotype\pgp\gen_key( $slug );
+        \pterotype\pgp\persist_key( $actor_id, $keys['publickey'], $keys['privatekey'] );
+    }
+    return $slug;
 }
 ?>

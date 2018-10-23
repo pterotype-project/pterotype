@@ -228,6 +228,15 @@ function get_objects_by( $field, $value ) {
     );
 }
 
+function get_object_by( $field, $value ) {
+    $objects = get_objects_by( $field, $value );
+    if ( count( $objects ) === 0 ) {
+        return null;
+    } else {
+        return $objects[0];
+    }
+}
+
 function delete_object( $object ) {
     global $wpdb;
     $object = \pterotype\util\dereference_object( $object );

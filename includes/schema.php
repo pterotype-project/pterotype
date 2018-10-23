@@ -180,6 +180,7 @@ function migration_0_0_1() {
 }
 
 function migration_1_1_0() {
+    global $wpdb;
     $wpdb->query(
         "
        CREATE TABLE {$wpdb->prefix}pterotype_comments (

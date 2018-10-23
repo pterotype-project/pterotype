@@ -7,6 +7,7 @@ require_once plugin_dir_path( __FILE__ ) . 'server/actors.php';
 require_once plugin_dir_path( __FILE__ ) . 'schema.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/webfinger.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/posts.php';
+require_once plugin_dir_path( __FILE__ ) . 'client/comments.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/async.php';
 
 add_action( 'rest_api_init', function() {
@@ -36,5 +37,10 @@ add_action( 'parse_request', '\pterotype\webfinger\parse_request', 111 );
 add_filter( 'query_vars', '\pterotype\webfinger\query_vars' );
 add_action( 'well_known_webfinger', '\pterotype\webfinger\handle' );
 add_action( 'transition_post_status', '\pterotype\posts\handle_post_status_change', 10, 3 );
+add_action(
+    'transition_comment_status', '\pterotype\comments\handle_transition_comment_status', 10, 3
+);
+add_action( 'comment_post', '\pterotype\comments\handle_comment_post', 10, 2 );
+add_action( 'edit_comment', '\pterotype\comments\handle_edit_comment', 10, 1 );
 add_action( 'template_redirect', '\pterotype\api\handle_non_api_requests' );
 ?>
