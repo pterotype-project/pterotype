@@ -2,6 +2,9 @@
 namespace pterotype\posts;
 
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/create.php';
+require_once plugin_dir_path( __FILE__ ) . '../server/activities/update.php';
+require_once plugin_dir_path( __FILE__ ) . '../server/activities/delete.php';
+require_once plugin_dir_path( __FILE__ ) . '../server/followers.php';
 
 function handle_post_status_change( $new_status, $old_status, $post ) {
     $actor_slug = PTEROTYPE_BLOG_ACTOR_SLUG;
@@ -28,7 +31,7 @@ function handle_post_status_change( $new_status, $old_status, $post ) {
         );
         $server = rest_get_server();
         $request = \WP_REST_Request::from_url( $actor_outbox );
-        $request->set_method('POST');
+        $request->set_method( 'POST' );
         $request->set_body( wp_json_encode( $activity ) );
         $request->add_header( 'Content-Type', 'application/ld+json' );
         $server->dispatch( $request );
