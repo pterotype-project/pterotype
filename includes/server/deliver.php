@@ -172,7 +172,7 @@ function signature_header( $inbox_url, $actor_id, $date_str ) {
     $actor = \pterotype\actors\get_actor( $actor_id );
     $key_id = $actor['publicKey']['id'];
     $signing_string = get_signing_string( $inbox_url, $date_str );
-    \pterotype\util\log_var( 'debug.html', $signing_string, false );
+    \pterotype\util\log_var( 'debug.html', $signing_string );
     $signature = \pterotype\pgp\sign_data( $signing_string, $actor_id );
     $headers = '(request-target) host date';
     return "keyId=\"$key_id\",headers=\"$headers\",signature=\"$signature\"";
