@@ -66,24 +66,24 @@ function user_can_post_to_outbox() {
 }
 
 function register_routes() {
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)/outbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_outbox',
         'permission_callback' => __NAMESPACE__ . '\user_can_post_to_outbox',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/outbox', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)/outbox', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_outbox',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/inbox', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)/inbox', array(
         'methods' => 'POST',
         'callback' => __NAMESPACE__ . '\post_to_inbox',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/inbox', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)/inbox', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_inbox',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_actor',
     ) );
@@ -91,11 +91,11 @@ function register_routes() {
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_object',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/following', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)/following', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_following',
     ) );
-    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-]+)/followers', array(
+    register_rest_route( 'pterotype/v1', '/actor/(?P<actor>[a-zA-Z0-9-_]+)/followers', array(
         'methods' => 'GET',
         'callback' => __NAMESPACE__ . '\get_followers',
     ) );

@@ -16,6 +16,7 @@ function run_migrations() {
     }
     apply_migration( '0.0.1', 'migration_0_0_1' );
     apply_migration( '1.1.0', 'migration_1_1_0' );
+    apply_migration( '1.1.1', 'migration_1_1_1' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -193,6 +194,19 @@ function migration_1_1_0() {
                references {$wpdb->prefix}pterotype_objects(id)
        )
        ENGINE=InnoDB DEFAULT CHARSET=utf8;
+       "
+    );
+}
+
+function migration_1_1_1() {
+    global $wpdb;
+    $wpdb->query(
+        "
+       ALTER TABLE {$wpdb->prefix}pterotype_actors
+           ADD email VARCHAR(255),
+           ADD url VARCHAR(255),
+           ADD name VARCHAR(255),
+           ADD icon VARCHAR(255)
        "
     );
 }

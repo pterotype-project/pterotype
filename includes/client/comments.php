@@ -7,22 +7,20 @@ require_once plugin_dir_path( __FILE__ ) . '../server/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/objects.php';
 
 function handle_comment_post( $comment_id, $comment_approved ) {
-    xdebug_break();
     if ( $comment_approved ) {
         $comment = \get_comment( $comment_id );
-        handle_transition_comment_status( 'approve', 'nonexistent', $comment );
+        handle_transition_comment_status( 'approved', 'nonexistent', $comment );
     }
 }
 
 function handle_edit_comment( $comment_id ) {
     $comment = \get_comment( $comment_id );
     if ( $comment->comment_approved ) {
-        handle_transition_comment_status( 'approve', 'approve', $comment );
+        handle_transition_comment_status( 'approved', 'approved', $comment );
     }
 }
 
 function handle_transition_comment_status( $new_status, $old_status, $comment ) {
-    xdebug_break();
     // This creates a new commenter actor if necessary
     $actor_slug = get_comment_actor_slug( $comment );
     $actor_outbox = get_rest_url(
@@ -30,10 +28,10 @@ function handle_transition_comment_status( $new_status, $old_status, $comment ) 
     );
     $comment_object = comment_to_object( $comment, $actor_slug );
     $activity = null;
-    if ( $new_status == 'approve' && $old_status != 'approve' ) {
+    if ( $new_status == 'approved' && $old_status != 'approved' ) {
         // Create
         $activity = \pterotype\activities\create\make_create( $actor_slug, $comment_object );
-    } else if ( $new_status == 'approve' && $old_status == 'approve' ) {
+    } else if ( $new_status == 'approved' && $old_status == 'approved' ) {
         // Update
         $activity = \pterotype\activities\update\make_update( $actor_slug, $comment_object );
     } else if ( $new_status == 'trash' && $old_status != 'trash' ) {
@@ -53,10 +51,10 @@ function handle_transition_comment_status( $new_status, $old_status, $comment ) 
 }
 
 function get_comment_actor_slug( $comment ) {
-    if ( $comment->user_id !== 0 ) {
+    if ( $comment->user_id !== '0' ) {
         return get_comment_user_actor_slug( $comment->user_id );
     } else {
-        return get_comment_email_actor_slug( $comment->comment_author_email );
+        return get_comment_email_actor_slug( $comment );
     }
 }
 
@@ -69,8 +67,23 @@ function get_comment_user_actor_slug( $user_id ) {
     }
 }
 
-function get_comment_email_actor_slug( $email_address ) {
-    $slug = \pterotype\actors\upsert_commenter_actor( $email_address );
+function get_comment_email_actor_slug( $comment ) {
+    $email_address = $comment->comment_author_email;
+    $url = $comment->comment_author_url;
+    if ( empty( $url ) ) {
+        $url = null;
+    }
+    $name = $comment->comment_author;
+    if ( empty( $name ) ) {
+        $name = null;
+    }
+    $icon = \get_avatar_url( $email_address );
+    if ( ! $icon ) {
+        $icon = null;
+    }
+    $slug = \pterotype\actors\upsert_commenter_actor(
+        $email_address, $url, $name, $icon
+    );
     return $slug;
 }
 
@@ -124,7 +137,7 @@ function traverse_reply_chain_helper( $object, $depth, $acc ) {
     if ( $depth === 50 ) {
         return $acc;
     }
-    if ( array_key_exists( 'inReplyTo', $object ) ) {
+    if ( ! array_key_exists( 'inReplyTo', $object ) ) {
         return $acc;
     }
     $parent = \pterotype\util\dereference_object( $object['inReplyTo'] );

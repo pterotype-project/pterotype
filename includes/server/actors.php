@@ -40,13 +40,14 @@ function get_actor_from_row( $row ) {
         $user = get_user_by( 'slug', $row->slug );
         return get_user_actor( $user );
     case 'commenter':
-        return get_commenter_actor( $row->slug );
+        return get_commenter_actor( $row );
     }
 }
 
-function get_commenter_actor( $slug ) {
+function get_commenter_actor( $row ) {
+    $slug = $row->slug;
     $actor_id = get_actor_id( $slug );
-    $email_address = str_replace( '[AT]', '@', $slug );
+    $email_address = $row->email;
     $actor = array(
         '@context' => array(
             'https://www.w3.org/ns/activitystreams',
@@ -71,9 +72,7 @@ function get_commenter_actor( $slug ) {
         'outbox' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/outbox', $slug )
         ),
-        'name' => $email_address,
-        // TODO in the future, make this configurable, both here and in the Webfinger handler
-        'preferredUsername' => $email_address,
+        'preferredUsername' => $slug,
         'publicKey' => array(
             'id' => get_rest_url(
                 null, sprintf( '/pterotype/v1/actor/%s#publicKey', $slug )
@@ -84,7 +83,17 @@ function get_commenter_actor( $slug ) {
             'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
     );
-    // TODO retrieve commenter name, url, and icon
+    if ( ! empty( $row->name ) ) {
+        $actor['name'] = $row->name;
+    } else {
+        $actor['name'] = $row->email;
+    }
+    if ( ! empty( $row->url ) ) {
+        $actor['url'] = $row->url;
+    }
+    if ( ! empty( $row->icon ) ) {
+        $actor['icon'] = $row->icon;
+    }
     return $actor;
 }
 
@@ -196,14 +205,9 @@ function initialize_actors() {
     }
 }
 
-function create_actor( $slug, $type ) {
+function create_actor( $slug, $type, $email = null, $url = null, $name = null, $icon = null ) {
     global $wpdb;
-    $res = $wpdb->query( $wpdb->prepare(
-        "INSERT IGNORE INTO {$wpdb->prefix}pterotype_actors(slug, type) 
-            VALUES(%s, %s)",
-        $slug,
-        $type
-    ) );
+    $res = $wpdb->query( get_create_actor_query( $slug, $type, $email, $url, $name, $icon ) );
     if ( $res === false ) {
         return new \WP_Error(
             'db_error',
@@ -218,9 +222,35 @@ function create_actor( $slug, $type ) {
     return $res->object;
 }
 
-function upsert_commenter_actor( $email_address ) {
+function get_create_actor_query( $slug, $type, $email = null, $url = null, $name = null, $icon = ull ) {
     global $wpdb;
-    $slug = str_replace( '@', '[AT]', $email_address );
+    $query = "INSERT IGNORE INTO {$wpdb->prefix}pterotype_actors(slug, type";
+    $args = array( $slug, $type );
+    if ( $email ) {
+        $query = $query . ", email";
+        $args[] = $email;
+    }
+    if ( $url ) {
+        $query = $query . ", url";
+        $args[] = $url;
+    }
+    if ( $name ) {
+        $query = $query . ", name";
+        $args[] = $name;
+    }
+    if ( $icon ) {
+        $query = $query . ", icon";
+        $args[] = $icon;
+    }
+    $query = $query . ") VALUES (";
+    $placeholders = join( ',', array_map( function( $el ) { return '%s'; }, $args ) );
+    $query = $query . $placeholders . ")";
+    return $wpdb->prepare( $query, $args );
+}
+
+function upsert_commenter_actor( $email_address, $url = null, $name = null, $icon = null ) {
+    global $wpdb;
+    $slug = email_address_to_slug( $email_address );
     $existing = $wpdb->get_row( $wpdb->prepare(
         "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE slug = %s",
         $slug
@@ -228,13 +258,23 @@ function upsert_commenter_actor( $email_address ) {
     if ( $existing !== null ) {
         return $slug;
     }
-    create_actor( $slug, 'commenter' );
+    create_actor( $slug, 'commenter', $email_address, $url, $name, $icon );
     $actor_id = get_actor_id( $slug );
     $keys_created = \pterotype\pgp\get_public_key( $actor_id );
     if ( ! $keys_created ) {
         $keys = \pterotype\pgp\gen_key( $slug );
         \pterotype\pgp\persist_key( $actor_id, $keys['publickey'], $keys['privatekey'] );
     }
+    $actor = get_actor_by_slug( $slug );
+    $res = \pterotype\objects\upsert_object( $actor );
+    if ( is_wp_error( $res ) ) {
+        return $res;
+    }
     return $slug;
+}
+
+function email_address_to_slug( $email_address ) {
+    $slug = str_replace( array( '@', '.'), '_', $email_address );
+    return preg_replace( '/[^a-zA-Z0-9-_]/', '', $slug );
 }
 ?>
