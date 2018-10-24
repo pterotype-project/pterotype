@@ -35,6 +35,7 @@ add_action( 'pterotype_load', function() {
 add_action( 'generate_rewrite_rules', '\pterotype\webfinger\generate_rewrite_rules', 111 );
 add_action( 'parse_request', '\pterotype\webfinger\parse_request', 111 );
 add_filter( 'query_vars', '\pterotype\webfinger\query_vars' );
+add_filter( 'query_vars', '\pterotype\api\query_vars' );
 add_action( 'well_known_webfinger', '\pterotype\webfinger\handle' );
 add_action( 'transition_post_status', '\pterotype\posts\handle_post_status_change', 10, 3 );
 add_action(

@@ -109,8 +109,14 @@ function register_routes() {
     ) );
 }
 
+function query_vars( $query_vars ) {
+    $query_vars[] = 'pterotype_comment';
+    return $query_vars;
+}
+
 function handle_non_api_requests() {
     global $wp;
+    global $wp_query;
     $accept = $_SERVER['HTTP_ACCEPT'];
     if ( strpos( $accept, 'application/ld+json' ) !== false ) {
         $current_url = \trailingslashit(
@@ -123,6 +129,12 @@ function handle_non_api_requests() {
             echo wp_json_encode( $object );
             exit;
         }
+    } else if ( array_key_exists( 'pterotype_comment', $wp_query->query_vars ) ) {
+        $comment_anchor = $wp_query->query_vars['pterotype_comment'];
+        $current_url = \trailingslashit( home_url( $wp->request ) );
+        $actual_url = $current_url . '#' . $comment_anchor;
+        \wp_redirect( $actual_url );
+        exit;
     }
 }
 ?>

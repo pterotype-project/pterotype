@@ -96,13 +96,13 @@ function comment_to_object( $comment, $actor_slug ) {
     if ( $comment->comment_parent !== '0' ) {
         $parent_comment = \get_comment( $comment->comment_parent );
         $parent_object = \pterotype\objects\get_object_by(
-            'url', \get_comment_link( $parent_comment )
+            'url', get_comment_object_url( \get_comment_link( $parent_comment ) )
         );
         if ( $parent_object ) {
             $inReplyTo = $parent_object['id'];
         }
     }
-    $link = \get_comment_link( $comment );
+    $link = get_comment_object_url ( \get_comment_link( $comment ) );
     $object = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Note',
@@ -118,6 +118,19 @@ function comment_to_object( $comment, $actor_slug ) {
         $object['id'] = $existing['id'];
     }
     return $object;
+}
+
+function get_comment_object_url( $comment_link ) {
+    $parsed = \wp_parse_url( $comment_link );
+    if ( ! $parsed ) {
+        return;
+    }
+    $anchor = $parsed['fragment'];
+    $base = $parsed['scheme'] . '://' . $parsed['host'];
+    if ( array_key_exists( 'port', $parsed ) ) {
+        $base = $base . ':' . $parsed['port'];
+    }
+    return $base . $parsed['path'] . '?pterotype_comment=' . $anchor;
 }
 
 function get_comment_to( $comment, $followers_id ) {
