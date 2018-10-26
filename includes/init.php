@@ -16,7 +16,7 @@ add_action( 'rest_api_init', function() {
 
 add_action( 'user_register', function( $user_id ) {
     $slug = get_the_author_meta( 'user_nicename', $user_id );
-    \pterotype\actors\create_actor_user( $slug, 'user' );
+    \pterotype\actors\create_actor( $slug, 'user' );
 } );
 
 add_action( 'pterotype_init', function() {
