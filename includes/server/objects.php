@@ -197,6 +197,21 @@ function get_object_by_activitypub_id( $activitypub_id ) {
     return json_decode( $object_json, true );
 }
 
+function get_object_row_by_activity_id( $activitypub_id ) {
+    global $wpdb;
+    $row = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE activitypub_id = %s",
+        $activitypub_id
+    ) );
+    if ( is_null( $row ) ) {
+        return new \WP_Error(
+            'not_found', __( 'Object not found', 'pterotype' ), array( 'status' => 404 )
+        );
+    }
+    $row->object = json_decode( $row->object, true );
+    return $row;
+}
+
 function get_object_id( $activitypub_id ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(

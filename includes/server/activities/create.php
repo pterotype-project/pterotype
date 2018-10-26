@@ -39,6 +39,7 @@ function handle_outbox( $actor_slug, $activity ) {
         return $object;
     }
     $activity['object'] = $object;
+    link_comment( $object );
     return $activity;
 }
 
@@ -106,16 +107,39 @@ function make_create( $actor_slug, $object ) {
     return $activity;
 }
 
+function link_comment( $object ) {
+    global $wpdb;
+    $object = \pterotype\util\dereference_object( $object );
+    if ( ! array_key_exists( 'url', $object ) ) {
+        return;
+    }
+    if ( ! \pterotype\util\is_local_url( $object['url'] ) ) {
+        return;
+    }
+    $comment_id = get_comment_id_from_url( $object['url'] );
+    if ( ! $comment_id ) {
+        return;
+    }
+    $object_id = \pterotype\objects\get_object_id( $object['id'] );
+    $wpdb->insert(
+        "{$wpdb->prefix}pterotype_comments",
+        array( 'comment_id' => $comment_id, 'object_id' => $object_id ),
+        '%d'
+    );
+}
+
 function sync_comments( $activity ) {
+    global $wpdb;
     $object = $activity['object'];
     if ( ! array_key_exists( 'inReplyTo', $object ) ) {
         return;
     }
     $inReplyTo = \pterotype\util\dereference_object( $object['inReplyTo'] );
-    $parent = \pterotype\objects\get_object_by_activitypub_id( $inReplyTo['id'] );
-    if ( ! $parent || is_wp_error( $parent ) ) {
+    $parent_row = \pterotype\objects\get_object_row_by_activity_id( $inReplyTo['id'] );
+    if ( ! $parent_row || is_wp_error( $parent_row ) ) {
         return;
     }
+    $parent = $parent_row->object;
     if ( ! array_key_exists( 'url', $parent ) ) {
         return;
     }
@@ -127,14 +151,21 @@ function sync_comments( $activity ) {
     if ( $post_id === 0 ) {
         return;
     }
-    $parent_comment_id = null;
+    $parent_comment_id = $wpdb->get_var( $wpdb->prepare(
+        "SELECT comment_id FROM {$wpdb->prefix}pterotype_comments WHERE object_id = %d",
+        $parent_row->id
+    ) );
+    $comment = make_comment_from_object( $object, $post_id, $parent_comment_id );
+    \wp_new_comment( $comment );
+}
+
+function get_comment_id_from_url( $url ) {
     if ( strpos( $url, '?pterotype_comment=' ) !== false ) {
         $matches = array();
         preg_match( '/\?pterotype_comment=comment-(\d+)/', $url, $matches );
-        $parent_comment_id = $matches[1];
+        return $matches[1];
     }
-    $comment = make_comment_from_object( $object, $post_id, $parent_comment_id );
-    \wp_new_comment( $comment );
+    return null;
 }
 
 function make_comment_from_object( $object, $post_id, $parent_comment_id = null ) {
