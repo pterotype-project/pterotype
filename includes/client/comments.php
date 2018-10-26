@@ -138,7 +138,7 @@ function get_comment_to( $comment, $followers_id ) {
         'https://www.w3.org/ns/activitystreams#Public',
         $followers_id,
     );
-    $to = array_unique( array_merge( $to, traverse_reply_chain( $comment ) ) );
+    $to = array_values( array_unique( array_merge( $to, traverse_reply_chain( $comment ) ) ) );
     return $to;
 }
 
@@ -164,8 +164,17 @@ function traverse_reply_chain_helper( $object, $depth, $acc ) {
             $recipients = array_unique( array_merge( $recipients, $new_recipients ) );
         }
     }
+    if ( array_key_exists( 'attributedTo', $parent ) ) {
+        $attributed_to = \pterotype\util\dereference_object( $parent['attributedTo'] );
+        $recipients[] = $attributed_to['id'];
+    }
+    if ( array_key_exists( 'actor', $parent ) ) {
+        $actor = \pterotype\util\dereference_object( $parent['actor'] );
+        $recipients[] = $actor['id'];
+    }
+    $recipients = array_values( array_unique( $recipients ) );
     return traverse_reply_chain_helper(
-        $parent, $depth + 1, array_unique( array_merge( $acc, $recipients ) )
+        $parent, $depth + 1, array_values( array_unique( array_merge( $acc, $recipients ) ) )
     );
 }
 ?>

@@ -18,7 +18,7 @@ function deliver_activity( $actor_slug, $activity ) {
             $recipients, retrieve_recipients_for_field( $field, $activity )
         );
     }
-    $recipients = array_unique( $recipients );
+    $recipients = array_values( array_unique( $recipients ) );
     if ( array_key_exists( 'actor', $activity ) ) {
         $actor = \pterotype\util\dereference_object( $activity['actor'] );
         $recipients = remove_actor_inbox_from_recipients( $actor, $recipients );
