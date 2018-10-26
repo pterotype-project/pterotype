@@ -144,12 +144,7 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
                 ),
                 'data_format' => 'body',
             );
-            \pterotype\util\log( 'debug.html', 'Request:' );
-            \pterotype\util\log( 'debug.html', "POST $inbox" );
-            \pterotype\util\log_var( 'debug.html', $args );
             $response = wp_remote_post( $inbox, $args );
-            \pterotype\util\log( 'debug.html', 'Response:' );
-            \pterotype\util\log_var( 'debug.html', $response );
         }
     }
 }
@@ -172,7 +167,6 @@ function signature_header( $inbox_url, $actor_id, $date_str ) {
     $actor = \pterotype\actors\get_actor( $actor_id );
     $key_id = $actor['publicKey']['id'];
     $signing_string = get_signing_string( $inbox_url, $date_str );
-    \pterotype\util\log_var( 'debug.html', $signing_string );
     $signature = \pterotype\pgp\sign_data( $signing_string, $actor_id );
     $headers = '(request-target) host date';
     return "keyId=\"$key_id\",headers=\"$headers\",signature=\"$signature\"";

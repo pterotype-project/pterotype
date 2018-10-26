@@ -9,6 +9,7 @@ require_once plugin_dir_path( __FILE__ ) . 'server/webfinger.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/posts.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/comments.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/async.php';
+require_once plugin_dir_path( __FILE__ ) . 'pgp.php';
 
 add_action( 'rest_api_init', function() {
     \pterotype\api\register_routes();

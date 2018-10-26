@@ -24,9 +24,6 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
-    \pterotype\util\log( 'outbox.html', 'Got outbox request', false );
-    \pterotype\util\log_var( 'outbox.html', $actor_slug );
-    \pterotype\util\log_var( 'outbox.html', $activity );
     // TODO handle authentication/authorization
     $activity = \pterotype\util\dereference_object( $activity );
     if ( is_wp_error( $activity ) ) {

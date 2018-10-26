@@ -3,6 +3,7 @@ namespace pterotype\activities\create;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../../util.php';
 
 /*
 Create a new post or comment (depending on $activity["object"]["type"]),
@@ -54,6 +55,7 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $object_row ) ) {
         return $object_row;
     }
+    sync_comments( $activity );
     return $activity;
 }
 
@@ -102,5 +104,95 @@ function make_create( $actor_slug, $object ) {
         'object' => $object
     );
     return $activity;
+}
+
+function sync_comments( $activity ) {
+    $object = $activity['object'];
+    if ( ! array_key_exists( 'inReplyTo', $object ) ) {
+        return;
+    }
+    $inReplyTo = \pterotype\util\dereference_object( $object['inReplyTo'] );
+    $parent = \pterotype\objects\get_object_by_activitypub_id( $inReplyTo['id'] );
+    if ( ! $parent || is_wp_error( $parent ) ) {
+        return;
+    }
+    if ( ! array_key_exists( 'url', $parent ) ) {
+        return;
+    }
+    if ( ! \pterotype\util\is_local_url( $parent['url'] ) ) {
+        return;
+    }
+    $url = $parent['url'];
+    $post_id = \url_to_postid( $url );
+    if ( $post_id === 0 ) {
+        return;
+    }
+    $parent_comment_id = null;
+    if ( strpos( $url, '?pterotype_comment=' ) !== false ) {
+        $matches = array();
+        preg_match( '/\?pterotype_comment=comment-(\d+)/', $url, $matches );
+        $parent_comment_id = $matches[1];
+    }
+    $comment = make_comment_from_object( $object, $post_id, $parent_comment_id );
+    \wp_new_comment( $comment );
+}
+
+function make_comment_from_object( $object, $post_id, $parent_comment_id = null ) {
+    $actor = null;
+    if ( array_key_exists( 'attributedTo', $object ) ) {
+        $actor = \pterotype\util\dereference_object( $object['attributedTo'] );
+    } else if ( array_key_exists( 'actor', $object ) ) {
+        $actor = \pterotype\util\dereference_object( $object['actor'] );
+    }
+    if ( ! $actor || is_wp_error( $actor ) ) {
+        return;
+    }
+    $comment = array(
+        'comment_author' => get_actor_name( $actor ),
+        'comment_content' => $object['content'],
+        'comment_post_ID' => $post_id,
+        'comment_author_email' => get_actor_email( $actor ),
+        'comment_type' => '',
+    );
+    if ( $parent_comment_id ) {
+        $comment['comment_parent'] = $parent_comment_id;
+    }
+    if ( array_key_exists( 'url', $actor ) ) {
+        $comment['comment_author_url'] = $actor['url'];
+    }
+    return $comment;
+}
+
+function get_actor_name( $actor ) {
+    if ( array_key_exists( 'name', $actor ) && ! empty( $actor['name'] ) ) {
+        return $actor['name'];
+    }
+    if ( array_key_exists( 'preferredUsername', $actor ) &&
+         ! empty( $actor['preferredUsername' ] ) ) {
+        return $actor['preferredUsername'];
+    }
+    if ( array_key_exists( 'url', $actor ) && ! empty( $actor['url' ] ) ) {
+        return $actor['url'];
+    }
+    return $actor['id'];
+}
+
+function get_actor_email( $actor ) {
+    $preferredUsername = $actor['id'];
+    if ( array_key_exists( 'preferredUsername', $actor ) ) {
+        $preferredUsername = $actor['preferredUsername'];
+    } else if ( array_key_exists( 'name', $actor ) ) {
+        $preferredUsername = str_replace( ' ', '_', $actor['name'] );
+    }
+    $parsed = parse_url( $actor['id'] );
+    if ( $parsed && array_key_exists( 'host', $parsed ) ) {
+        $host = $parsed['host'];
+        if ( array_key_exists( 'port', $parsed ) ) {
+            $host = $host . ':' . $parsed['port'];
+        }
+        return $preferredUsername . '@' . $host;
+    } else {
+        return $preferredUsername . '@fakeemails.getpterotype.com';
+    }
 }
 ?>
