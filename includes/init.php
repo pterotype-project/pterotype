@@ -17,6 +17,12 @@ add_action( 'rest_api_init', function() {
 add_action( 'user_register', function( $user_id ) {
     $slug = get_the_author_meta( 'user_nicename', $user_id );
     \pterotype\actors\create_actor( $slug, 'user' );
+    $actor_id = \pterotype\actors\get_actor_id( $slug );
+    $keys_created = \pterotype\pgp\get_public_key( $slug );
+    if ( ! $keys_created ) {
+        $keys = \pterotype\pgp\gen_key( $slug );
+        \pterotype\pgp\persist_key( $actor_id, $keys['publickey'], $keys['privatekey'] );
+    }
 } );
 
 add_action( 'pterotype_init', function() {

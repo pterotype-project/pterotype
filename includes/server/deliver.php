@@ -130,7 +130,7 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
             $request->set_method('POST');
             $request->set_body( $activity );
             $request->add_header( 'Content-Type', 'application/ld+json' );
-            $request->add_header( 'Signature', signature_header( $inbox, $actor_id ) );
+            $request->add_header( 'Signature', signature_header( $inbox, $actor_id, $date_str ) );
             $request->add_header( 'Date', $date_str );
             $server = rest_get_server();
             $response = $server->dispatch( $request );
