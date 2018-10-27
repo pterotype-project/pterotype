@@ -21,6 +21,13 @@ function handle_edit_comment( $comment_id ) {
 }
 
 function handle_transition_comment_status( $new_status, $old_status, $comment ) {
+    global $wpdb;
+    $existing = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_comments WHERE comment_id = %d", $comment->comment_ID
+    ) );
+    if ( $existing ) {
+        return;
+    }
     // This creates a new commenter actor if necessary
     $actor_slug = get_comment_actor_slug( $comment );
     $actor_outbox = get_rest_url(
