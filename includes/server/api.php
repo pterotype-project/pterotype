@@ -16,7 +16,11 @@ function get_actor( $request ) {
 
 function post_to_outbox( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
-    $activity = json_decode( $request->get_body(), true );
+    $body = $request->get_body();
+    $activity = $body;
+    if ( is_string( $body ) ) {
+        $activity = json_decode( $body, true );
+    }
     return \pterotype\outbox\handle_activity( $actor_slug, $activity );
 }
 
@@ -27,7 +31,11 @@ function get_outbox( $request ) {
 
 function post_to_inbox( $request ) {
     $actor_slug = $request->get_url_params()['actor'];
-    $activity = json_decode( $request->get_body(), true );
+    $body = $request->get_body();
+    $activity = $body;
+    if ( is_string( $body ) ) {
+        $activity = json_decode( $body, true );
+    }
     return \pterotype\inbox\handle_activity( $actor_slug, $activity );
 }
 

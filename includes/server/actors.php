@@ -258,7 +258,10 @@ function upsert_commenter_actor( $email_address, $url = null, $name = null, $ico
     if ( $existing !== null ) {
         return $slug;
     }
-    create_actor( $slug, 'commenter', $email_address, $url, $name, $icon );
+    $res = create_actor( $slug, 'commenter', $email_address, $url, $name, $icon );
+    if ( is_wp_error( $res ) ) {
+        return $res;
+    }
     $actor_id = get_actor_id( $slug );
     $keys_created = \pterotype\pgp\get_public_key( $actor_id );
     if ( ! $keys_created ) {

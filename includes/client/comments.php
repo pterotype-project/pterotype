@@ -30,6 +30,9 @@ function handle_transition_comment_status( $new_status, $old_status, $comment ) 
     }
     // This creates a new commenter actor if necessary
     $actor_slug = get_comment_actor_slug( $comment );
+    if ( is_wp_error( $actor_slug ) ) {
+        return;
+    }
     $actor_outbox = get_rest_url(
         null, sprintf( 'pterotype/v1/actor/%s/outbox', $actor_slug )
     );
@@ -95,6 +98,7 @@ function get_comment_email_actor_slug( $comment ) {
 }
 
 function comment_to_object( $comment, $actor_slug ) {
+    global $wpdb;
     $post = \get_post( $comment->comment_post_ID );
     \setup_postdata( $post );
     $post_permalink = \get_permalink( $post );
@@ -102,11 +106,17 @@ function comment_to_object( $comment, $actor_slug ) {
     $inReplyTo = $post_object['id'];
     if ( $comment->comment_parent !== '0' ) {
         $parent_comment = \get_comment( $comment->comment_parent );
-        $parent_object = \pterotype\objects\get_object_by(
-            'url', get_comment_object_url( \get_comment_link( $parent_comment ) )
-        );
-        if ( $parent_object ) {
-            $inReplyTo = $parent_object['id'];
+        $parent_object_activitypub_id = $wpdb->get_var( $wpdb->prepare(
+            "
+           SELECT activitypub_id FROM {$wpdb->prefix}pterotype_comments
+           JOIN {$wpdb->prefix}pterotype_objects
+               ON {$wpdb->prefix}pterotype_comments.object_id = {$wpdb->prefix}pterotype_objects.id
+           WHERE comment_id = %d
+           ",
+            $parent_comment->comment_ID
+        ) );
+        if ( $parent_object_activitypub_id ) {
+            $inReplyTo = $parent_object_activitypub_id;
         }
     }
     $link = get_comment_object_url ( \get_comment_link( $comment ) );
@@ -120,9 +130,18 @@ function comment_to_object( $comment, $actor_slug ) {
         'url' => $link,
         'inReplyTo' => $inReplyTo,
     );
-    $existing = \pterotype\objects\get_object_by( 'url', $link );
-    if ( $existing ) {
-        $object['id'] = $existing['id'];
+    $existing_activitypub_id = $parent_object_activitypub_id = $wpdb->get_var( $wpdb->prepare(
+            "
+           SELECT activitypub_id FROM {$wpdb->prefix}pterotype_comments
+           JOIN {$wpdb->prefix}pterotype_objects
+               ON {$wpdb->prefix}pterotype_comments.object_id = {$wpdb->prefix}pterotype_objects.id
+           WHERE comment_id = %d
+           ",
+            $comment->comment_ID
+        ) );
+
+    if ( $existing_activitypub_id ) {
+        $object['id'] = $existing_activitypub_id;
     }
     return $object;
 }

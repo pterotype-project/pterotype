@@ -131,32 +131,62 @@ function link_comment( $object ) {
 function sync_comments( $activity ) {
     global $wpdb;
     $object = $activity['object'];
+    $object_id = \pterotype\objects\get_object_id( $object['id'] );
+    $comment_exists = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_comments WHERE object_id = %d",
+        $object_id
+    ) );
+    if ( $comment_exists ) {
+        return;
+    }
     if ( ! array_key_exists( 'inReplyTo', $object ) ) {
         return;
     }
-    $inReplyTo = \pterotype\util\dereference_object( $object['inReplyTo'] );
-    $parent_row = \pterotype\objects\get_object_row_by_activity_id( $inReplyTo['id'] );
+    if ( is_array( $object['inReplyTo'] ) && array_key_exists( 'id', $object['inReplyTo'] ) ) {
+        $inReplyToId = $object['inReplyTo']['id'];
+    } else {
+        $inReplyToId = $object['inReplyTo'];
+    }
+    $parent_row = \pterotype\objects\get_object_row_by_activity_id( $inReplyToId );
     if ( ! $parent_row || is_wp_error( $parent_row ) ) {
-        return;
-    }
-    $parent = $parent_row->object;
-    if ( ! array_key_exists( 'url', $parent ) ) {
-        return;
-    }
-    if ( ! \pterotype\util\is_local_url( $parent['url'] ) ) {
-        return;
-    }
-    $url = $parent['url'];
-    $post_id = \url_to_postid( $url );
-    if ( $post_id === 0 ) {
         return;
     }
     $parent_comment_id = $wpdb->get_var( $wpdb->prepare(
         "SELECT comment_id FROM {$wpdb->prefix}pterotype_comments WHERE object_id = %d",
         $parent_row->id
     ) );
-    $comment = make_comment_from_object( $object, $post_id, $parent_comment_id );
-    \wp_new_comment( $comment );
+    if ( $parent_comment_id ) {
+        $parent_comment = \get_comment( $parent_comment_id );
+        if ( ! $parent_comment ) {
+            return;
+        }
+        $comment = make_comment_from_object( $object, $parent_comment->comment_post_ID, $parent_comment_id );
+        $comment_id = \wp_new_comment( $comment );
+        link_new_comment( $comment_id, $object_id );
+        return;
+    } else {
+        $parent = $parent_row->object;
+        if ( ! array_key_exists( 'url', $parent ) ) {
+            return;
+        }
+        $url = $parent['url'];
+        $post_id = \url_to_postid( $url );
+        if ( $post_id === 0 ) {
+            return;
+        }
+        $comment = make_comment_from_object( $object, $post_id, $parent_comment_id );
+        $comment_id = \wp_new_comment( $comment );
+        link_new_comment( $comment_id, $object_id );
+    }
+}
+
+function link_new_comment( $comment_id, $object_id ) {
+    global $wpdb;
+    return $wpdb->insert(
+        "{$wpdb->prefix}pterotype_comments",
+        array( 'comment_id' => $comment_id, 'object_id' => $object_id ),
+        '%d'
+    );
 }
 
 function get_comment_id_from_url( $url ) {

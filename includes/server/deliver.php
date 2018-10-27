@@ -157,7 +157,7 @@ function get_now_date() {
 function get_signing_string( $inbox_url, $date_str ) {
     $parsed = parse_url( $inbox_url );
     $host = $parsed['host'];
-    if ( $parsed['port'] ) {
+    if ( array_key_exists( 'port', $parsed ) ) {
         $host = $host . ':' . $parsed['port'];
     }
     return "(request-target): post $parsed[path]\nhost: $host\ndate: $date_str";
