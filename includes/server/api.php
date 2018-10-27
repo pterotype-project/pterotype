@@ -69,8 +69,18 @@ function get_shares( $request ) {
     return \pterotype\shares\get_shares_collection( $object_id );
 }
 
-function user_can_post_to_outbox() {
-    return current_user_can( 'publish_posts' );
+function user_can_post_to_outbox( $request ) {
+    $actor_slug = $request->get_url_params()['actor'];
+    $actor_row = \pterotype\actors\get_actor_row_by_slug( $actor_slug );
+    if ( ! $actor_row || is_wp_error( $actor_row ) ) {
+        return false;
+    }
+    if ( $actor_row->type === 'blog' ) {
+        return \current_user_can( 'publish_posts' );
+    } else if ( $actor_row->type === 'user' ) {
+        return \is_user_logged_in();
+    }
+    return true;
 }
 
 function register_routes() {

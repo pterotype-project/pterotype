@@ -20,6 +20,14 @@ function get_actor_by_slug ( $slug ) {
     return get_actor_from_row( $row );
 }
 
+function get_actor_row_by_slug ( $slug ) {
+    global $wpdb;
+    $row = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE slug = %s", $slug
+    ) );
+    return $row;
+}
+
 function get_actor_id( $slug ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
