@@ -3,6 +3,7 @@ namespace pterotype\activities\delete;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
+require_once plugin_dir_path( __FILE__ ) . '../../commentlinks.php';
 
 function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
@@ -48,11 +49,22 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $authorized ) ) {
         return $authorized;
     }
+    delete_linked_comment( $object );
     $res = \pterotype\objects\delete_object( $object );
     if ( is_wp_error( $res ) ) {
         return $res;
     }
     return $activity;
+}
+
+function delete_linked_comment( $object ) {
+    $object_id = \pterotype\objects\get_object_id( $object['id'] );
+    $comment_id = \pterotype\commentlinks\get_comment_id( $object_id );
+    if ( ! $comment_id ) {
+        return;
+    }
+    \pterotype\commentlinks\unlink_comment( $comment_id, $object_id );
+    \wp_delete_comment( $comment_id, true );
 }
 
 function check_authorization( $activity ) {

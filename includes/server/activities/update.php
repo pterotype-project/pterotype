@@ -2,6 +2,8 @@
 namespace pterotype\activities\update;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../../commentlinks.php';
+require_once plugin_dir_path( __FILE__ ) . 'create.php';
 
 function handle_outbox( $actor_slug, $activity ) {
     if ( !(array_key_exists( 'type', $activity ) && $activity['type'] === 'Update') ) {
@@ -76,6 +78,7 @@ function handle_inbox( $actor_slug, $activity ) {
     if ( is_wp_error( $object_row ) ) {
         return $object_row;
     }
+    update_linked_comment( $object_row->object );
     return $activity;
 }
 
@@ -104,5 +107,29 @@ function make_update( $actor_slug, $object ) {
         'actor' => $actor,
         'object' => $object
     );
+}
+
+function update_linked_comment( $updated_object ) {
+    $object_id = \pterotype\objects\get_object_id( $updated_object['id'] );
+    $comment_id = \pterotype\commentlinks\get_comment_id( $object_id );
+    if ( ! $comment_id ) {
+        return;
+    }
+    $comment = \get_comment( $comment_id );
+    if ( ! $comment || is_wp_error( $comment ) ) {
+        return;
+    }
+    $post_id = $comment->comment_post_ID;
+    $comment_parent = null;
+    if ( $comment->comment_parent !== '0' ) {
+        $comment_parent = $comment->comment_parent;
+    }
+    $updated_comment = \pterotype\activities\create\make_comment_from_object(
+        $updated_object, $post_id, $comment_parent
+    );
+    $updated_comment['comment_ID'] = $comment->comment_ID;
+    if ( $comment != $updated_comment ) {
+        \wp_update_comment( $updated_comment );
+    }
 }
 ?>

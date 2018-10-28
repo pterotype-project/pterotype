@@ -38,4 +38,13 @@ function link_comment( $comment_id, $object_id ) {
         '%d'
     );
 }
+
+function unlink_comment( $comment_id, $object_id ) {
+    global $wpdb;
+    return $wpdb->delete(
+        "{$wpdb->prefix}pterotype_comments",
+        array( 'comment_id' => $comment_id, 'object_id' => $object_id ),
+        '%d'
+    );
+}
 ?>
