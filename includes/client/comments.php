@@ -5,6 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . '../server/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../commentlinks.php';
 
 function handle_comment_post( $comment_id, $comment_approved ) {
     if ( $comment_approved ) {
@@ -21,10 +22,7 @@ function handle_edit_comment( $comment_id ) {
 }
 
 function handle_transition_comment_status( $new_status, $old_status, $comment ) {
-    global $wpdb;
-    $existing = $wpdb->get_row( $wpdb->prepare(
-        "SELECT * FROM {$wpdb->prefix}pterotype_comments WHERE comment_id = %d", $comment->comment_ID
-    ) );
+    $existing = \pterotype\commentlinks\get_object_id( $comment->comment_ID );
     if ( $existing ) {
         return;
     }
@@ -98,7 +96,6 @@ function get_comment_email_actor_slug( $comment ) {
 }
 
 function comment_to_object( $comment, $actor_slug ) {
-    global $wpdb;
     $post = \get_post( $comment->comment_post_ID );
     \setup_postdata( $post );
     $post_permalink = \get_permalink( $post );
@@ -106,15 +103,9 @@ function comment_to_object( $comment, $actor_slug ) {
     $inReplyTo = $post_object['id'];
     if ( $comment->comment_parent !== '0' ) {
         $parent_comment = \get_comment( $comment->comment_parent );
-        $parent_object_activitypub_id = $wpdb->get_var( $wpdb->prepare(
-            "
-           SELECT activitypub_id FROM {$wpdb->prefix}pterotype_comments
-           JOIN {$wpdb->prefix}pterotype_objects
-               ON {$wpdb->prefix}pterotype_comments.object_id = {$wpdb->prefix}pterotype_objects.id
-           WHERE comment_id = %d
-           ",
+        $parent_object_activitypub_id = \pterotype\commentlinks\get_object_activitypub_id(
             $parent_comment->comment_ID
-        ) );
+        );
         if ( $parent_object_activitypub_id ) {
             $inReplyTo = $parent_object_activitypub_id;
         }
@@ -130,16 +121,9 @@ function comment_to_object( $comment, $actor_slug ) {
         'url' => $link,
         'inReplyTo' => $inReplyTo,
     );
-    $existing_activitypub_id = $parent_object_activitypub_id = $wpdb->get_var( $wpdb->prepare(
-            "
-           SELECT activitypub_id FROM {$wpdb->prefix}pterotype_comments
-           JOIN {$wpdb->prefix}pterotype_objects
-               ON {$wpdb->prefix}pterotype_comments.object_id = {$wpdb->prefix}pterotype_objects.id
-           WHERE comment_id = %d
-           ",
-            $comment->comment_ID
-        ) );
-
+    $existing_activitypub_id = \pterotype\commentlinks\get_object_activitypub_id(
+        $comment->comment_ID
+    );
     if ( $existing_activitypub_id ) {
         $object['id'] = $existing_activitypub_id;
     }

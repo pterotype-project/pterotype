@@ -4,6 +4,7 @@ namespace pterotype\activities\create;
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 require_once plugin_dir_path( __FILE__ ) . '../../util.php';
+require_once plugin_dir_path( __FILE__ ) . '../../commentlinks.php';
 
 /*
 Create a new post or comment (depending on $activity["object"]["type"]),
@@ -108,7 +109,6 @@ function make_create( $actor_slug, $object ) {
 }
 
 function link_comment( $object ) {
-    global $wpdb;
     $object = \pterotype\util\dereference_object( $object );
     if ( ! array_key_exists( 'url', $object ) ) {
         return;
@@ -121,21 +121,13 @@ function link_comment( $object ) {
         return;
     }
     $object_id = \pterotype\objects\get_object_id( $object['id'] );
-    $wpdb->insert(
-        "{$wpdb->prefix}pterotype_comments",
-        array( 'comment_id' => $comment_id, 'object_id' => $object_id ),
-        '%d'
-    );
+    \pterotype\commentlinks\link_comment( $comment_id, $object_id );
 }
 
 function sync_comments( $activity ) {
-    global $wpdb;
     $object = $activity['object'];
     $object_id = \pterotype\objects\get_object_id( $object['id'] );
-    $comment_exists = $wpdb->get_row( $wpdb->prepare(
-        "SELECT * FROM {$wpdb->prefix}pterotype_comments WHERE object_id = %d",
-        $object_id
-    ) );
+    $comment_exists = \pterotype\commentlinks\get_comment_id( $object_id );
     if ( $comment_exists ) {
         return;
     }
@@ -151,10 +143,7 @@ function sync_comments( $activity ) {
     if ( ! $parent_row || is_wp_error( $parent_row ) ) {
         return;
     }
-    $parent_comment_id = $wpdb->get_var( $wpdb->prepare(
-        "SELECT comment_id FROM {$wpdb->prefix}pterotype_comments WHERE object_id = %d",
-        $parent_row->id
-    ) );
+    $parent_comment_id = \pterotype\commentlinks\get_comment_id( $parent_row->id );
     if ( $parent_comment_id ) {
         $parent_comment = \get_comment( $parent_comment_id );
         if ( ! $parent_comment ) {
@@ -181,12 +170,7 @@ function sync_comments( $activity ) {
 }
 
 function link_new_comment( $comment_id, $object_id ) {
-    global $wpdb;
-    return $wpdb->insert(
-        "{$wpdb->prefix}pterotype_comments",
-        array( 'comment_id' => $comment_id, 'object_id' => $object_id ),
-        '%d'
-    );
+    return \pterotype\commentlinks\link_comment( $comment_id, $object_id );
 }
 
 function get_comment_id_from_url( $url ) {
