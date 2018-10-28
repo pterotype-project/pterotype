@@ -5,7 +5,7 @@ function get_object_id( $comment_id ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
         "SELECT object_id FROM {$wpdb->prefix}pterotype_comments WHERE comment_id = %d",
-        $comment_id;
+        $comment_id
     ) );
 }
 
@@ -13,7 +13,7 @@ function get_comment_id( $object_id ) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare(
         "SELECT comment_id FROM {$wpdb->prefix}pterotype_comments WHERE object_id = %d",
-        $object_id;
+        $object_id
     ) );
 }
 
