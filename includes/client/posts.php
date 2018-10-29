@@ -63,14 +63,14 @@ function post_to_object( $post ) {
     }
     $object = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
-        'type' => 'Note',
+        'type' => 'Article',
         'name' => $post->post_title,
-        'content' => $summary,
+        'content' => $post->post_content,
+        'summary' => $summary,
         'attributedTo' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
         'url' => $permalink,
-        'summary' => $post->post_title,
     );
     $existing = get_existing_object( $permalink );
     if ( $existing ) {
