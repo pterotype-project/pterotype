@@ -1,6 +1,8 @@
 <?php
 namespace pterotype\util;
 
+require_once plugin_dir_path( __FILE__ ) . 'server/objects.php';
+
 function dereference_object( $object ) {
     return dereference_object_helper( $object, 0 );
 }
@@ -33,6 +35,10 @@ function get_object_from_url( $url ) {
 }
 
 function get_object_from_url_helper( $url, $depth ) {
+    $cached_object = \pterotype\objects\get_object_by_activitypub_id( $url );
+    if ( $cached_object && ! is_wp_error( $cached_object ) ) {
+        return dereference_object_helper( $cached_object, $depth + 1 );
+    }
     if ( is_local_url( $url ) ) {
         return retrieve_local_object( $url );
     }
