@@ -149,6 +149,9 @@ function sync_comments( $activity ) {
         if ( ! $parent_comment ) {
             return;
         }
+        if ( ! \comments_open( $parent_comment->comment_post_ID ) ) {
+            return;
+        }
         $comment = make_comment_from_object( $object, $parent_comment->comment_post_ID, $parent_comment_id );
         $comment_id = \wp_new_comment( $comment );
         link_new_comment( $comment_id, $object_id );
@@ -161,6 +164,9 @@ function sync_comments( $activity ) {
         $url = $parent['url'];
         $post_id = \url_to_postid( $url );
         if ( $post_id === 0 ) {
+            return;
+        }
+        if ( ! \comments_open( $post_id ) ) {
             return;
         }
         $comment = make_comment_from_object( $object, $post_id, $parent_comment_id );
