@@ -55,7 +55,6 @@ function post_to_object( $post ) {
             ENT_QUOTES,
             'UTF-8'
         );
-        $summary = "$summary<br><br><a href=\"$permalink\" target=\"_blank\">$permalink</a>";
     }
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
