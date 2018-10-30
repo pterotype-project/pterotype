@@ -3,9 +3,6 @@ namespace pterotype\objects;
 
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
-// TODO for 'post' objects, store a post id instead of the full post text,
-// then hydrate the text on read
-
 function create_local_object( $object ) {
     global $wpdb;
     $object = \pterotype\util\dereference_object( $object );
@@ -19,6 +16,7 @@ function create_local_object( $object ) {
             array( 'status' => 400 )
         );
     }
+    $object = compact_object( $object );
     $res = $wpdb->insert( $wpdb->prefix . 'pterotype_objects', array(
         'object' => wp_json_encode( $object )
     ) );
@@ -29,20 +27,25 @@ function create_local_object( $object ) {
     }
     $object_id = $wpdb->insert_id;
     $type = $object['type'];
-    $object_url = get_rest_url( null, sprintf( '/pterotype/v1/object/%d', $object_id ) );
+    $object_apid = get_rest_url( null, sprintf( '/pterotype/v1/object/%d', $object_id ) );
     $object_likes = get_rest_url( null, sprintf( '/pterotype/v1/object/%d/likes', $object_id ) );
     $object_shares = get_rest_url(
         null, sprintf( '/pterotype/v1/object/%d/shares', $object_id )
     );
-    $object['id'] = $object_url;
+    $object['id'] = $object_apid;
     $object['likes'] = $object_likes;
     $object['shares'] = $object_shares;
+    $object_url = '';
+    if ( array_key_exists( 'url', $object ) ) {
+        $object_url = $object['url'];
+    }
     $res = $wpdb->update(
         $wpdb->prefix . 'pterotype_objects',
         array (
-            'activitypub_id' => $object_url,
+            'activitypub_id' => $object_apid,
             'type' => $type,
-            'object' => wp_json_encode( $object )
+            'object' => wp_json_encode( $object ),
+            'url' => $object_url
         ),
         array( 'id' => $object_id ),
         '%s',
@@ -76,6 +79,11 @@ function upsert_object( $object ) {
             array( 'status' => 400 )
         );
     }
+    $object = compact_object( $object );
+    $object_url = '';
+    if ( array_key_exists( 'url', $object ) ) {
+        $object_url = $object['url'];
+    }
     $row = $wpdb->get_row( $wpdb->prepare(
         "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE activitypub_id = %s",
         $object['id']
@@ -87,7 +95,8 @@ function upsert_object( $object ) {
             array(
                 'activitypub_id' => $object['id'],
                 'type' => $object['type'],
-                'object' => wp_json_encode( $object )
+                'object' => wp_json_encode( $object ),
+                'url' => $object_url
             ),
             '%s'
         );
@@ -98,7 +107,8 @@ function upsert_object( $object ) {
             array(
                 'activitypub_id' => $object['id'],
                 'type' => $object['type'],
-                'object' => wp_json_encode( $object )
+                'object' => wp_json_encode( $object ),
+                'url' => $object_url
             ),
             array( 'id' => $row->id ),
             '%s',
@@ -107,7 +117,6 @@ function upsert_object( $object ) {
         $id = $row->id;
         $row = new \stdClass();
         $row->id = $id;
-        update_referencing_activities( $object );
     }
     if ( $res === false ) {
         return new \WP_Error(
@@ -138,10 +147,15 @@ function update_object( $object ) {
             array( 'status' => 400 )
         );
     }
+    $object = compact_object( $object );
     $object_json = wp_json_encode( $object );
+    $object_url = '';
+    if ( array_key_exists( 'url', $object ) ) {
+        $object_url = $object['url'];
+    }
     $res = $wpdb->update(
         $wpdb->prefix . 'pterotype_objects',
-        array( 'object' => $object_json, 'type' => $object['type'] ),
+        array( 'object' => $object_json, 'type' => $object['type'], 'url' => $object_url ),
         array( 'activitypub_id' => $object['id'] ),
         '%s', '%s' );
     if ( !$res ) {
@@ -149,25 +163,7 @@ function update_object( $object ) {
             'db_error', __( 'Failed to update object row', 'pterotype' )
         );
     }
-    update_referencing_activities( $object );
     return $object;
-}
-
-function update_referencing_activities( $object ) {
-    global $wpdb;
-    $referencing_activities = $wpdb->get_results( $wpdb->prepare(
-        "
-       SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE object->\"$.object.id\" = %s
-       ",
-        $object['id']
-    ) );
-    if ( $referencing_activities ) {
-        foreach ( $referencing_activities as $activity_row ) {
-            $activity = json_decode( $activity_row->object, true );
-            $activity['object'] = $object;
-            update_object( $activity );
-        }
-    }
 }
 
 function get_object( $id ) {
@@ -220,36 +216,24 @@ function get_object_id( $activitypub_id ) {
     ) );
 }
 
-function get_objects_by( $field, $value ) {
+function get_object_by_url( $url ) {
     global $wpdb;
-    $objects = $wpdb->get_results(
-        $wpdb->prepare(
-            "
-            SELECT object FROM {$wpdb->prefix}pterotype_objects
-            WHERE object->\"$.$field\" = %s
-            ",
-            $value
-        ),
-        ARRAY_A
-    );
-    if ( ! $objects ) {
-        $objects = array();
+    $object_json = $wpdb->get_var( $wpdb->prepare(
+        "SELECT object FROM {$wpdb->prefix}pterotype_objects WHERE url = %s",
+        $url
+    ) );
+    if ( is_null( $object_json ) ) {
+        return $object_json;
     }
-    return array_map(
-        function( $result ) {
-            return json_decode( $result['object'], true );
-        },
-        $objects
-    );
+    return json_decode( $object_json, true );
 }
 
-function get_object_by( $field, $value ) {
-    $objects = get_objects_by( $field, $value );
-    if ( count( $objects ) === 0 ) {
-        return null;
-    } else {
-        return $objects[0];
-    }
+function get_object_row_by_url( $url ) {
+    global $wpdb;
+    return $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE url = %s",
+        $url
+    ) );
 }
 
 function delete_object( $object ) {
@@ -279,6 +263,7 @@ function delete_object( $object ) {
         array(
             'type' => $tombstone['type'],
             'object' => wp_json_encode( $tombstone ),
+            'url' => ''
         ),
         array( 'activitypub_id' => $activitypub_id ),
         '%s',
@@ -287,7 +272,6 @@ function delete_object( $object ) {
     if ( !$res ) {
         return new \WP_Error( 'db_error', __( 'Error deleting object', 'pterotype' ) );
     }
-    update_referencing_activities( $tombstone );
     return $tombstone;
 }
 
@@ -318,5 +302,48 @@ function strip_private_fields( $object ) {
         unset( $object['bcc'] );
     }
     return $object;
+}
+
+function create_object_if_not_exists( $object ) {
+    global $wpdb;
+    if ( ! array_key_exists( 'id', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have an "id" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
+    if ( ! array_key_exists( 'type', $object ) ) {
+        return new \WP_Error(
+            'invalid_object',
+            __( 'Object must have a "type" field', 'pterotype' ),
+            array( 'status' => 400 )
+        );
+    }
+    $object_url = '';
+    if ( array_key_exists( 'url', $object ) ) {
+        $object_url = $object['url'];
+    }
+    $object = compact_object( $object );
+    return $wpdb->query( $wpdb->prepare(
+        "
+        INSERT INTO {$wpdb->prefix}pterotype_objects (activitypub_id, type, object, url)
+        VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE activitypub_id = activitypub_id;
+        ",
+        $object['id'], $object['type'], wp_json_encode( $object ), $object_url
+    ) );
+}
+
+function compact_object( $object ) {
+    $object = \pterotype\util\dereference_object( $object );
+    $compacted = $object;
+    foreach( $object as $field => $value ) {
+        if ( is_array( $value ) && array_key_exists( 'id', $value ) ) {
+            $child_object = compact_object( $value );
+            create_object_if_not_exists( $child_object );
+            $compacted[$field] = $child_object['id'];
+        }
+    }
+    return $compacted;
 }
 ?>

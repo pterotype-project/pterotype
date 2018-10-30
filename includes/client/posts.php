@@ -5,6 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . '../server/activities/create.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/update.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/activities/delete.php';
 require_once plugin_dir_path( __FILE__ ) . '../server/followers.php';
+require_once plugin_dir_path( __FILE__ ) . '../server/objects.php';
 
 function handle_post_status_change( $new_status, $old_status, $post ) {
     $actor_slug = PTEROTYPE_BLOG_ACTOR_SLUG;
@@ -71,17 +72,10 @@ function post_to_object( $post ) {
         ),
         'url' => $permalink,
     );
-    $existing = get_existing_object( $permalink );
+    $existing = \pterotype\objects\get_object_by_url( $permalink );
     if ( $existing ) {
         $object['id'] = $existing->activitypub_id;
     }
     return $object;
-}
-
-function get_existing_object( $permalink ) {
-    global $wpdb;
-    return $wpdb->get_row( $wpdb->prepare(
-        "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE object->\"$.url\" = %s", $permalink
-    ) );
 }
 ?>

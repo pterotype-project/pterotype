@@ -99,7 +99,7 @@ function comment_to_object( $comment, $actor_slug ) {
     $post = \get_post( $comment->comment_post_ID );
     \setup_postdata( $post );
     $post_permalink = \get_permalink( $post );
-    $post_object = \pterotype\objects\get_object_by( 'url', $post_permalink );
+    $post_object = \pterotype\objects\get_object_by_url( $post_permalink );
     $inReplyTo = $post_object['id'];
     if ( $comment->comment_parent !== '0' ) {
         $parent_comment = \get_comment( $comment->comment_parent );

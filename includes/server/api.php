@@ -138,9 +138,8 @@ function handle_non_api_requests() {
     $accept = $_SERVER['HTTP_ACCEPT'];
     if ( strpos( $accept, 'application/ld+json' ) !== false ) {
         $current_url = home_url( add_query_arg( $_GET, \trailingslashit( $wp->request ) ) );
-        $objects = \pterotype\objects\get_objects_by( 'url', $current_url );
-        if ( count( $objects ) > 0 ) {
-            $object = $objects[0];
+        $object = \pterotype\objects\get_object_by_url( $current_url );
+        if ( $object && ! is_wp_error( $object ) ) {
             header( 'Content-Type: application/activity+json', true );
             echo wp_json_encode( $object );
             exit;
