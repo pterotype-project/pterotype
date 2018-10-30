@@ -12,7 +12,7 @@ License URI: https://github.com/jdormit/blob/master/LICENSE
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/init.php';
 
-define( 'PTEROTYPE_VERSION', '1.1.2' );
+define( 'PTEROTYPE_VERSION', '1.2.0' );
 define( 'PTEROTYPE_BLOG_ACTOR_SLUG', '-blog' );
 define( 'PTEROTYPE_BLOG_ACTOR_USERNAME', 'blog' );
 

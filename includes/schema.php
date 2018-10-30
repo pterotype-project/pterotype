@@ -253,10 +253,11 @@ function migration_1_2_0() {
     $query = "INSERT INTO {$wpdb->prefix}pterotype_objects (activitypub_id, url) VALUES";
     // build values
     foreach( $ids_to_urls as $activitypub_id => $url ) {
-        $query = $query . $wpdb->prepare( " (%s, %s) ", $activitypub_id, $url );
+        $query = $query . $wpdb->prepare( " (%s, %s),", $activitypub_id, $url );
     }
-    $query = $query . "ON DUPLICATE KEY UPDATE url=VALUES(url);";
-    $wpdb->query( $query );
+    $query = substr( $query, 0, -1 );
+    $query = $query . " ON DUPLICATE KEY UPDATE url=VALUES(url)";
+    $res = $wpdb->query( $query );
     // Compact existing objects so we only store 1 copy of each object
     foreach( $objects as $row ) {
         $object = \json_decode( $row->object, true );
@@ -287,7 +288,8 @@ function migration_1_2_0() {
         $wpdb->update(
             "{$wpdb->prefix}pterotype_objects",
             array( 'object' => wp_json_encode( $updated ) ),
-            array( 'activitypub_id', $row->activitypub_id )
+            array( 'activitypub_id' => $row->activitypub_id ),
+            '%s', '%s'
         );
     }
 }
