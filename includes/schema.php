@@ -17,6 +17,7 @@ function run_migrations() {
     apply_migration( '0.0.1', 'migration_0_0_1' );
     apply_migration( '1.1.0', 'migration_1_1_0' );
     apply_migration( '1.1.1', 'migration_1_1_1' );
+    apply_migration( '1.2.0', 'migration_1_2_0' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -35,7 +36,7 @@ function migration_0_0_1() {
            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
            activitypub_id VARCHAR(255) UNIQUE NOT NULL,
            type VARCHAR(50) NOT NULL,
-           object JSON NOT NULL
+           object TEXT NOT NULL
        )
        ENGINE=InnoDB DEFAULT CHARSET=utf8;
        "
@@ -202,12 +203,92 @@ function migration_1_1_1() {
     global $wpdb;
     $wpdb->query(
         "
-       ALTER TABLE {$wpdb->prefix}pterotype_actors
-           ADD email VARCHAR(255),
-           ADD url VARCHAR(255),
-           ADD name VARCHAR(255),
-           ADD icon VARCHAR(255)
-       "
+        ALTER TABLE {$wpdb->prefix}pterotype_actors
+            ADD email VARCHAR(255),
+            ADD url VARCHAR(255),
+            ADD name VARCHAR(255),
+            ADD icon VARCHAR(255);
+        "
     );
+}
+
+function migration_1_2_0() {
+    global $wpdb;
+    $wpdb->query(
+        "
+        ALTER TABLE {$wpdb->prefix}pterotype_objects
+            MODIFY object TEXT NOT NULL,
+            ADD url VARCHAR(255);
+        "
+    );
+    $wpdb->query(
+        "
+        CREATE TABLE {$wpdb->prefix}pterotype_object_links (
+            parent_id INT UNSIGNED NOT NULL,
+            child_id INT UNSIGNED NOT NULL,
+            PRIMARY KEY(parent_id, child_id),
+            FOREIGN KEY pt_object_links_parent_fk(parent_id)
+                REFERENCES {$wpdb->prefix}pterotype_objects(id),
+            FOREIGN KEY pt_object_links_child_fk(child_id)
+                REFERENCES {$wpdb->prefix}pterotype_objects(id)
+        )
+        ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        "
+    );
+    // Migrate existing objects to use the new url field
+    $objects = $wpdb->get_results(
+        "SELECT activitypub_id, object FROM {$wpdb->prefix}pterotype_objects",
+        OBJECT_K
+    );
+    $ids_to_urls = array_map(
+        function( $row ) {
+            $json = \json_decode( $row->object, true );
+            if ( array_key_exists( 'url', $json ) ) {
+                return $json['url'];
+            }
+        },
+        $objects
+    );
+    $ids_to_urls = array_filter( $ids_to_urls );
+    $query = "INSERT INTO {$wpdb->prefix}pterotype_objects (activitypub_id, url) VALUES";
+    // build values
+    foreach( $ids_to_urls as $activitypub_id => $url ) {
+        $query = $query . $wpdb->prepare( " (%s, %s) ", $activitypub_id, $url );
+    }
+    $query = $query . "ON DUPLICATE KEY UPDATE url=VALUES(url);";
+    $wpdb->query( $query );
+    // Compact existing objects so we only store 1 copy of each object
+    foreach( $objects as $row ) {
+        $object = \json_decode( $row->object, true );
+        $updated = $object;
+        foreach ( $object as $field => $value ) {
+            if ( is_array( $value ) && array_key_exists( 'id', $value ) ) {
+                // Insert the child, ignoring if it exists
+                $child_url = '';
+                if ( array_key_exists( 'url', $value ) ) {
+                    $child_url = $value['url'];
+                }
+                $child_type = '';
+                if ( array_key_exists( 'type', $value ) ) {
+                    $child_type = $value['type'];
+                }
+                $wpdb->query( $wpdb->prepare(
+                    "
+                    INSERT INTO {$wpdb->prefix}pterotype_objects
+                        (activitypub_id, type, object, url )
+                    VALUES (%s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE activitypub_id = activitypub_id;
+                    ",
+                    $value['id'], $child_type, wp_json_encode( $value ), $child_url
+                ) );
+                $updated[$field] = $value['id'];
+            }
+        }
+        $wpdb->update(
+            "{$wpdb->prefix}pterotype_objects",
+            array( 'object' => wp_json_encode( $updated ) ),
+            array( 'activitypub_id', $row->activitypub_id )
+        );
+    }
 }
 ?>
