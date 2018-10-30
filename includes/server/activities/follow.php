@@ -15,7 +15,7 @@ function handle_outbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     $object_row = \pterotype\objects\upsert_object( $object );
     $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     $res = \pterotype\following\request_follow( $actor_id, $object_row->id );

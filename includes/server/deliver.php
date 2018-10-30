@@ -21,7 +21,12 @@ function deliver_activity( $actor_slug, $activity ) {
     $recipients = array_values( array_unique( $recipients ) );
     if ( array_key_exists( 'actor', $activity ) ) {
         $actor = \pterotype\util\dereference_object( $activity['actor'] );
+        $activity['actor'] = $actor;
         $recipients = remove_actor_inbox_from_recipients( $actor, $recipients );
+    }
+    if ( array_key_exists( 'object', $activity ) ) {
+        $object = \pterotype\util\dereference_object( $activity['object'] );
+        $activity['object'] = $object;
     }
     $activity = \pterotype\objects\strip_private_fields( $activity );
     post_activity_to_inboxes( $actor_id, $activity, $recipients );

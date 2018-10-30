@@ -30,7 +30,7 @@ function handle_outbox( $actor_slug, $activity ) {
             'invalid_actor', __( 'Expecting a valid actor', 'pterotype' )
         );
     }
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     $attributed_actor = $activity['actor'];
     $object['attributedTo'] = $attributed_actor;
     reconcile_receivers( $object, $activity );
@@ -52,7 +52,7 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     $object_row = \pterotype\objects\upsert_object( $object );
     if ( is_wp_error( $object_row ) ) {
         return $object_row;
@@ -125,7 +125,7 @@ function link_comment( $object ) {
 }
 
 function sync_comments( $activity ) {
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     $object_id = \pterotype\objects\get_object_id( $object['id'] );
     $comment_exists = \pterotype\commentlinks\get_comment_id( $object_id );
     if ( $comment_exists ) {
@@ -157,7 +157,7 @@ function sync_comments( $activity ) {
         link_new_comment( $comment_id, $object_id );
         return;
     } else {
-        $parent = $parent_row->object;
+        $parent = \pterotype\util\dereference_object( $parent_row->object );
         if ( ! array_key_exists( 'url', $parent ) ) {
             return;
         }
@@ -189,6 +189,7 @@ function get_comment_id_from_url( $url ) {
 }
 
 function make_comment_from_object( $object, $post_id, $parent_comment_id = null ) {
+    $object = \pterotype\util\dereference_object( $object );
     $actor = null;
     if ( array_key_exists( 'attributedTo', $object ) ) {
         $actor = \pterotype\util\dereference_object( $object['attributedTo'] );

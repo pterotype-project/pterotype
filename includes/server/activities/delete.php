@@ -4,6 +4,7 @@ namespace pterotype\activities\delete;
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../actors.php';
 require_once plugin_dir_path( __FILE__ ) . '../../commentlinks.php';
+require_once plugin_dir_path( __FILE__ ) . '../../util.php';
 
 function handle_outbox( $actor, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
@@ -13,7 +14,7 @@ function handle_outbox( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     $tombstone = \pterotype\objects\delete_object( $object );
     if ( is_wp_error( $tombstone ) ) {
         return $tombstone;
@@ -37,7 +38,7 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_activity',

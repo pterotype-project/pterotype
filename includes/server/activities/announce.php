@@ -3,6 +3,7 @@ namespace pterotype\activities\announce;
 
 require_once plugin_dir_path( __FILE__ ) . '../objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../shares.php';
+require_once plugin_dir_path( __FILE__ ) . '../../util.php';
 
 function handle_inbox( $actor_slug, $activity ) {
     if ( !array_key_exists( 'object', $activity ) ) {
@@ -12,7 +13,7 @@ function handle_inbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = $activity['object'];
+    $object = \pterotype\util\dereference_object( $activity['object'] );
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_activity',
