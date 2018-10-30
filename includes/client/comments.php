@@ -62,7 +62,7 @@ function get_comment_actor_slug( $comment ) {
     if ( $comment->user_id !== '0' ) {
         return get_comment_user_actor_slug( $comment->user_id );
     } else {
-        return get_comment_email_actor_slug( $comment );
+        return get_comment_guest_actor_slug( $comment );
     }
 }
 
@@ -75,7 +75,7 @@ function get_comment_user_actor_slug( $user_id ) {
     }
 }
 
-function get_comment_email_actor_slug( $comment ) {
+function get_comment_guest_actor_slug( $comment ) {
     $email_address = $comment->comment_author_email;
     $url = $comment->comment_author_url;
     if ( empty( $url ) ) {

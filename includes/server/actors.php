@@ -258,7 +258,7 @@ function get_create_actor_query( $slug, $type, $email = null, $url = null, $name
 
 function upsert_commenter_actor( $email_address, $url = null, $name = null, $icon = null ) {
     global $wpdb;
-    $slug = email_address_to_slug( $email_address );
+    $slug = name_to_slug( $name );
     $existing = $wpdb->get_row( $wpdb->prepare(
         "SELECT * FROM {$wpdb->prefix}pterotype_actors WHERE slug = %s",
         $slug
@@ -284,8 +284,11 @@ function upsert_commenter_actor( $email_address, $url = null, $name = null, $ico
     return $slug;
 }
 
-function email_address_to_slug( $email_address ) {
-    $slug = str_replace( array( '@', '.'), '_', $email_address );
-    return preg_replace( '/[^a-zA-Z0-9-_]/', '', $slug );
+function name_to_slug( $name ) {
+    if ( ! $name ) {
+        return 'anonymous';
+    }
+    $slug = str_replace( array( '@', '.', ' '), '_', $name );
+    return strtolower( preg_replace( '/[^a-zA-Z0-9-_]/', '', $slug ) );
 }
 ?>
