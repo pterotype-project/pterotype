@@ -3,7 +3,7 @@
 Plugin Name: Pterotype
 Plugin URI: https://getpterotype.com
 Description: Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse.
-Version: 1.1.2
+Version: 1.2.0
 Author: Jeremy Dormitzer
 Author URI: https://jeremydormitzer.com
 License: MIT
