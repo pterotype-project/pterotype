@@ -8,10 +8,7 @@ require_once plugin_dir_path( __FILE__ ) . '../server/objects.php';
 require_once plugin_dir_path( __FILE__ ) . '../commentlinks.php';
 
 function handle_comment_post( $comment_id, $comment_approved ) {
-    if ( $comment_approved ) {
-        $comment = \get_comment( $comment_id );
-        handle_transition_comment_status( 'approved', 'nonexistent', $comment );
-    }
+    do_action( 'pterotype_handle_comment_post', $comment_id, $comment_approved );
 }
 
 function handle_edit_comment( $comment_id ) {
