@@ -221,20 +221,6 @@ function migration_1_2_0() {
             ADD url VARCHAR(255);
         "
     );
-    $wpdb->query(
-        "
-        CREATE TABLE {$wpdb->prefix}pterotype_object_links (
-            parent_id INT UNSIGNED NOT NULL,
-            child_id INT UNSIGNED NOT NULL,
-            PRIMARY KEY(parent_id, child_id),
-            FOREIGN KEY pt_object_links_parent_fk(parent_id)
-                REFERENCES {$wpdb->prefix}pterotype_objects(id),
-            FOREIGN KEY pt_object_links_child_fk(child_id)
-                REFERENCES {$wpdb->prefix}pterotype_objects(id)
-        )
-        ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        "
-    );
     // Migrate existing objects to use the new url field
     $objects = $wpdb->get_results(
         "SELECT activitypub_id, object FROM {$wpdb->prefix}pterotype_objects",
