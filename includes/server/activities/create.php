@@ -30,7 +30,7 @@ function handle_outbox( $actor_slug, $activity ) {
             'invalid_actor', __( 'Expecting a valid actor', 'pterotype' )
         );
     }
-    $object = \pterotype\util\dereference_object( $activity['object'] );
+    $object = $activity['object'];
     $attributed_actor = $activity['actor'];
     $object['attributedTo'] = $attributed_actor;
     reconcile_receivers( $object, $activity );

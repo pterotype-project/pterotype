@@ -14,7 +14,7 @@ function handle_outbox( $actor, $activity ) {
         );
     }
     $actor_id = \pterotype\actors\get_actor_id( $actor );
-    $object = \pterotype\util\dereference_object( $activity['object'] );
+    $object = $activity['object'];
     $res = \pterotype\blocks\create_block( $actor_id, $object );
     if ( is_wp_error( $res ) ) {
         return $res;

@@ -14,7 +14,7 @@ function handle_outbox( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = \pterotype\util\dereference_object( $activity['object'] );
+    $object = $activity['object'];
     $tombstone = \pterotype\objects\delete_object( $object );
     if ( is_wp_error( $tombstone ) ) {
         return $tombstone;

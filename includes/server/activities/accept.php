@@ -48,7 +48,7 @@ function handle_outbox( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = \pterotype\util\dereference_object( $activity['object'] );
+    $object = $activity['object'];
     if ( array_key_exists( 'type', $object ) ) {
         switch ( $object['type'] ) {
         case 'Follow':

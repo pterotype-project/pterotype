@@ -14,7 +14,7 @@ function handle_outbox( $actor, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $object = \pterotype\util\dereference_object( $activity['object'] );
+    $object = $activity['object'];
     if ( !array_key_exists( 'id', $object ) ) {
         return new \WP_Error(
             'invalid_object',
