@@ -1,6 +1,8 @@
 <?php
 namespace pterotype\schema;
 
+require plugin_dir_path( __FILE__ ) . 'client/identity.php';
+
 function get_previous_version() {
     $previous_version = get_option( 'pterotype_previously_migrated_version' );
     if ( !$previous_version ) {
@@ -18,6 +20,7 @@ function run_migrations() {
     apply_migration( '1.1.0', 'migration_1_1_0' );
     apply_migration( '1.1.1', 'migration_1_1_1' );
     apply_migration( '1.2.0', 'migration_1_2_0' );
+    apply_migration( '1.2.1', 'migration_1_2_0' );
     update_option( 'pterotype_previously_migrated_version', PTEROTYPE_VERSION );
 }
 
@@ -278,5 +281,9 @@ function migration_1_2_0() {
             '%s', '%s'
         );
     }
+}
+
+function migration_1_2_1() {
+    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
 }
 ?>
