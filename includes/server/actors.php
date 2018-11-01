@@ -193,7 +193,7 @@ function get_user_actor( $user ) {
 }
 
 function make_icon_array( $icon_url ) {
-    $mime_type = wp_check_filetype( $icon_url );
+    $mime_type = wp_check_filetype( $icon_url )['type'];
     return array(
         'url' => $icon_url,
         'type' => 'Image',
