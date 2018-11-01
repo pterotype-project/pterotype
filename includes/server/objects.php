@@ -338,6 +338,9 @@ function compact_object( $object ) {
     $object = \pterotype\util\dereference_object( $object );
     $compacted = $object;
     foreach( $object as $field => $value ) {
+        if ( $field === 'publicKey' ) {
+            continue;
+        }
         if ( is_array( $value ) && array_key_exists( 'id', $value ) ) {
             $child_object = compact_object( $value );
             create_object_if_not_exists( $child_object );
