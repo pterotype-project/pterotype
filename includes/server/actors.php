@@ -100,7 +100,7 @@ function get_commenter_actor( $row ) {
         $actor['url'] = $row->url;
     }
     if ( ! empty( $row->icon ) ) {
-        $actor['icon'] = $row->icon;
+        $actor['icon'] = make_icon_array( $row->icon );
     }
     return $actor;
 }
@@ -147,7 +147,9 @@ function get_blog_actor() {
         ),
     );
     if ( has_custom_logo() ) {
-        $actor['icon'] = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ) )[0];
+        $actor['icon'] = make_icon_array(
+            wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ) )[0]
+        );
     }
     return $actor;
 }
@@ -175,7 +177,7 @@ function get_user_actor( $user ) {
         'preferredUsername' => $handle,
         'name' => get_the_author_meta( 'display_name', $user->get('ID') ),
         'summary' => get_the_author_meta( 'description', $user->get('ID') ),
-        'icon' => get_avatar_url( $user->get('ID') ),
+        'icon' => make_icon_array( get_avatar_url( $user->get('ID') ) ),
         'url' => get_the_author_meta( 'user_url', $user->get('ID') ),
         'publicKey' => array(
             'id' => get_rest_url(
@@ -188,6 +190,15 @@ function get_user_actor( $user ) {
         ),
     );
     return $actor;
+}
+
+function make_icon_array( $icon_url ) {
+    $mime_type = wp_check_filetype( $icon_url );
+    return array(
+        'url' => $icon_url,
+        'type' => 'Image',
+        'mediaType' => $mime_type,
+    );
 }
 
 function initialize_actors() {
