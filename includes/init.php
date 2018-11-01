@@ -8,6 +8,7 @@ require_once plugin_dir_path( __FILE__ ) . 'schema.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/webfinger.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/posts.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/comments.php';
+require_once plugin_dir_path( __FILE__ ) . 'client/identity.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/async.php';
 require_once plugin_dir_path( __FILE__ ) . 'pgp.php';
 
@@ -51,4 +52,13 @@ add_action(
 add_action( 'comment_post', '\pterotype\comments\handle_comment_post', 10, 2 );
 add_action( 'edit_comment', '\pterotype\comments\handle_edit_comment', 10, 1 );
 add_action( 'template_redirect', '\pterotype\api\handle_non_api_requests' );
+add_action( 'update_option_blogname', function() {
+    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+});
+add_action( 'update_option_blogdescription', function() {
+    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+});
+add_action( 'update_option_site_icon', function() {
+    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+});
 ?>

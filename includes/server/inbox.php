@@ -37,10 +37,11 @@ function handle_activity( $actor_slug, $activity ) {
         );
     }
     forward_activity( $actor_slug, $activity );
-    $activity = persist_activity( $actor_slug, $activity );
-    if ( is_wp_error( $activity ) ) {
-        return $activity;
+    $persisted = persist_activity( $actor_slug, $activity );
+    if ( is_wp_error( $persisted ) ) {
+        return $persisted;
     }
+    $activity['id'] = $persisted['id'];
     switch ( $activity['type'] ) {
     case 'Create':
         $activity = \pterotype\activities\create\handle_inbox( $actor_slug, $activity );

@@ -36,10 +36,12 @@ function handle_activity( $actor_slug, $activity ) {
             array( 'status' => 400 )
         );
     }
-    $activity = persist_activity( $actor_slug, $activity );
-    if ( is_wp_error( $activity ) ) {
-        return $activity;
+    // Don't overwrite the activity to prevent compacting from deleting data
+    $persisted = persist_activity( $actor_slug, $activity );
+    if ( is_wp_error( $persisted ) ) {
+        return $persisted;
     }
+    $activity['id'] = $persisted['id'];
     switch ( $activity['type'] ) {
     case 'Create':
         $activity = \pterotype\activities\create\handle_outbox( $actor_slug, $activity );
