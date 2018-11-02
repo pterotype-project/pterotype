@@ -229,6 +229,9 @@ function migration_1_2_0() {
         "SELECT activitypub_id, object FROM {$wpdb->prefix}pterotype_objects",
         OBJECT_K
     );
+    if ( ! $objects || empty( $objects ) ) {
+        return;
+    }
     $ids_to_urls = array_map(
         function( $row ) {
             $json = \json_decode( $row->object, true );
