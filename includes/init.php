@@ -58,7 +58,8 @@ add_action( 'update_option_blogname', function() {
 add_action( 'update_option_blogdescription', function() {
     \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
 });
-add_action( 'update_option_site_icon', function() {
-    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+$theme = \get_option( 'stylesheet' );
+add_action( "update_option_theme_mods_$theme", function() {
+     \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
 });
 ?>
