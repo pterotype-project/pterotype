@@ -150,6 +150,14 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
                 'data_format' => 'body',
             );
             $response = wp_remote_post( $inbox, $args );
+            if ( is_wp_error( $response ) ) {
+                \error_log(
+                    "[Pterotype] Error delivering to $inbox: {$response->get_error_message()}"
+                );
+            } else if ( $response['response']['code'] >= 400 ) {
+                $res_string = print_r( $response, true );
+                \error_log( "[Pterotype] Error response from $inbox: $res_string" );
+            }
         }
     }
 }
