@@ -5,7 +5,7 @@ Requires at least: 4.9.8
 Requires PHP: 7.2.11
 License: MIT
 License URI: https://github.com/jdormit/pterotype/blob/master/LICENSE
-Stable tag: 1.2.0
+Stable tag: 1.2.3
 Tested up to: 4.9.8
 
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse.
@@ -14,6 +14,18 @@ Pterotype expands your audience by giving your blog an ActivityPub stream, makin
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse. Users of Mastodon, Pleroma, and other Fediverse services will be able to follow and share your posts from the platform of their choice.
 
 == Changelog ==
+### 1.2.3
+- Send an Update activity when the site logo changes
+- Log out activity delivery errors to the server error log
+
+### 1.2.2
+- Fix a bug where actor public keys were getting truncated before being delivered to other servers
+- Fix the way icons are represented in the actor JSON
+
+### 1.2.1
+- Send an Update activity when blog details (name, tagline) change
+- Fix a bug in where activities posted to the outbox had their data compacted before it was persisted
+
 ### 1.2.0
 - Fix a bug where incoming ActivityPub replies were getting duplicated if comment moderation was disabled
 - Stop leaking guest (non-user) commenter email addresses in their ActivityPub usernames
