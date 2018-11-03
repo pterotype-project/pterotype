@@ -1,7 +1,9 @@
 <?php
 namespace pterotype\schema;
 
-require plugin_dir_path( __FILE__ ) . 'client/identity.php';
+require_once plugin_dir_path( __FILE__ ) . 'client/identity.php';
+require_once plugin_dir_path( __FILE__ ) . 'server/activities/delete.php';
+require_once plugin_dir_path( __FILE__ ) . 'server/actors.php';
 
 function get_previous_version() {
     $previous_version = get_option( 'pterotype_previously_migrated_version' );
@@ -288,5 +290,35 @@ function migration_1_2_0() {
 
 function migration_1_2_1() {
     \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+}
+
+function purge_all_data() {
+    global $wpdb;
+    $blog_actor = \pterotype\actors\get_actor_by_slug( PTEROTYPE_BLOG_ACTOR_SLUG );
+    $delete = \pterotype\activities\delete\make_delete(
+        PTEROTYPE_BLOG_ACTOR_SLUG, $blog_actor
+    );
+    $delete['to'] = array(
+        'https://www.w3.org/ns/activitystreams#Public',
+        $blog_actor['followers']
+    );
+    $server = \rest_get_server();
+    $request = \WP_REST_Request::from_url( $blog_actor['outbox'] );
+    $request->set_method( 'POST' );
+    $request->set_body( wp_json_encode( $delete ) );
+    $request->add_header( 'Content-Type', 'application/ld+json' );
+    $server->dispatch( $request );
+    $pfx = $wpdb->prefix;
+    $wpdb->query( $wpdb->prepare(
+        "
+        DROP TABLE {$pfx}pterotype_comments, {$pfx}pterotype_keys,
+            {$pfx}pterotype_blocks, {$pfx}pterotype_shares,
+            {$pfx}pterotype_following, {$pfx}pterotype_followers,
+            {$pfx}pterotype_actor_likes, {$pfx}pterotype_object_likes,
+            {$pfx}pterotype_outbox, {$pfx}pterotype_inbox,
+            {$pfx}pterotype_objects, {$pfx}pterotype_actors
+        "
+    ) );
+    \delete_option( 'pterotype_previously_migrated_version' );
 }
 ?>

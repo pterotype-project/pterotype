@@ -125,6 +125,7 @@ function get_recipient_urls( $object, $depth, $acc ) {
 }
 
 function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
+    $activity = \pterotype\util\decompact_object( $activity, array( 'actor', 'object' ) );
     foreach ( $recipients as $inbox ) {
         if ( $inbox === 'https://www.w3.org/ns/activitystreams#Public' ) {
             continue;
@@ -150,6 +151,9 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
                 'data_format' => 'body',
             );
             $response = wp_remote_post( $inbox, $args );
+            $req_str = print_r( $args, true );
+            $res_str = print_r( $response, true );
+            \error_log( "$req_str \n\n $res_str" );
             if ( is_wp_error( $response ) ) {
                 \error_log(
                     "[Pterotype] Error delivering to $inbox: {$response->get_error_message()}"

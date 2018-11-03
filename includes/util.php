@@ -102,33 +102,30 @@ function get_id( $object ) {
     }
 }
 
-function get_log_dir() {
-    return plugin_dir_path( __FILE__ ) . '../log';
+function decompact_object( $object, $fields ) {
+    return decompact_object_helper( $object, $fields, 0 );
 }
 
-function log( $log_file, $str, $append = true ) {
-    if ( ! WP_DEBUG ) {
-        return;
+function decompact_object_helper( $object, $fields, $depth ) {
+    if ( $depth == 3 ) {
+        return $object;
     }
-    $log_dir = get_log_dir();
-    $log_file = '/' . $log_file;
-    if ( ! file_exists( $log_dir ) ) {
-        mkdir( $log_dir, 0777, true );
+    if ( ! is_array( $object ) ) {
+        return $object;
     }
-    if ( $append ) {
-        file_put_contents( $log_dir . $log_file, $str, FILE_APPEND );
-    } else {
-        file_put_contents( $log_dir . $log_file, $str );
+    $decompacted = $object;
+    foreach ( $object as $field => $value ) {
+        if ( ! in_array( $field, $fields ) ) {
+            continue;
+        }
+        if ( is_array( $value ) ) {
+            $decompacted[$field] = decompact_object_helper( $value, $fields, $depth + 1 );
+        } else if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+            $decompacted[$field] = decompact_object_helper(
+                dereference_object( $value ), $fields, $depth + 1
+            );
+        }
     }
-}
-
-function log_var( $log_file, $var, $append = true ) {
-    if ( ! WP_DEBUG ) {
-        return;
-    }
-    ob_start();
-    var_dump( $var );
-    $dump = ob_get_clean();
-    log( $log_file, $dump, $append );
+    return $decompacted;
 }
 ?>

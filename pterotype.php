@@ -26,6 +26,11 @@ function pterotype_deactivate() {
     flush_rewrite_rules();
 }
 
+function pterotype_uninstall() {
+    do_action( 'pterotype_uninstall' );
+    flush_rewrite_rules();
+}
+
 function pterotype_load() {
     do_action( 'pterotype_load' );
 }
@@ -33,4 +38,5 @@ function pterotype_load() {
 add_action( 'setup_theme', 'pterotype_load' );
 register_activation_hook( __FILE__, 'pterotype_init' );
 register_deactivation_hook( __FILE__, 'pterotype_deactivate' );
+register_uninstall_hook( __FILE__, 'pterotype_uninstall' );
 ?>

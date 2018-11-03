@@ -60,6 +60,9 @@ function get_commenter_actor( $row ) {
         '@context' => array(
             'https://www.w3.org/ns/activitystreams',
             'https://w3id.org/security/v1',
+            array(
+                'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
+            ),
         ),
         'type' => 'Person',
         'id' => get_rest_url(
@@ -111,6 +114,9 @@ function get_blog_actor() {
         '@context' => array(
             'https://www.w3.org/ns/activitystreams',
             'https://w3id.org/security/v1',
+            array(
+                'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
+            ),
         ),
         'type' => 'Organization',
         'id' => get_rest_url(
@@ -161,6 +167,9 @@ function get_user_actor( $user ) {
         '@context' => array(
             'https://www.w3.org/ns/activitystreams',
             'https://w3id.org/security/v1',
+            array(
+                'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
+            ),
         ),
         'type' => 'Person',
         'id' => get_rest_url( null, sprintf( '/pterotype/v1/actor/%s', $handle ) ),

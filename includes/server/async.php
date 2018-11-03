@@ -17,7 +17,7 @@ class Send_Accept_Task extends \WP_Async_Task {
         $actor_slug = $_POST['actor_slug'];
         $accept = $_POST['accept'];
         if ( $actor_slug && $accept ) {
-            sleep( 2 );
+            sleep( 5 );
             \pterotype\outbox\handle_activity( $actor_slug, $accept );
         }
     }

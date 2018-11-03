@@ -31,7 +31,7 @@ add_action( 'pterotype_init', function() {
     \pterotype\schema\run_migrations();
     \pterotype\actors\initialize_actors();
     if ( ! empty( ob_get_contents() ) ) {
-        \pterotype\util\log( 'init.log', ob_get_contents(), false );
+        error_log( ob_get_contents() );
     }
 } );
 
@@ -40,26 +40,42 @@ add_action( 'pterotype_load', function() {
     \pterotype\async\init_tasks();
 } );
 
+add_action( 'pterotype_uninstall', function() {
+    \pterotype\schema\purge_all_data();
+} );
+
 add_action( 'generate_rewrite_rules', '\pterotype\webfinger\generate_rewrite_rules', 111 );
+
 add_action( 'parse_request', '\pterotype\webfinger\parse_request', 111 );
+
 add_filter( 'query_vars', '\pterotype\webfinger\query_vars' );
+
 add_filter( 'query_vars', '\pterotype\api\query_vars' );
+
 add_action( 'well_known_webfinger', '\pterotype\webfinger\handle' );
+
 add_action( 'transition_post_status', '\pterotype\posts\handle_post_status_change', 10, 3 );
+
 add_action(
     'transition_comment_status', '\pterotype\comments\handle_transition_comment_status', 10, 3
 );
+
 add_action( 'comment_post', '\pterotype\comments\handle_comment_post', 10, 2 );
+
 add_action( 'edit_comment', '\pterotype\comments\handle_edit_comment', 10, 1 );
+
 add_action( 'template_redirect', '\pterotype\api\handle_non_api_requests' );
+
 add_action( 'update_option_blogname', function() {
     \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
-});
+} );
+
 add_action( 'update_option_blogdescription', function() {
     \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
-});
+} );
+
 $theme = \get_option( 'stylesheet' );
 add_action( "update_option_theme_mods_$theme", function() {
      \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
-});
+} );
 ?>
