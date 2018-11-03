@@ -319,7 +319,10 @@ function purge_all_data() {
         "
     ) );
     $wpdb->query( $wpdb->prepare(
-        "DROP TABLE {$pfx}pterotype_objects, {$pfx}pterotype_actors"
+        "DROP TABLE {$pfx}pterotype_actors"
+    ) );
+    $wpdb->query( $wpdb->prepare(
+        "DROP TABLE {$pfx}pterotype_objects"
     ) );
     \delete_option( 'pterotype_previously_migrated_version' );
 }
