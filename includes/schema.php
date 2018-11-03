@@ -318,9 +318,14 @@ function purge_all_data() {
             {$pfx}pterotype_blocks, {$pfx}pterotype_shares,
             {$pfx}pterotype_following, {$pfx}pterotype_followers,
             {$pfx}pterotype_actor_likes, {$pfx}pterotype_object_likes,
-            {$pfx}pterotype_outbox, {$pfx}pterotype_inbox,
-            {$pfx}pterotype_actors, {$pfx}pterotype_objects
+            {$pfx}pterotype_outbox, {$pfx}pterotype_inbox
         "
+    ) );
+    $wpdb->query( $wpdb->prepare(
+        "DROP TABLE {$pfx}pterotype_actors"
+    ) );
+    $wpdb->query( $wpdb->prepare(
+        "DROP TABLE {$pfx}pterotype_objects"
     ) );
     \delete_option( 'pterotype_previously_migrated_version' );
 }
