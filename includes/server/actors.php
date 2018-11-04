@@ -12,6 +12,22 @@ function get_actor( $id ) {
     return get_actor_from_row( $row );
 }
 
+function get_all_actors() {
+    global $wpdb;
+    $results = $wpdb->get_results( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}pterotype_actors"
+    ) );
+    if ( ! $results || empty( $results ) ) {
+        return array();
+    }
+    $actors = array();
+    foreach ( $results as $row ) {
+        $actor = get_actor_from_row( $row );
+        $actors[$row->slug] = $actor;
+    }
+    return $actors;
+}
+
 function get_actor_by_slug ( $slug ) {
     global $wpdb;
     $row = $wpdb->get_row( $wpdb->prepare(

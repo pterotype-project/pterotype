@@ -294,20 +294,22 @@ function migration_1_2_1() {
 
 function purge_all_data() {
     global $wpdb;
-    $blog_actor = \pterotype\actors\get_actor_by_slug( PTEROTYPE_BLOG_ACTOR_SLUG );
-    $delete = \pterotype\activities\delete\make_delete(
-        PTEROTYPE_BLOG_ACTOR_SLUG, $blog_actor
-    );
-    $delete['to'] = array(
-        'https://www.w3.org/ns/activitystreams#Public',
-        $blog_actor['followers']
-    );
-    $server = \rest_get_server();
-    $request = \WP_REST_Request::from_url( $blog_actor['outbox'] );
-    $request->set_method( 'POST' );
-    $request->set_body( wp_json_encode( $delete ) );
-    $request->add_header( 'Content-Type', 'application/ld+json' );
-    $server->dispatch( $request );
+    $actors = \pterotype\actors\get_all_actors();
+    foreach ( $actors as $slug => $actor ) {
+        $delete = \pterotype\activities\delete\make_delete(
+            $slug, $actor
+        );
+        $delete['to'] = array(
+            'https://www.w3.org/ns/activitystreams#Public',
+            $actor['followers']
+        );
+        $server = \rest_get_server();
+        $request = \WP_REST_Request::from_url( $actor['outbox'] );
+        $request->set_method( 'POST' );
+        $request->set_body( wp_json_encode( $delete ) );
+        $request->add_header( 'Content-Type', 'application/ld+json' );
+        $server->dispatch( $request );
+    }
     $pfx = $wpdb->prefix;
     $wpdb->query( $wpdb->prepare(
         "DROP INDEX OBJECTS_ACTIVITYPUB_ID_INDEX ON {$pfx}pterotype_objects"
