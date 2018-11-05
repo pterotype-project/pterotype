@@ -11,6 +11,8 @@ require_once plugin_dir_path( __FILE__ ) . 'client/comments.php';
 require_once plugin_dir_path( __FILE__ ) . 'client/identity.php';
 require_once plugin_dir_path( __FILE__ ) . 'server/async.php';
 require_once plugin_dir_path( __FILE__ ) . 'pgp.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/admin.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/settings.php';
 
 add_action( 'rest_api_init', function() {
     \pterotype\api\register_routes();
@@ -77,5 +79,11 @@ add_action( 'update_option_blogdescription', function() {
 $theme = \get_option( 'stylesheet' );
 add_action( "update_option_theme_mods_$theme", function() {
      \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+} );
+
+add_action( 'admin_menu', function() {
+    \pterotype\admin\register_admin_page();
+    \pterotype\settings\register_settings_sections();
+    \pterotype\settings\register_settings_fields();
 } );
 ?>
