@@ -81,6 +81,14 @@ add_action( "update_option_theme_mods_$theme", function() {
      \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
 } );
 
+add_action( 'update_option_pterotype_blog_name', function() {
+    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+} );
+
+add_action( 'update_option_pterotype_blog_description', function() {
+    \pterotype\identity\update_identity( PTEROTYPE_BLOG_ACTOR_SLUG );
+} );
+
 add_action( 'admin_menu', function() {
     \pterotype\admin\register_admin_page();
     \pterotype\settings\register_settings_sections();

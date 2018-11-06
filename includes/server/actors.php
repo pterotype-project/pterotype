@@ -3,6 +3,7 @@ namespace pterotype\actors;
 
 require_once plugin_dir_path( __FILE__ ) . '../pgp.php';
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
+require_once plugin_dir_path( __FILE__ ) . '../admin/settings.php';
 
 function get_actor( $id ) {
     global $wpdb;
@@ -153,10 +154,10 @@ function get_blog_actor() {
         'outbox' => get_rest_url(
             null, sprintf( '/pterotype/v1/actor/%s/outbox', PTEROTYPE_BLOG_ACTOR_SLUG )
         ),
-        'name' => get_bloginfo( 'name' ),
+        'name' => \pterotype\settings\get_blog_name_value(),
         // TODO in the future, make this configurable, both here and in the Webfinger handler
         'preferredUsername' => PTEROTYPE_BLOG_ACTOR_USERNAME,
-        'summary' => get_bloginfo( 'description' ),
+        'summary' => \pterotype\settings\get_blog_description_value(),
         'url' => network_site_url( '/' ),
         'publicKey' => array(
             'id' => get_rest_url(
