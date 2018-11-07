@@ -41,9 +41,11 @@ function register_settings_fields() {
         'pterotype_blog_description',
         'Site Description',
         function() {
-            ?>
-            <textarea name="pterotype_blog_description"><?php echo get_blog_description_value(); ?></textarea>
-            <?php
+            \wp_editor( get_blog_description_value(), 'pterotype_blog_description', array(
+                'teeny' => true,
+                'textarea_rows' => 20,
+                'editor_css' => '<style>.wp-editor-wrap { max-width: 768px; }</style>'
+            ) );
         },
         'pterotype',
         'pterotype_identity'
