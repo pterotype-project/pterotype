@@ -44,6 +44,8 @@ function register_settings_fields() {
             \wp_editor( get_blog_description_value(), 'pterotype_blog_description', array(
                 'teeny' => true,
                 'textarea_rows' => 20,
+                'wpautop' => false,
+                'media_buttons' => false,
                 'editor_css' => '<style>.wp-editor-wrap { max-width: 768px; }</style>'
             ) );
         },
