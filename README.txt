@@ -5,7 +5,7 @@ Requires at least: 4.9.8
 Requires PHP: 7.2.11
 License: MIT
 License URI: https://github.com/jdormit/pterotype/blob/master/LICENSE
-Stable tag: 1.2.5
+Stable tag: 1.2.6
 Tested up to: 4.9.8
 
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse.
