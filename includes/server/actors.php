@@ -169,10 +169,9 @@ function get_blog_actor() {
             'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
     );
-    if ( has_custom_logo() ) {
-        $actor['icon'] = make_icon_array(
-            wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ) )[0]
-        );
+    $icon = \pterotype\settings\get_blog_icon_value();
+    if ( $icon && ! empty( $icon ) ) {
+        $actor['icon'] = make_icon_array( $icon );
     }
     return $actor;
 }
