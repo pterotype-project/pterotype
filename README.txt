@@ -15,8 +15,10 @@ Pterotype expands your audience by giving your blog an ActivityPub stream, makin
 
 == Changelog ==
 ### 1.2.7
+- Fix a bug where an invalid DB state broke post federation
 
 ### 1.2.6
+- Add admin dashboard where users can update the site's Fediverse identity - site name, description, and icon
 
 ### 1.2.5
 - Add functionality to clean up database and tell federated servers when Pterotype is unintalled
