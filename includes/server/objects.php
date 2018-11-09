@@ -18,7 +18,8 @@ function create_local_object( $object ) {
     }
     $object = compact_object( $object );
     $res = $wpdb->insert( $wpdb->prefix . 'pterotype_objects', array(
-        'object' => wp_json_encode( $object )
+        'object' => wp_json_encode( $object ),
+        'activitypub_id' => "uninitialized_" . rand(),
     ) );
     if ( !$res ) {
         return new \WP_Error(

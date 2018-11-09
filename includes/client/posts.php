@@ -74,7 +74,7 @@ function post_to_object( $post ) {
     );
     $existing = \pterotype\objects\get_object_by_url( $permalink );
     if ( $existing ) {
-        $object['id'] = $existing->activitypub_id;
+        $object['id'] = $existing['id'];
     }
     return $object;
 }
