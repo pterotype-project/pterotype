@@ -110,6 +110,7 @@ function get_commenter_actor( $row ) {
             ),
             'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
+        'manuallyApprovesFollowers' => false,
     );
     if ( ! empty( $row->name ) ) {
         $actor['name'] = $row->name;
@@ -168,6 +169,7 @@ function get_blog_actor() {
             ),
             'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
+        'manuallyApprovesFollowers' => false,
     );
     $icon = \pterotype\settings\get_blog_icon_value();
     if ( $icon && ! empty( $icon ) ) {
@@ -213,6 +215,7 @@ function get_user_actor( $user ) {
             ),
             'publicKeyPem' => \pterotype\pgp\get_public_key( $actor_id ),
         ),
+        'manuallyApprovesFollowers' => false,
     );
     return $actor;
 }
