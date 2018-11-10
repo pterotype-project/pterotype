@@ -186,7 +186,9 @@ function traverse_reply_chain_helper( $object, $depth, $acc ) {
 }
 
 function get_avatar_filter( $avatar, $comment, $size, $default, $alt ) {
-    if ( ! is_object( $comment ) || ! isset( $comment->comment_ID ) ) {
+    if ( ! is_object( $comment )
+         || ! isset( $comment->comment_ID )
+         || $comment->user_id !== '0' ) {
         return $avatar;
     }
     $comment_id = $comment->comment_ID;
@@ -195,10 +197,10 @@ function get_avatar_filter( $avatar, $comment, $size, $default, $alt ) {
         return $avatar;
     }
     $object = \pterotype\objects\get_object( $object_id );
-    if ( ! $object || is_wp_error( $object ) || ! array_key_exists( 'actor', $object ) ) {
+    if ( ! $object || is_wp_error( $object ) || ! array_key_exists( 'attributedTo', $object ) ) {
         return $avatar;
     }
-    $actor = \pterotype\util\dereference_object( $object['actor'] );
+    $actor = \pterotype\util\dereference_object( $object['attributedTo'] );
     if ( ! $actor || is_wp_error( $actor ) || ! array_key_exists( 'icon', $actor ) ) {
         return $avatar;
     }
