@@ -98,4 +98,6 @@ add_action( 'admin_menu', function() {
     \pterotype\settings\register_settings_sections();
     \pterotype\settings\register_settings_fields();
 } );
+
+add_filter( 'get_avatar', '\pterotype\comments\get_avatar_filter', 10, 5 );
 ?>

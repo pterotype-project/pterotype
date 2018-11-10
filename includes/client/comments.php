@@ -184,4 +184,33 @@ function traverse_reply_chain_helper( $object, $depth, $acc ) {
         $parent, $depth + 1, array_values( array_unique( array_merge( $acc, $recipients ) ) )
     );
 }
+
+function get_avatar_filter( $avatar, $comment, $size, $default, $alt ) {
+    if ( ! is_object( $comment ) || ! isset( $comment->comment_ID ) ) {
+        return $avatar;
+    }
+    $comment_id = $comment->comment_ID;
+    $object_id = \pterotype\commentlinks\get_object_id( $comment_id );
+    if ( ! $object_id ) {
+        return $avatar;
+    }
+    $object = \pterotype\objects\get_object( $object_id );
+    if ( ! $object || is_wp_error( $object ) || ! array_key_exists( 'actor', $object ) ) {
+        return $avatar;
+    }
+    $actor = \pterotype\util\dereference_object( $object['actor'] );
+    if ( ! $actor || is_wp_error( $actor ) || ! array_key_exists( 'icon', $actor ) ) {
+        return $avatar;
+    }
+    $icon = $actor['icon'];
+    if ( ! $icon || ! is_array( $icon ) || ! array_key_exists( 'url', $icon ) ) {
+        return $avatar;
+    }
+    $src = $icon['url'];
+    return "<img alt='{$alt}'
+                src='{$src}'
+                class='avatar avatar-{$size}'
+                height='{$size}'
+                width='{$size}' />";
+}
 ?>
