@@ -14,6 +14,10 @@ require_once plugin_dir_path( __FILE__ ) . 'pgp.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/admin.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/settings.php';
 
+if ( ! function_exists( 'opengraph_metadata' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . 'lib/opengraph.php';
+}
+
 add_action( 'rest_api_init', function() {
     \pterotype\api\register_routes();
 } );
