@@ -85,46 +85,26 @@ function upsert_object( $object ) {
     if ( array_key_exists( 'url', $object ) ) {
         $object_url = $object['url'];
     }
-    $row = $wpdb->get_row( $wpdb->prepare(
-        "SELECT * FROM {$wpdb->prefix}pterotype_objects WHERE activitypub_id = %s",
-        $object['id']
+    $res = $wpdb->query( $wpdb->prepare(
+        "
+        INSERT INTO {$wpdb->prefix}pterotype_objects (activitypub_id, type, object, url)
+            VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE
+                id=LAST_INSERT_ID(id),
+                activitypub_id=VALUES(activitypub_id)
+                type=VALUES(type),
+                object=VALUES(object),
+                url=VALUES(url);
+        ",
+        $object['id'], $object['type'], wp_json_encode( $object ), $object_url
     ) );
-    $res = true;
-    if ( $row === null ) {
-        $res = $wpdb->insert(
-            $wpdb->prefix . 'pterotype_objects',
-            array(
-                'activitypub_id' => $object['id'],
-                'type' => $object['type'],
-                'object' => wp_json_encode( $object ),
-                'url' => $object_url
-            ),
-            '%s'
-        );
-        $row = new \stdClass();
-    } else {
-        $res = $wpdb->update(
-            $wpdb->prefix . 'pterotype_objects',
-            array(
-                'activitypub_id' => $object['id'],
-                'type' => $object['type'],
-                'object' => wp_json_encode( $object ),
-                'url' => $object_url
-            ),
-            array( 'id' => $row->id ),
-            '%s',
-            '%d'
-        );
-        $id = $row->id;
-        $row = new \stdClass();
-        $row->id = $id;
-    }
     if ( $res === false ) {
         return new \WP_Error(
             'db_error', __( 'Failed to upsert object row', 'pterotype' )
         );
     }
+    $row = new \stdClass();
     $row->object = $object;
+    $row->id = $wpdb->insert_id;
     return $row;
 }
 
