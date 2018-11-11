@@ -28,6 +28,14 @@ function handle_activity( $actor_slug, $activity ) {
     // A good strategy would just be to make sure all activities are idempotent, e.g.
     // don't create multiple Accepts of the same Follow
     // TODO verify the authenticity of the activity
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
+    if ( ! $actor_id ) {
+        return new \WP_Error(
+            'not_found',
+            __( "Actor $actor_slug not found", 'pterotype' ),
+            array( 'status' => 404 )
+        );
+    }
     $activity = \pterotype\util\dereference_object( $activity );
     if ( !array_key_exists( 'type', $activity ) ) {
         return new \WP_Error(
@@ -37,7 +45,7 @@ function handle_activity( $actor_slug, $activity ) {
         );
     }
     forward_activity( $actor_slug, $activity );
-    $persisted = persist_activity( $actor_slug, $activity );
+    $persisted = persist_activity( $actor_id, $activity );
     if ( is_wp_error( $persisted ) ) {
         return $persisted;
     }
@@ -125,7 +133,7 @@ function references_local_object( $object, $depth ) {
     return false;
 }
 
-function persist_activity( $actor_slug, $activity ) {
+function persist_activity( $actor_id, $activity ) {
     global $wpdb;
     $row = \pterotype\objects\upsert_object( $activity );
     if ( is_wp_error( $row ) ) {
@@ -139,7 +147,6 @@ function persist_activity( $actor_slug, $activity ) {
             __( 'Error retrieving activity id', 'pterotype' )
         );
     }
-    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     $seen_before = $wpdb->get_row( $wpdb->prepare(
         "SELECT * FROM {$wpdb->prefix}pterotype_inbox 
             WHERE actor_id = %d AND object_id = %d",

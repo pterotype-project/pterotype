@@ -24,6 +24,14 @@ require_once plugin_dir_path( __FILE__ ) . 'activities/undo.php';
 require_once plugin_dir_path( __FILE__ ) . '../util.php';
 
 function handle_activity( $actor_slug, $activity ) {
+    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
+    if ( ! $actor_id ) {
+        return new \WP_Error(
+            'not_found',
+            __( "Actor $actor_slug not found", 'pterotype' ),
+            array( 'status' => 404 )
+        );
+    }
     $activity = \pterotype\util\dereference_object( $activity );
     if ( is_wp_error( $activity ) ) {
         return $activity;
@@ -36,7 +44,7 @@ function handle_activity( $actor_slug, $activity ) {
         );
     }
     // Don't overwrite the activity to prevent compacting from deleting data
-    $persisted = persist_activity( $actor_slug, $activity );
+    $persisted = persist_activity( $actor_id, $activity );
     if ( is_wp_error( $persisted ) ) {
         return $persisted;
     }
@@ -164,12 +172,11 @@ function deliver_activity( $actor_slug, $activity ) {
     return $activity;
 }
 
-function persist_activity( $actor_slug, $activity ) {
+function persist_activity( $actor_id, $activity ) {
     global $wpdb;
     $activity = \pterotype\objects\strip_private_fields( $activity );
     $activity = \pterotype\objects\create_local_object( $activity );
     $activity_id = $wpdb->insert_id;
-    $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     $res = $wpdb->insert( $wpdb->prefix . 'pterotype_outbox', array(
         'actor_id' => $actor_id,
         'object_id' => $activity_id,
