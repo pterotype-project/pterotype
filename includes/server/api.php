@@ -135,7 +135,10 @@ function query_vars( $query_vars ) {
 function handle_non_api_requests() {
     global $wp;
     global $wp_query;
-    $accept = $_SERVER['HTTP_ACCEPT'];
+    $accept = '';
+    if ( array_key_exists( 'HTTP_ACCEPT', $_SERVER ) ) {
+        $accept = $_SERVER['HTTP_ACCEPT'];
+    }
     if ( strpos( $accept, 'application/ld+json' ) !== false ) {
         $current_url = home_url( add_query_arg( $_GET, \trailingslashit( $wp->request ) ) );
         $object = \pterotype\objects\get_object_by_url( $current_url );
