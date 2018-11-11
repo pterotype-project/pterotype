@@ -90,7 +90,7 @@ function upsert_object( $object ) {
         INSERT INTO {$wpdb->prefix}pterotype_objects (activitypub_id, type, object, url)
             VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE
                 id=LAST_INSERT_ID(id),
-                activitypub_id=VALUES(activitypub_id)
+                activitypub_id=VALUES(activitypub_id),
                 type=VALUES(type),
                 object=VALUES(object),
                 url=VALUES(url);
