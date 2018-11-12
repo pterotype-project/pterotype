@@ -5,7 +5,7 @@ Requires at least: 4.9.8
 Requires PHP: 7.2.11
 License: MIT
 License URI: https://github.com/jdormit/pterotype/blob/master/LICENSE
-Stable tag: 1.2.9
+Stable tag: 1.2.10
 Tested up to: 4.9.8
 
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse.
@@ -14,6 +14,9 @@ Pterotype expands your audience by giving your blog an ActivityPub stream, makin
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse. Users of Mastodon, Pleroma, and other Fediverse services will be able to follow and share your posts from the platform of their choice.
 
 == Changelog ==
+### 1.2.10
+- Fix a PHP error where $wpdb->prepare was being called with only one argument
+
 ### 1.2.9
 - Add opengraph metadata to site if it doesn't already have it
 - Handle invalid actor slugs
