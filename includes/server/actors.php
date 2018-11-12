@@ -15,9 +15,9 @@ function get_actor( $id ) {
 
 function get_all_actors() {
     global $wpdb;
-    $results = $wpdb->get_results( $wpdb->prepare(
+    $results = $wpdb->get_results(
         "SELECT * FROM {$wpdb->prefix}pterotype_actors"
-    ) );
+    );
     if ( ! $results || empty( $results ) ) {
         return array();
     }

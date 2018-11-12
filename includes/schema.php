@@ -311,10 +311,10 @@ function purge_all_data() {
         $server->dispatch( $request );
     }
     $pfx = $wpdb->prefix;
-    $wpdb->query( $wpdb->prepare(
+    $wpdb->query(
         "DROP INDEX OBJECTS_ACTIVITYPUB_ID_INDEX ON {$pfx}pterotype_objects"
-    ) );
-    $wpdb->query( $wpdb->prepare(
+    );
+    $wpdb->query(
         "
         DROP TABLE {$pfx}pterotype_comments, {$pfx}pterotype_keys,
             {$pfx}pterotype_blocks, {$pfx}pterotype_shares,
@@ -323,7 +323,7 @@ function purge_all_data() {
             {$pfx}pterotype_outbox, {$pfx}pterotype_inbox,
             {$pfx}pterotype_actors, {$pfx}pterotype_objects
         "
-    ) );
+    );
     \delete_option( 'pterotype_previously_migrated_version' );
 }
 ?>
