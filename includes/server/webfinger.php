@@ -41,15 +41,7 @@ function handle( $query ) {
     }
     $account_name = $matches[1];
     $account_host = $matches[2];
-    $parsed = parse_url( site_url() );
-    $site_root = $parsed['host'];
-    if ( array_key_exists( 'port', $parsed ) && ! empty( $parsed['port'] ) ) {
-        $site_root = $site_root . ':' . $parsed['port'];
-    }
-    if ( array_key_exists( 'path', $parsed ) && ! empty( $parsed['path'] ) ) {
-        $site_root = $site_root . $parsed['path'];
-    }
-    if ( $account_host !== $site_root ) {
+    if ( $account_host !== $_SERVER['HTTP_HOST'] ) {
         header( 'HTTP/1.1 404 Not Found', true, 404 );
         echo __( 'Resource not found', 'pterotype' );
         exit;
