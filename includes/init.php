@@ -36,7 +36,7 @@ add_action( 'user_register', function( $user_id ) {
 add_action( 'pterotype_init', function() {
     \pterotype\schema\run_migrations();
     \pterotype\actors\initialize_actors();
-    if ( ! empty( ob_get_contents() ) ) {
+    if ( ob_get_contents() ) {
         \error_log( ob_get_contents() );
     }
 } );
