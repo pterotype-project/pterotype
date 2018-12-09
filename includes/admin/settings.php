@@ -113,7 +113,8 @@ function get_blog_icon_value() {
         return $icon;
     }
     if ( \has_custom_logo() ) {
-        return \wp_get_attachment_image_src( \get_theme_mod( 'custom_logo' ) )[0];
+        $theme_mod = \wp_get_attachment_image_src( \get_theme_mod( 'custom_logo' ) );
+        return $theme_mod[0];
     }
     return null;
 }

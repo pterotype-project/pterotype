@@ -70,8 +70,10 @@ function delete_linked_comment( $object ) {
 
 function check_authorization( $activity ) {
     $object = $activity['object'];
-    $activity_origin = parse_url( $activity['id'] )['host'];
-    $object_origin = parse_url( $object['id'] )['host'];
+    $parsed_activity_id = parse_url( $activity['id'] );
+    $activity_origin = $parsed_activity_id['host'];
+    $parsed_object_id = parse_url( $object['id'] );
+    $object_origin = $parsed_object_id['host'];
     if ( ( !$activity_origin || !$object_origin ) || $activity_origin !== $object_origin ) {
         return new \WP_Error(
             'unauthorized',
