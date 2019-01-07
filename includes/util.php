@@ -82,7 +82,8 @@ function retrieve_local_object( $url ) {
 function is_local_url( $url ) {
     $parsed = parse_url( $url );
     if ( $parsed ) {
-        $site_host = parse_url( get_site_url() )['host'];
+        $parsed_site_url = parse_url( get_site_url() );
+        $site_host = $parsed_site_url['host'];
         return $parsed['host'] === $site_host;
     }
     return false;

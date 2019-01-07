@@ -9,13 +9,18 @@ require_once plugin_dir_path( __FILE__ ) . 'following.php';
 require_once plugin_dir_path( __FILE__ ) . 'likes.php';
 require_once plugin_dir_path( __FILE__ ) . 'shares.php';
 
+function get_url_param( $request, $param ) {
+    $params = $request->get_url_params();
+    return $params[$param];
+}
+
 function get_actor( $request ) {
-    $actor = $request->get_url_params()['actor'];
+    $actor = get_url_param($request, 'actor');
     return \pterotype\actors\get_actor_by_slug( $actor );
 }
 
 function post_to_outbox( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     $body = $request->get_body();
     $activity = $body;
     if ( is_string( $body ) ) {
@@ -25,12 +30,12 @@ function post_to_outbox( $request ) {
 }
 
 function get_outbox( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     return \pterotype\outbox\get_outbox( $actor_slug );
 }
 
 function post_to_inbox( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     $body = $request->get_body();
     $activity = $body;
     if ( is_string( $body ) ) {
@@ -40,37 +45,37 @@ function post_to_inbox( $request ) {
 }
 
 function get_inbox( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     return \pterotype\inbox\get_inbox( $actor_slug );
 }
 
 function get_object( $request ) {
-    $id = $request->get_url_params()['id'];
+    $id = get_url_param($request, 'id');
     return \pterotype\objects\get_object( $id );
 }
 
 function get_following( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     return \pterotype\following\get_following_collection( $actor_slug );
 }
 
 function get_followers( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     return \pterotype\followers\get_followers_collection( $actor_slug );
 }
 
 function get_likes( $request ) {
-    $object_id = $request->get_url_params()['object'];
+    $object_id = get_url_param($request, 'object');
     return \pterotype\likes\get_likes_collection( $object_id );
 }
 
 function get_shares( $request ) {
-    $object_id = $request->get_url_params()['object'];
+    $object_id = get_url_param($request, 'object');
     return \pterotype\shares\get_shares_collection( $object_id );
 }
 
 function user_can_post_to_outbox( $request ) {
-    $actor_slug = $request->get_url_params()['actor'];
+    $actor_slug = get_url_param($request, 'actor');
     $actor_row = \pterotype\actors\get_actor_row_by_slug( $actor_slug );
     if ( ! $actor_row || is_wp_error( $actor_row ) ) {
         return false;
