@@ -91,6 +91,11 @@ function forward_activity( $actor_slug, $activity ) {
     if ( $seen_before ) {
         return;
     }
+    // Don't forward activities whose objects are actors
+    if ( array_key_exists( 'object', $activity ) &&
+         array_key_exists( 'publicKey', $activity['object'] ) ) {
+        return;
+    }
     if ( !references_local_object( $activity, 0 ) ) {
         return;
     }
