@@ -9,7 +9,7 @@ require_once plugin_dir_path( __FILE__ ) . '../util.php';
 // and deliver to their audience as well. Recurse through these
 // objects up to some limit
 
-function deliver_activity( $actor_slug, $activity ) {
+function deliver_activity( $actor_slug, $activity, $deliver_locally = true ) {
     $actor_id = \pterotype\actors\get_actor_id( $actor_slug );
     $activity = \pterotype\util\dereference_object( $activity );
     $recipients = array();
@@ -29,7 +29,7 @@ function deliver_activity( $actor_slug, $activity ) {
         $activity['object'] = $object;
     }
     $activity = \pterotype\objects\strip_private_fields( $activity );
-    post_activity_to_inboxes( $actor_id, $activity, $recipients );
+    post_activity_to_inboxes( $actor_id, $activity, $recipients, $deliver_locally );
 }
 
 function remove_actor_inbox_from_recipients( $actor, $recipients ) {
@@ -124,7 +124,7 @@ function get_recipient_urls( $object, $depth, $acc ) {
     }
 }
 
-function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
+function post_activity_to_inboxes( $actor_id, $activity, $recipients, $deliver_locally = true ) {
     $activity = \pterotype\util\decompact_object( $activity, array( 'actor', 'object' ) );
     foreach ( $recipients as $inbox ) {
         if ( $inbox === 'https://www.w3.org/ns/activitystreams#Public' ) {
@@ -132,6 +132,9 @@ function post_activity_to_inboxes( $actor_id, $activity, $recipients ) {
         }
         $date_str = get_now_date();
         if ( \pterotype\util\is_local_url( $inbox ) ) {
+            if ( ! $deliver_locally ) {
+                return;
+            }
             $request = \WP_REST_Request::from_url( $inbox );
             $request->set_method('POST');
             $request->set_body( $activity );
