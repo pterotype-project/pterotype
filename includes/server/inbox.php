@@ -9,6 +9,8 @@ When an Activity is received (i.e. POSTed) to an Actor's inbox, the server must:
 */
 namespace pterotype\inbox;
 
+use function pterotype\util\dereference_object;
+
 require_once plugin_dir_path( __FILE__ ) . 'objects.php';
 require_once plugin_dir_path( __FILE__ ) . 'deliver.php';
 require_once plugin_dir_path( __FILE__ ) . 'collections.php';
@@ -93,7 +95,7 @@ function forward_activity( $actor_slug, $activity ) {
     }
     // Don't forward activities whose objects are actors
     if ( array_key_exists( 'object', $activity ) &&
-         array_key_exists( 'publicKey', $activity['object'] ) ) {
+         is_actor( $activity['object'] ) ) {
         return;
     }
     if ( !references_local_object( $activity, 0 ) ) {
@@ -107,6 +109,14 @@ function forward_activity( $actor_slug, $activity ) {
         return;
     }
     \pterotype\deliver\deliver_activity( $actor_slug, $activity, false );
+}
+
+function is_actor( $object ) {
+    $object = dereference_object( $object );
+    if ( ! $object || is_wp_error( $object) ) {
+        return false;
+    }
+    return array_key_exists( 'publicKey', $object );
 }
 
 function references_local_object( $object, $depth ) {
