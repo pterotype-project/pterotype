@@ -5,7 +5,7 @@ Requires at least: 4.9.8
 Requires PHP: 5.6.0
 License: MIT
 License URI: https://github.com/jdormit/pterotype/blob/master/LICENSE
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 Tested up to: 5.1.1
 
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse.
@@ -14,6 +14,9 @@ Pterotype expands your audience by giving your blog an ActivityPub stream, makin
 Pterotype expands your audience by giving your blog an ActivityPub stream, making it a part of the Fediverse. Users of Mastodon, Pleroma, and other Fediverse services will be able to follow and share your posts from the platform of their choice.
 
 == Changelog ==
+### 1.4.1
+- This is a no-op version bump because I screwed up updating the Wordpress plugin repository version info
+
 ### 1.4.0
 - Compact the actor field before delivering activities
 - Fix an issue where the post global wasn't properly set when trying to get the post excerpt
