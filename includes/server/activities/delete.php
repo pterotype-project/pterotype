@@ -92,7 +92,7 @@ function make_delete( $actor_slug, $object ) {
     return array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Delete',
-        'actor' => $actor,
+        'actor' => $actor['id'],
         'object' => $object
     );
 }

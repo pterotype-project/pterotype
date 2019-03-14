@@ -102,7 +102,7 @@ function make_create( $actor_slug, $object ) {
     $activity = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Create',
-        'actor' => $actor,
+        'actor' => $actor['id'],
         'object' => $object
     );
     return $activity;

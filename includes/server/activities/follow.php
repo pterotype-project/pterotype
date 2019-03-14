@@ -79,10 +79,11 @@ function make_accept( $actor_slug, $follow ) {
             array( 'status' => 400 )
         );
     }
+    $actor = \pterotype\actors\get_actor_by_slug( $actor_slug );
     $accept = array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Accept',
-        'actor' => \pterotype\actors\get_actor_by_slug( $actor_slug ),
+        'actor' => $actor['id'],
         'object' => $follow,
         'to' => $follow['actor'],
     );

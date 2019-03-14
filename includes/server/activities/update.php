@@ -107,7 +107,7 @@ function make_update( $actor_slug, $object ) {
     return array(
         '@context' => array( 'https://www.w3.org/ns/activitystreams' ),
         'type' => 'Update',
-        'actor' => $actor,
+        'actor' => $actor['id'],
         'object' => $object
     );
 }

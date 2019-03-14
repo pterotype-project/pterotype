@@ -125,7 +125,12 @@ function get_recipient_urls( $object, $depth, $acc ) {
 }
 
 function post_activity_to_inboxes( $actor_id, $activity, $recipients, $deliver_locally = true ) {
-    $activity = \pterotype\util\decompact_object( $activity, array( 'actor', 'object' ) );
+    $activity = \pterotype\util\decompact_object( $activity, array( 'object' ) );
+    if ( array_key_exists( 'actor', $activity ) &&
+        is_array( $activity['actor'] ) &&
+        array_key_exists( 'id', $activity['actor'] ) ) {
+        $activity['actor'] = $activity['actor']['id'];
+    }
     foreach ( $recipients as $inbox ) {
         if ( $inbox === 'https://www.w3.org/ns/activitystreams#Public' ) {
             continue;

@@ -48,14 +48,11 @@ function post_to_object( $post ) {
         return;
     }
     setup_postdata( $post );
+    $GLOBALS['post'] = $post;
     $permalink = get_permalink( $post );
     $summary = null;
     if ( $post->post_content ) {
-        $summary = \html_entity_decode(
-            get_the_excerpt( $post ),
-            ENT_QUOTES,
-            'UTF-8'
-        );
+        $summary = apply_filters( 'get_the_excerpt', get_post_field( 'post_excerpt', $post->ID ) );
     }
     $matches = array();
     if ( preg_match( '/(.+)__trashed\/$/', $permalink, $matches ) ) {
