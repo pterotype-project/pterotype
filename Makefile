@@ -1,5 +1,5 @@
 dist/pterotype.zip: vendor clean_zip
-	mkdir -p dist && zip -r dist/pterotype.zip . -x \.git/\* dist/\* log/\* svn/\*
+	mkdir -p dist && zip -r dist/pterotype.zip . -x \.git/\* dist/\* log/\* svn/\* .idea/\* .ac-php-conf.json
 
 clean_zip:
 	rm -f dist/pterotype.zip

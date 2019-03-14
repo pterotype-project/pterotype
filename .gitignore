@@ -2,3 +2,5 @@
 /log
 dist/
 svn/
+/.idea
+/.ac-php-conf.json
