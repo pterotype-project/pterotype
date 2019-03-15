@@ -157,6 +157,9 @@ function get_object( $id ) {
             'not_found', __( 'Object not found', 'pterotype' ), array( 'status' => 404 )
         );
     }
+    if ( is_array($object_json) && array_key_exists( 'object', $object_json ) ) {
+        $object_json = \pterotype\util\decompact_object( $object_json, array( 'object' ) );
+    }
     return json_decode( $object_json, true );
 }
 
